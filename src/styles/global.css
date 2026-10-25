@@ -1,0 +1,241 @@
+/* ==========================================================================
+   CareerLaunch - Global Editorial Stylesheet
+   ========================================================================== */
+
+@import './reset.css';
+@import './variables.css';
+@import './navbar.css';
+@import './hero.css';
+@import './cinematic-story.css';
+@import './interview-prep.css';
+@import './opportunities.css';
+@import './how-it-works.css';
+@import './closing-cta.css';
+@import './footer.css';
+@import './auth.css';
+
+/* Root & Body Elements */
+html {
+  scroll-behavior: smooth;
+  background-color: var(--color-ivory);
+  color: var(--color-charcoal);
+  color-scheme: light;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-ivory);
+  color: var(--color-charcoal);
+  line-height: var(--leading-normal);
+  overflow-x: hidden;
+  position: relative;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Editorial Paper Grain Overlay (Subtle tactile texture) */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+/* Custom Selection in Editorial Terracotta */
+::selection {
+  background-color: var(--color-terracotta);
+  color: var(--color-white);
+}
+
+/* Typography Hierarchy */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--color-charcoal);
+  line-height: var(--leading-tight);
+}
+
+.font-serif {
+  font-family: var(--font-serif);
+}
+
+.font-sans {
+  font-family: var(--font-sans);
+}
+
+/* Editorial Section Headers */
+.section-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: var(--font-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-terracotta);
+  margin-bottom: var(--space-4);
+}
+
+.section-eyebrow--sage {
+  color: var(--color-sage);
+}
+
+.section-eyebrow__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background-color: currentColor;
+}
+
+.section-title {
+  font-family: var(--font-serif);
+  font-size: clamp(2.25rem, 4vw, 3.5rem);
+  font-weight: var(--font-regular);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--color-charcoal);
+  margin-bottom: var(--space-4);
+}
+
+.section-title--light {
+  color: var(--color-text-light);
+}
+
+.section-desc {
+  font-size: clamp(1rem, 1.2vw, 1.15rem);
+  line-height: var(--leading-relaxed);
+  color: var(--color-charcoal-muted);
+  max-width: 36rem;
+}
+
+.section-desc--light {
+  color: var(--color-text-muted-light);
+}
+
+/* Layout Utilities */
+.container {
+  width: 100%;
+  max-width: var(--container-max-width);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--space-6);
+  padding-right: var(--space-6);
+}
+
+.container-narrow {
+  width: 100%;
+  max-width: var(--container-narrow-width);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--space-6);
+  padding-right: var(--space-6);
+}
+
+/* Reusable Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  padding: 0.75rem 1.45rem;
+  border-radius: var(--radius-full);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.btn-terracotta {
+  background-color: var(--color-terracotta);
+  color: var(--color-white);
+  border: 1px solid var(--color-terracotta);
+  box-shadow: var(--shadow-terracotta);
+}
+
+.btn-terracotta:hover {
+  background-color: var(--color-terracotta-hover);
+  border-color: var(--color-terracotta-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px -4px rgba(198, 106, 74, 0.45);
+}
+
+.btn-outline-dark {
+  background-color: transparent;
+  color: var(--color-charcoal);
+  border: 1px solid var(--color-charcoal);
+}
+
+.btn-outline-dark:hover {
+  background-color: rgba(41, 42, 39, 0.05);
+  transform: translateY(-2px);
+}
+
+.btn-outline-sand {
+  background-color: rgba(255, 255, 255, 0.6);
+  color: var(--color-charcoal);
+  border: 1px solid var(--color-sand-dark);
+}
+
+.btn-outline-sand:hover {
+  background-color: var(--color-white);
+  border-color: var(--color-charcoal);
+  transform: translateY(-2px);
+}
+
+.btn-outline-light {
+  background-color: transparent;
+  color: var(--color-text-light);
+  border: 1px solid rgba(229, 222, 210, 0.3);
+}
+
+.btn-outline-light:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  border-color: var(--color-text-light);
+  transform: translateY(-2px);
+}
+
+.btn-forest {
+  background-color: var(--color-forest);
+  color: var(--color-ivory);
+  border: 1px solid var(--color-forest);
+}
+
+.btn-forest:hover {
+  background-color: var(--color-forest-dark);
+  transform: translateY(-2px);
+}
+
+/* Reduced Motion Respect */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Custom Scrollbar in Sand/Terracotta */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-ivory);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-sand-dark);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-sage);
+}

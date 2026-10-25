@@ -1,0 +1,278 @@
+/* ==========================================================================
+   CareerLaunch - Section 5: Opportunities Discovery Styles
+   Warm Sand & Ivory Contrast Layout
+   ========================================================================== */
+
+.opportunities-section {
+  position: relative;
+  background-color: var(--color-sand-light);
+  padding: var(--space-24) var(--space-6);
+  border-top: 1px solid var(--color-sand-dark);
+}
+
+.opp-header-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: var(--space-12);
+  gap: var(--space-8);
+  flex-wrap: wrap;
+}
+
+.opp-header-info {
+  max-width: 42rem;
+}
+
+/* Category Filter Tabs */
+.opp-filter-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: var(--space-8);
+  flex-wrap: wrap;
+}
+
+.opp-filter-btn {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-white);
+  border: 1px solid var(--color-sand-dark);
+  color: var(--color-charcoal-muted);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.opp-filter-btn:hover {
+  background-color: var(--color-ivory);
+  color: var(--color-charcoal);
+  border-color: var(--color-charcoal);
+}
+
+.opp-filter-btn--active {
+  background-color: var(--color-forest);
+  color: var(--color-ivory);
+  border-color: var(--color-forest);
+}
+
+.opp-filter-btn--active:hover {
+  background-color: var(--color-forest-dark);
+  color: var(--color-ivory);
+}
+
+/* Opportunities Grid */
+.opp-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-6);
+  margin-bottom: var(--space-12);
+}
+
+/* Single Opportunity Card */
+.opp-card {
+  background-color: var(--color-white);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-sand-dark);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: var(--shadow-card);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+}
+
+.opp-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-float);
+  border-color: var(--color-charcoal);
+}
+
+.opp-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.opp-card__company {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.opp-card__logo {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background-color: var(--color-forest);
+  color: var(--color-ivory);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: var(--font-bold);
+  font-size: 0.85rem;
+}
+
+.opp-card__company-name {
+  font-size: var(--text-xs);
+  font-weight: var(--font-bold);
+  color: var(--color-charcoal);
+}
+
+.opp-card__type {
+  font-size: 0.68rem;
+  color: var(--color-charcoal-muted);
+}
+
+.opp-card__save-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-charcoal-muted);
+  border: 1px solid var(--color-sand);
+  transition: all var(--transition-fast);
+}
+
+.opp-card__save-btn:hover {
+  color: var(--color-terracotta);
+  border-color: var(--color-terracotta);
+}
+
+.opp-card__save-btn--saved {
+  color: var(--color-terracotta);
+  background-color: var(--color-terracotta-light);
+  border-color: var(--color-terracotta);
+}
+
+.opp-card__title {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  font-weight: var(--font-semibold);
+  color: var(--color-charcoal);
+  margin-bottom: 8px;
+  line-height: 1.25;
+}
+
+.opp-card__meta-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.75rem;
+  color: var(--color-charcoal-muted);
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.opp-card__meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Match & Tags */
+.opp-card__match-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background-color: var(--color-ivory);
+  border-radius: var(--radius-md);
+  margin-bottom: 16px;
+  border: 1px solid var(--color-sand);
+}
+
+.opp-card__match-label {
+  font-size: 0.72rem;
+  font-weight: var(--font-medium);
+  color: var(--color-charcoal);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.opp-card__match-badge {
+  font-size: 0.72rem;
+  font-weight: var(--font-bold);
+  color: var(--color-sage-dark);
+  background-color: var(--color-sage-light);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+}
+
+.opp-card__tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.opp-card__tag {
+  font-size: 0.68rem;
+  font-weight: var(--font-medium);
+  background-color: var(--color-sand-light);
+  color: var(--color-charcoal);
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+}
+
+/* Card Bottom Action */
+.opp-card__action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 14px;
+  border-top: 1px solid var(--color-sand);
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  color: var(--color-terracotta);
+  text-decoration: none;
+}
+
+.opp-card__action:hover {
+  text-decoration: underline;
+}
+
+/* Bottom CTA Strip */
+.opp-cta-strip {
+  background-color: var(--color-forest);
+  border-radius: var(--radius-2xl);
+  padding: 32px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+}
+
+.opp-cta-strip__text h3 {
+  font-family: var(--font-serif);
+  font-size: var(--text-2xl);
+  color: var(--color-ivory);
+  margin-bottom: 4px;
+}
+
+.opp-cta-strip__text p {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted-light);
+}
+
+@media (max-width: 1040px) {
+  .opp-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 680px) {
+  .opp-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .opp-cta-strip {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

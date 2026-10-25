@@ -1,0 +1,378 @@
+/* ==========================================================================
+   CareerLaunch - Section 3: Cinematic Scroll Storytelling Styles
+   Visual Style: Deep Forest (#24372F), Warm Ivory (#F6F2E9), Muted Terracotta (#C66A4A)
+   ========================================================================== */
+
+.cinematic-story-section {
+  position: relative;
+  background-color: var(--color-forest);
+  color: var(--color-ivory);
+  overflow: hidden;
+  padding: var(--space-20) 0;
+  min-height: 100vh;
+}
+
+/* Atmospheric forest lighting */
+.cinematic-glow {
+  position: absolute;
+  pointer-events: none;
+  border-radius: var(--radius-full);
+  filter: blur(100px);
+  opacity: 0.25;
+}
+
+.cinematic-glow--top {
+  top: -10%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 700px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(198, 106, 74, 0.4) 0%, rgba(135, 148, 119, 0.2) 50%, transparent 80%);
+}
+
+.cinematic-glow--bottom {
+  bottom: -15%;
+  right: 10%;
+  width: 600px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(135, 148, 119, 0.3) 0%, transparent 70%);
+}
+
+/* Subtle architectural grid lines */
+.cinematic-grid {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(229, 222, 210, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(229, 222, 210, 0.03) 1px, transparent 1px);
+  background-size: 80px 80px;
+  mask-image: radial-gradient(circle at 50% 50%, black 40%, transparent 80%);
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, black 40%, transparent 80%);
+  pointer-events: none;
+}
+
+/* Outer Pin Wrapper */
+.cinematic-pin-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4) var(--space-6);
+  z-index: 2;
+}
+
+/* Opening Headline */
+.cinematic-header {
+  text-align: center;
+  max-width: 48rem;
+  margin-bottom: var(--space-8);
+  transition: opacity var(--transition-normal), transform var(--transition-normal);
+}
+
+.cinematic-headline {
+  font-family: var(--font-serif);
+  font-size: clamp(2.2rem, 4.5vw, 3.8rem);
+  font-weight: var(--font-regular);
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+  color: var(--color-ivory);
+}
+
+.cinematic-headline__accent {
+  display: block;
+  font-style: italic;
+  color: #E2A089; /* Warm terracotta highlight */
+}
+
+/* Central Transformation Card */
+.cinematic-stage-card {
+  position: relative;
+  width: 100%;
+  max-width: 1080px;
+  background-color: var(--color-forest-card);
+  border: 1px solid rgba(229, 222, 210, 0.18);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-cinematic);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform var(--transition-smooth), box-shadow var(--transition-smooth);
+}
+
+/* Card Top Navigation & Progress */
+.stage-card-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 24px;
+  background-color: rgba(26, 40, 34, 0.65);
+  border-bottom: 1px solid rgba(229, 222, 210, 0.12);
+}
+
+.stage-counter {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  font-family: var(--font-serif);
+}
+
+.stage-counter__current {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-bold);
+  color: var(--color-terracotta);
+}
+
+.stage-counter__total {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted-light);
+  font-family: var(--font-sans);
+}
+
+/* Progress Segment Bars */
+.stage-progress-bars {
+  display: flex;
+  gap: 6px;
+  flex: 1;
+  max-width: 280px;
+  margin: 0 var(--space-6);
+}
+
+.stage-progress-bar {
+  height: 4px;
+  flex: 1;
+  background-color: rgba(229, 222, 210, 0.15);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  transition: background-color var(--transition-fast);
+}
+
+.stage-progress-bar--active {
+  background-color: var(--color-terracotta);
+}
+
+.stage-progress-bar--completed {
+  background-color: var(--color-sage);
+}
+
+/* Topbar Stage Name Badge */
+.stage-badge {
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-ivory);
+  background: rgba(229, 222, 210, 0.1);
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(229, 222, 210, 0.12);
+}
+
+/* Card Main Body Grid */
+.stage-card-body {
+  padding: 36px 40px;
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  gap: var(--space-10);
+  align-items: center;
+  min-height: 420px;
+}
+
+/* Left Narrative Info */
+.stage-narrative {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.stage-narrative__num {
+  font-family: var(--font-serif);
+  font-size: var(--text-sm);
+  color: var(--color-terracotta);
+  font-weight: var(--font-bold);
+  letter-spacing: 0.1em;
+}
+
+.stage-narrative__title {
+  font-family: var(--font-serif);
+  font-size: clamp(1.75rem, 2.5vw, 2.25rem);
+  font-weight: var(--font-regular);
+  line-height: 1.18;
+  color: var(--color-ivory);
+}
+
+.stage-narrative__desc {
+  font-size: var(--text-base);
+  line-height: var(--leading-relaxed);
+  color: var(--color-text-muted-light);
+}
+
+.stage-narrative__features {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: var(--space-2);
+}
+
+.stage-feature-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: var(--text-sm);
+  color: var(--color-ivory);
+}
+
+.stage-feature-item__icon {
+  color: var(--color-sage);
+  flex-shrink: 0;
+}
+
+/* Right Interactive Preview Box */
+.stage-preview-box {
+  background-color: var(--color-forest-dark);
+  border-radius: var(--radius-xl);
+  border: 1px solid rgba(229, 222, 210, 0.15);
+  padding: var(--space-6);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.stage-preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(229, 222, 210, 0.08);
+}
+
+.stage-preview-title {
+  font-size: var(--text-xs);
+  font-weight: var(--font-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-ivory);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stage-preview-tag {
+  font-size: 0.7rem;
+  background-color: rgba(135, 148, 119, 0.2);
+  color: #B8C7AD;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+}
+
+/* Stage Preview Content Variations */
+.stage-item-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background-color: rgba(255, 255, 255, 0.03);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(229, 222, 210, 0.06);
+  font-size: var(--text-sm);
+  color: var(--color-ivory);
+}
+
+.stage-item-row__left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.stage-item-row__badge {
+  font-size: 0.72rem;
+  font-weight: var(--font-semibold);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+}
+
+.badge-terracotta {
+  background-color: rgba(198, 106, 74, 0.2);
+  color: #E2A089;
+}
+
+.badge-sage {
+  background-color: rgba(135, 148, 119, 0.2);
+  color: #C0CEB5;
+}
+
+/* Bottom Interactive Stage Switcher */
+.stage-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  background-color: rgba(26, 40, 34, 0.5);
+  border-top: 1px solid rgba(229, 222, 210, 0.1);
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.stage-tabs {
+  display: flex;
+  gap: 8px;
+}
+
+.stage-tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 1px solid rgba(229, 222, 210, 0.15);
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
+  color: var(--color-text-muted-light);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.stage-tab-btn:hover {
+  background-color: rgba(229, 222, 210, 0.1);
+  color: var(--color-ivory);
+}
+
+.stage-tab-btn--active {
+  background-color: var(--color-terracotta);
+  border-color: var(--color-terracotta);
+  color: var(--color-white);
+}
+
+.stage-footer-cta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .cinematic-pin-wrapper {
+    height: auto;
+    min-height: 100vh;
+    padding: var(--space-8) var(--space-4);
+  }
+
+  .stage-card-body {
+    grid-template-columns: 1fr;
+    padding: 24px;
+    min-height: auto;
+  }
+
+  .stage-card-footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .stage-tabs {
+    flex-wrap: wrap;
+  }
+}

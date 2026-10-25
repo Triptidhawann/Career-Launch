@@ -1,0 +1,226 @@
+/* ==========================================================================
+   CareerLaunch - Section 6: How CareerLaunch Works Styles
+   ========================================================================== */
+
+.how-section {
+  position: relative;
+  background-color: var(--color-ivory);
+  padding: var(--space-24) var(--space-6);
+  border-top: 1px solid var(--color-sand);
+}
+
+.how-header {
+  text-align: center;
+  max-width: 44rem;
+  margin: 0 auto var(--space-16);
+}
+
+.how-header .section-eyebrow {
+  justify-content: center;
+}
+
+/* Horizontal Timeline Track */
+.how-timeline-container {
+  position: relative;
+  margin-bottom: var(--space-12);
+}
+
+.how-timeline-track {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-6);
+  position: relative;
+}
+
+/* Connecting Line across steps on desktop */
+.how-timeline-track::before {
+  content: '';
+  position: absolute;
+  top: 36px;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--color-sand-dark) 0%, var(--color-terracotta) 50%, var(--color-sage) 100%);
+  z-index: 0;
+}
+
+/* Single Step Card */
+.how-step-card {
+  position: relative;
+  background-color: var(--color-white);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-sand);
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  box-shadow: var(--shadow-subtle);
+  cursor: pointer;
+  z-index: 1;
+  transition: transform var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.how-step-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--color-terracotta);
+  box-shadow: var(--shadow-card);
+}
+
+.how-step-card--active {
+  border-color: var(--color-terracotta);
+  box-shadow: 0 0 0 2px var(--color-terracotta), var(--shadow-float);
+  background-color: #FDFAF6;
+}
+
+.how-step-num-bubble {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-ivory);
+  border: 2px solid var(--color-sand-dark);
+  color: var(--color-forest);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-serif);
+  font-size: var(--text-lg);
+  font-weight: var(--font-bold);
+  margin-bottom: var(--space-2);
+  transition: all var(--transition-fast);
+}
+
+.how-step-card:hover .how-step-num-bubble,
+.how-step-card--active .how-step-num-bubble {
+  background-color: var(--color-terracotta);
+  border-color: var(--color-terracotta);
+  color: var(--color-white);
+  box-shadow: 0 4px 12px rgba(198, 106, 74, 0.3);
+}
+
+.how-step-title {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  font-weight: var(--font-semibold);
+  color: var(--color-charcoal);
+  line-height: 1.2;
+}
+
+.how-step-desc {
+  font-size: var(--text-xs);
+  line-height: var(--leading-relaxed);
+  color: var(--color-charcoal-muted);
+}
+
+.how-step-output {
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-sand-light);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  font-weight: var(--font-medium);
+  color: var(--color-sage-dark);
+}
+
+/* Deep Dive Preview Panel */
+.how-preview-panel {
+  background-color: var(--color-white);
+  border-radius: var(--radius-2xl);
+  border: 1px solid var(--color-sand);
+  padding: 32px 36px;
+  box-shadow: var(--shadow-card);
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: var(--space-10);
+  align-items: center;
+}
+
+.how-preview-info h3 {
+  font-family: var(--font-serif);
+  font-size: var(--text-2xl);
+  color: var(--color-charcoal);
+  margin-bottom: 8px;
+}
+
+.how-preview-info p {
+  font-size: var(--text-sm);
+  color: var(--color-charcoal-muted);
+  line-height: var(--leading-relaxed);
+  margin-bottom: var(--space-4);
+}
+
+.how-preview-meta-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.how-preview-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--text-xs);
+  color: var(--color-charcoal);
+  font-weight: var(--font-medium);
+}
+
+.how-preview-meta-item svg {
+  color: var(--color-terracotta);
+}
+
+.how-preview-visual {
+  background-color: var(--color-ivory);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-sand);
+  padding: 20px;
+}
+
+.how-pipeline-flow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 8px 0;
+}
+
+.how-flow-node {
+  background-color: var(--color-white);
+  border: 1px solid var(--color-sand);
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  font-size: 0.72rem;
+  font-weight: var(--font-semibold);
+  color: var(--color-charcoal);
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.how-flow-arrow {
+  color: var(--color-charcoal-subtle);
+  flex-shrink: 0;
+}
+
+@media (max-width: 980px) {
+  .how-timeline-track {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .how-timeline-track::before {
+    display: none;
+  }
+
+  .how-preview-panel {
+    grid-template-columns: 1fr;
+    padding: 24px;
+  }
+}
+
+@media (max-width: 600px) {
+  .how-timeline-track {
+    grid-template-columns: 1fr;
+  }
+}
