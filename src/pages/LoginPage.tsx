@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { ArrowRight, Eye, EyeOff, Lock, Mail, ShieldAlert } from 'lucide-react'
 import { AuthLayout } from '@/components/auth/AuthLayout'
 import { useAuth } from '@/hooks/useAuth'
+import { fetchOnboardingStatus } from '@/lib/api'
 import { getFirebaseErrorMessage } from '@/lib/firebase'
 
 export function LoginPage() {
@@ -53,8 +54,17 @@ export function LoginPage() {
         return
       }
 
-      // Successful verified login
-      navigate('/')
+      // Successful verified login - check onboarding status
+      try {
+        const status = await fetchOnboardingStatus()
+        if (status.isCompleted) {
+          navigate('/dashboard')
+        } else {
+          navigate('/onboarding')
+        }
+      } catch {
+        navigate('/onboarding')
+      }
     } catch (err: any) {
       console.error('Sign in failed:', err)
       const friendlyMessage = err.code

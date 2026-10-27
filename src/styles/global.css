@@ -13,6 +13,8 @@
 @import './closing-cta.css';
 @import './footer.css';
 @import './auth.css';
+@import './onboarding.css';
+@import './dashboard.css';
 
 /* Root & Body Elements */
 html {

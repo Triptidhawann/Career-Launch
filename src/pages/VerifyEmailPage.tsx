@@ -180,11 +180,11 @@ export function VerifyEmailPage() {
               Your account for <strong>{targetEmail}</strong> is verified and ready for preparation.
             </p>
             <Link
-              to="/"
+              to="/onboarding"
               className="btn btn-terracotta"
               style={{ marginTop: 8, padding: '0.65rem 1.4rem' }}
             >
-              <span>Explore Platform</span>
+              <span>Begin Student Onboarding</span>
               <ArrowRight size={15} />
             </Link>
           </div>
