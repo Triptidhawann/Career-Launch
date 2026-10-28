@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
-import { fetchOnboardingStatus } from '@/lib/api'
+import { fetchOnboardingStatus, fetchProfile } from '@/lib/api'
 
 interface ProtectedRouteProps {
   children: ReactNode
@@ -32,10 +32,17 @@ export function ProtectedRoute({
           setIsOnboardingCompleted(res.isCompleted)
         }
       })
-      .catch((err) => {
-        console.warn('Failed to verify onboarding status in ProtectedRoute:', err)
-        if (isMounted) {
-          setIsOnboardingCompleted(false)
+      .catch(async (err) => {
+        console.warn('Failed to verify onboarding status in ProtectedRoute, trying profile fallback:', err)
+        try {
+          const profRes = await fetchProfile()
+          if (isMounted) {
+            setIsOnboardingCompleted(Boolean(profRes.profile && profRes.profile.onboarding?.isCompleted))
+          }
+        } catch {
+          if (isMounted) {
+            setIsOnboardingCompleted(false)
+          }
         }
       })
 

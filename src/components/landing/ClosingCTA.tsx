@@ -1,7 +1,10 @@
 import { Link } from 'react-router-dom'
 import { ArrowRight, ShieldCheck, Sparkles } from 'lucide-react'
+import { useAuth } from '@/hooks/useAuth'
 
 export function ClosingCTA() {
+  const { isAuthenticated } = useAuth()
+
   return (
     <section className="closing-cta-section" aria-label="Get Started with CareerLaunch">
       <div className="closing-glow closing-glow--center" aria-hidden="true" />
@@ -22,8 +25,12 @@ export function ClosingCTA() {
         </p>
 
         <div className="closing-actions">
-          <Link to="/signup" className="btn btn-terracotta" style={{ padding: '0.9rem 1.85rem' }}>
-            <span>Get Started</span>
+          <Link
+            to={isAuthenticated ? '/dashboard' : '/signup'}
+            className="btn btn-terracotta"
+            style={{ padding: '0.9rem 1.85rem' }}
+          >
+            <span>{isAuthenticated ? 'Go to Dashboard' : 'Get Started'}</span>
             <ArrowRight size={16} strokeWidth={2.4} />
           </Link>
           <a href="#cinematic-story" className="btn btn-outline-light" style={{ padding: '0.9rem 1.85rem' }}>

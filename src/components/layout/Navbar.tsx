@@ -84,6 +84,14 @@ export function Navbar() {
                 </Link>
               )}
 
+              <Link
+                to="/dashboard"
+                className="btn btn-forest"
+                style={{ padding: '0.45rem 0.9rem', fontSize: '0.78rem' }}
+              >
+                Dashboard
+              </Link>
+
               <span
                 style={{
                   display: 'flex',
@@ -175,6 +183,13 @@ export function Navbar() {
               >
                 Signed in as: {displayName}
               </div>
+              <Link
+                to="/dashboard"
+                className="btn btn-forest"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Go to Dashboard
+              </Link>
               {!isEmailVerified && (
                 <Link
                   to="/verify-email"

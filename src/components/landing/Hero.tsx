@@ -13,8 +13,10 @@ import {
   Terminal,
 } from 'lucide-react'
 import { gsap } from '@/lib/gsap'
+import { useAuth } from '@/hooks/useAuth'
 
 export function Hero() {
+  const { isAuthenticated } = useAuth()
   const heroRef = useRef<HTMLDivElement>(null)
   const laptopRef = useRef<HTMLDivElement>(null)
   const floatingOppRef = useRef<HTMLDivElement>(null)
@@ -103,8 +105,8 @@ export function Hero() {
           </p>
 
           <div className="hero-actions">
-            <Link to="/signup" className="btn btn-terracotta">
-              <span>Start Your Journey</span>
+            <Link to={isAuthenticated ? '/dashboard' : '/signup'} className="btn btn-terracotta">
+              <span>{isAuthenticated ? 'Go to Dashboard' : 'Start Your Journey'}</span>
               <ArrowRight size={16} strokeWidth={2.4} />
             </Link>
             <a href="#cinematic-story" className="btn btn-outline-sand">

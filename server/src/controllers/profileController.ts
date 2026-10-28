@@ -12,12 +12,18 @@ export async function getProfile(
 ): Promise<void> {
   try {
     const uid = req.user?.uid
+    const email = req.user?.email
     if (!uid) {
       res.status(401).json({ error: 'Unauthorized: No UID in token.' })
       return
     }
 
-    const profile = await StudentProfile.findOne({ firebaseUid: uid })
+    const profile = await StudentProfile.findOne({
+      $or: [
+        { firebaseUid: uid },
+        ...(email ? [{ email: email.toLowerCase() }] : []),
+      ],
+    })
 
     if (!profile) {
       res.status(200).json({
@@ -26,6 +32,12 @@ export async function getProfile(
         message: 'No profile exists for this account yet.',
       })
       return
+    }
+
+    // Auto-heal UID linkage if user logged in with the same email
+    if (profile.firebaseUid !== uid) {
+      profile.firebaseUid = uid
+      await profile.save()
     }
 
     res.status(200).json({
@@ -51,14 +63,20 @@ export async function getStatus(
 ): Promise<void> {
   try {
     const uid = req.user?.uid
+    const email = req.user?.email
     if (!uid) {
       res.status(401).json({ error: 'Unauthorized' })
       return
     }
 
     const profile = await StudentProfile.findOne(
-      { firebaseUid: uid },
-      'onboarding fullName email role',
+      {
+        $or: [
+          { firebaseUid: uid },
+          ...(email ? [{ email: email.toLowerCase() }] : []),
+        ],
+      },
+      'onboarding fullName email role firebaseUid',
     )
 
     if (!profile) {
@@ -68,6 +86,12 @@ export async function getStatus(
         stepCompleted: 0,
       })
       return
+    }
+
+    // Auto-heal UID linkage if user logged in with the same email
+    if (profile.firebaseUid !== uid) {
+      profile.firebaseUid = uid
+      await profile.save()
     }
 
     res.status(200).json({
@@ -207,7 +231,12 @@ export async function saveOnboarding(
     }
 
     const updatedProfile = await StudentProfile.findOneAndUpdate(
-      { firebaseUid: uid },
+      {
+        $or: [
+          { firebaseUid: uid },
+          ...(email ? [{ email: email.toLowerCase() }] : []),
+        ],
+      },
       { $set: updateData },
       { new: true, upsert: true, runValidators: true },
     )

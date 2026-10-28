@@ -8,6 +8,7 @@ import {
   ExternalLink,
   MapPin,
 } from 'lucide-react'
+import { useAuth } from '@/hooks/useAuth'
 
 interface Opportunity {
   id: string
@@ -98,6 +99,7 @@ const OPPORTUNITIES_DATA: Opportunity[] = [
 ]
 
 export function Opportunities() {
+  const { isAuthenticated } = useAuth()
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [savedIds, setSavedIds] = useState<string[]>(['opp-1'])
 
@@ -133,8 +135,8 @@ export function Opportunities() {
             </p>
           </div>
 
-          <Link to="/signup" className="btn btn-forest">
-            <span>Discover Opportunities</span>
+          <Link to={isAuthenticated ? '/dashboard' : '/signup'} className="btn btn-forest">
+            <span>{isAuthenticated ? 'Go to Dashboard' : 'Discover Opportunities'}</span>
             <ArrowRight size={15} />
           </Link>
         </div>
@@ -226,8 +228,8 @@ export function Opportunities() {
                   </div>
                 </div>
 
-                <Link to="/signup" className="opp-card__action">
-                  <span>View Placement Details</span>
+                <Link to={isAuthenticated ? '/dashboard' : '/signup'} className="opp-card__action">
+                  <span>{isAuthenticated ? 'View Dashboard' : 'View Placement Details'}</span>
                   <ArrowRight size={14} />
                 </Link>
               </div>
@@ -241,8 +243,8 @@ export function Opportunities() {
             <h3>Verified Campus Placements & Real Recruiter Deadlines</h3>
             <p>Direct employer listings connected to your verified preparation benchmarks.</p>
           </div>
-          <Link to="/signup" className="btn btn-terracotta">
-            <span>Explore All Listings</span>
+          <Link to={isAuthenticated ? '/dashboard' : '/signup'} className="btn btn-terracotta">
+            <span>{isAuthenticated ? 'Go to Dashboard' : 'Explore All Listings'}</span>
             <ExternalLink size={15} />
           </Link>
         </div>

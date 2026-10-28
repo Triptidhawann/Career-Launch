@@ -545,9 +545,6 @@ export function StudentDashboardPage() {
             <Link to="/dashboard" className="dashboard-nav__link active">
               <span>Dashboard</span>
             </Link>
-            <Link to="/onboarding" className="dashboard-nav__link">
-              <span>Onboarding Form</span>
-            </Link>
             <Link to="/" className="dashboard-nav__link">
               <span>Platform Overview</span>
             </Link>
@@ -608,13 +605,6 @@ export function StudentDashboardPage() {
               onClick={() => setMobileMenuOpen(false)}
             >
               Dashboard
-            </Link>
-            <Link
-              to="/onboarding"
-              className="dashboard-nav__mobile-link"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Onboarding Form
             </Link>
             <Link
               to="/"

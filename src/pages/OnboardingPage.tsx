@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   ArrowLeft,
@@ -15,7 +15,7 @@ import {
   Trash2,
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
-import { submitOnboarding } from '@/lib/api'
+import { fetchOnboardingStatus, fetchProfile, submitOnboarding } from '@/lib/api'
 import type {
   Certification,
   Education,
@@ -70,6 +70,7 @@ export function OnboardingPage() {
   const { user, signOut } = useAuth()
   const navigate = useNavigate()
 
+  const [checkingOnboarded, setCheckingOnboarded] = useState(true)
   const [currentStep, setCurrentStep] = useState(1)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -118,6 +119,61 @@ export function OnboardingPage() {
     'Remote (Worldwide)',
   ])
   const [expectedSalary, setExpectedSalary] = useState('8 - 14 LPA')
+
+  // Ensure already-onboarded students never get stuck in onboarding
+  useEffect(() => {
+    let isMounted = true
+
+    async function checkExistingStatus() {
+      try {
+        const status = await fetchOnboardingStatus()
+        if (isMounted && status.isCompleted) {
+          navigate('/dashboard', { replace: true })
+          return
+        }
+
+        // If not completed but existing draft exists, prefill
+        const profRes = await fetchProfile()
+        if (isMounted && profRes.profile) {
+          const p = profRes.profile
+          if (p.fullName) setFullName(p.fullName)
+          if (p.phoneNumber) setPhoneNumber(p.phoneNumber)
+          if (p.education) {
+            setEducation({
+              college: p.education.college || '',
+              degree: p.education.degree || 'B.Tech / B.E.',
+              branch: p.education.branch || 'Computer Science & Engineering',
+              graduationYear: p.education.graduationYear || 2026,
+              currentSemester: p.education.currentSemester || 6,
+              cgpa: p.education.cgpa || 8.0,
+            })
+          }
+          if (p.skills && p.skills.length > 0) setSkills(p.skills)
+          if (p.projects && p.projects.length > 0) setProjects(p.projects)
+          if (p.certifications && p.certifications.length > 0) setCertifications(p.certifications)
+          if (p.careerPreferences) {
+            if (p.careerPreferences.targetRoles) setTargetRoles(p.careerPreferences.targetRoles)
+            if (p.careerPreferences.workMode) setWorkMode(p.careerPreferences.workMode)
+            if (p.careerPreferences.workType) setWorkType(p.careerPreferences.workType)
+            if (p.careerPreferences.preferredLocations) setPreferredLocations(p.careerPreferences.preferredLocations)
+            if (p.careerPreferences.expectedSalary) setExpectedSalary(p.careerPreferences.expectedSalary)
+          }
+        }
+      } catch (err) {
+        console.warn('Onboarding check warning:', err)
+      } finally {
+        if (isMounted) {
+          setCheckingOnboarded(false)
+        }
+      }
+    }
+
+    checkExistingStatus()
+
+    return () => {
+      isMounted = false
+    }
+  }, [navigate])
 
   // Helper methods for Skills
   const toggleQuickSkill = (skillName: string) => {
@@ -317,6 +373,39 @@ export function OnboardingPage() {
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  if (checkingOnboarded) {
+    return (
+      <div
+        style={{
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: 'var(--color-ivory)',
+          gap: '16px',
+        }}
+      >
+        <div
+          style={{
+            width: 40,
+            height: 40,
+            border: '3px solid var(--color-sand)',
+            borderTopColor: 'var(--color-terracotta)',
+            borderRadius: '50%',
+            animation: 'spin 0.8s linear infinite',
+          }}
+        />
+        <style>{`
+          @keyframes spin { to { transform: rotate(360deg); } }
+        `}</style>
+        <p style={{ fontSize: '0.9rem', color: 'var(--color-charcoal-muted)' }}>
+          Checking your profile status...
+        </p>
+      </div>
+    )
   }
 
   return (

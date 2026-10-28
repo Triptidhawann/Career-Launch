@@ -8,8 +8,10 @@ import {
   Sparkles,
   Terminal,
 } from 'lucide-react'
+import { useAuth } from '@/hooks/useAuth'
 
 export function InterviewPrep() {
+  const { isAuthenticated } = useAuth()
   const capabilities = [
     {
       num: '01',
@@ -141,8 +143,8 @@ export function InterviewPrep() {
             })}
 
             <div className="prep-bottom-action">
-              <Link to="/signup" className="btn btn-terracotta">
-                <span>Explore Interview Preparation</span>
+              <Link to={isAuthenticated ? '/dashboard' : '/signup'} className="btn btn-terracotta">
+                <span>{isAuthenticated ? 'Go to Preparation Dashboard' : 'Explore Interview Preparation'}</span>
                 <ArrowRight size={16} />
               </Link>
             </div>
