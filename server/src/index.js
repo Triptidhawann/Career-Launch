@@ -69,10 +69,35 @@ app.use('/api/*', (_req, res) => {
 async function startServer() {
   try {
     await connectDB()
-    app.listen(PORT, () => {
+    const server = app.listen(PORT, () => {
       console.log(`[CareerLaunch Server] Running on http://localhost:${PORT}`)
       console.log(`[CareerLaunch Server] API ready at http://localhost:${PORT}/api`)
     })
+
+    server.on('error', (error) => {
+      if (error.code === 'EADDRINUSE') {
+        console.error(
+          `[CareerLaunch Server] Error: Port ${PORT} is already in use by another process.`,
+        )
+        console.error(
+          `[CareerLaunch Server] Terminate the process using port ${PORT} or run 'Stop-Process -Id (Get-NetTCPConnection -LocalPort ${PORT}).OwningProcess -Force'.`,
+        )
+      } else {
+        console.error('[CareerLaunch Server] Server error:', error)
+      }
+      process.exit(1)
+    })
+
+    const handleShutdown = (signal) => {
+      console.log(`\n[CareerLaunch Server] Received ${signal}. Closing server...`)
+      server.close(() => {
+        console.log('[CareerLaunch Server] HTTP server closed.')
+        process.exit(0)
+      })
+    }
+
+    process.on('SIGINT', () => handleShutdown('SIGINT'))
+    process.on('SIGTERM', () => handleShutdown('SIGTERM'))
   } catch (error) {
     console.error('[CareerLaunch Server] Failed to start:', error)
     process.exit(1)
