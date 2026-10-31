@@ -28,12 +28,12 @@ export function VerifyEmailPage() {
   const [isChecking, setIsChecking] = useState(false)
   const [isResending, setIsResending] = useState(false)
   const [resendCooldown, setResendCooldown] = useState(0)
-  const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [feedbackMessage, setFeedbackMessage] = useState(null)
+  const [errorMessage, setErrorMessage] = useState(null)
 
   // Retrieve email from user session or from signup navigation state
   const targetEmail =
-    user?.email || (location.state as { email?: string })?.email || 'your email address'
+    user?.email || location.state?.email || 'your email address'
 
   // Countdown timer for resend
   useEffect(() => {
@@ -59,7 +59,7 @@ export function VerifyEmailPage() {
           'Email has not yet been verified. Please click the link in your email and try again.',
         )
       }
-    } catch (err: any) {
+    } catch (err) {
       setErrorMessage(
         err.code ? getFirebaseErrorMessage(err.code) : 'Failed to refresh verification status.',
       )
@@ -79,7 +79,7 @@ export function VerifyEmailPage() {
       await sendVerificationEmail()
       setFeedbackMessage(`A fresh verification link was sent to ${targetEmail}.`)
       setResendCooldown(60)
-    } catch (err: any) {
+    } catch (err) {
       setErrorMessage(
         err.code ? getFirebaseErrorMessage(err.code) : 'Failed to resend verification email.',
       )

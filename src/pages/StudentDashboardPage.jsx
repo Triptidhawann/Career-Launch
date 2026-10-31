@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   AlertCircle,
@@ -29,46 +29,28 @@ import {
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { fetchProfile, updateProfile as apiUpdateProfile } from '@/lib/api'
-import type {
-  Certification,
-  Education,
-  Project,
-  Skill,
-  SkillLevel,
-  StudentProfile,
-} from '@/types/profile'
-
-type EditTab = 'academic' | 'skills' | 'projects' | 'certifications' | 'preferences'
-
-interface CompletenessItem {
-  id: string
-  label: string
-  weight: number
-  isCompleted: boolean
-  tip: string
-}
 
 export function StudentDashboardPage() {
   const { signOut } = useAuth()
   const navigate = useNavigate()
 
-  const [profile, setProfile] = useState<StudentProfile | null>(null)
+  const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState(null)
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [toastMessage, setToastMessage] = useState<string | null>(null)
+  const [toastMessage, setToastMessage] = useState(null)
 
   // Expanded Edit Modal State
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-  const [activeEditTab, setActiveEditTab] = useState<EditTab>('academic')
+  const [activeEditTab, setActiveEditTab] = useState('academic')
   const [editSaving, setEditSaving] = useState(false)
-  const [modalError, setModalError] = useState<string | null>(null)
+  const [modalError, setModalError] = useState(null)
 
   // Modal Form States
   const [editFullName, setEditFullName] = useState('')
   const [editPhone, setEditPhone] = useState('')
-  const [editEducation, setEditEducation] = useState<Education>({
+  const [editEducation, setEditEducation] = useState({
     college: '',
     degree: '',
     branch: '',
@@ -78,23 +60,23 @@ export function StudentDashboardPage() {
   })
 
   // Skills Tab State
-  const [editSkills, setEditSkills] = useState<Skill[]>([])
+  const [editSkills, setEditSkills] = useState([])
   const [newSkillName, setNewSkillName] = useState('')
-  const [newSkillLevel, setNewSkillLevel] = useState<SkillLevel>('Intermediate')
-  const [skillWarning, setSkillWarning] = useState<string | null>(null)
+  const [newSkillLevel, setNewSkillLevel] = useState('Intermediate')
+  const [skillWarning, setSkillWarning] = useState(null)
 
   // Projects Tab State
-  const [editProjects, setEditProjects] = useState<Project[]>([])
+  const [editProjects, setEditProjects] = useState([])
 
   // Certifications Tab State
-  const [editCertifications, setEditCertifications] = useState<Certification[]>([])
+  const [editCertifications, setEditCertifications] = useState([])
 
   // Career Preferences Tab State
-  const [editTargetRoles, setEditTargetRoles] = useState<string[]>([])
+  const [editTargetRoles, setEditTargetRoles] = useState([])
   const [newTargetRole, setNewTargetRole] = useState('')
-  const [editWorkMode, setEditWorkMode] = useState<'remote' | 'hybrid' | 'on-site' | 'any'>('any')
-  const [editWorkType, setEditWorkType] = useState<'full-time' | 'internship' | 'both'>('both')
-  const [editPreferredLocations, setEditPreferredLocations] = useState<string[]>([])
+  const [editWorkMode, setEditWorkMode] = useState('any')
+  const [editWorkType, setEditWorkType] = useState('both')
+  const [editPreferredLocations, setEditPreferredLocations] = useState([])
   const [newLocation, setNewLocation] = useState('')
   const [editExpectedSalary, setEditExpectedSalary] = useState('')
 
@@ -111,7 +93,7 @@ export function StudentDashboardPage() {
           }
           setProfile(data.profile)
         }
-      } catch (err: any) {
+      } catch (err) {
         if (isMounted) {
           setError(err.message || 'Failed to load profile')
         }
@@ -131,7 +113,7 @@ export function StudentDashboardPage() {
 
   // Escape key closes mobile menu or edit modal
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
+    const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
         setMobileMenuOpen(false)
         setIsEditModalOpen(false)
@@ -159,7 +141,7 @@ export function StudentDashboardPage() {
   }
 
   // Open Edit Modal seeded with existing profile data
-  const handleOpenEditModal = (tab: EditTab = 'academic') => {
+  const handleOpenEditModal = (tab = 'academic') => {
     if (!profile) return
     setActiveEditTab(tab)
     setModalError(null)
@@ -216,11 +198,11 @@ export function StudentDashboardPage() {
     setNewSkillName('')
   }
 
-  const handleRemoveSkill = (index: number) => {
+  const handleRemoveSkill = (index) => {
     setEditSkills(editSkills.filter((_, i) => i !== index))
   }
 
-  const handleChangeSkillLevel = (index: number, level: SkillLevel) => {
+  const handleChangeSkillLevel = (index, level) => {
     const updated = [...editSkills]
     updated[index].level = level
     setEditSkills(updated)
@@ -234,13 +216,13 @@ export function StudentDashboardPage() {
     ])
   }
 
-  const handleUpdateProject = (index: number, field: keyof Project, value: any) => {
+  const handleUpdateProject = (index, field, value) => {
     const updated = [...editProjects]
     updated[index] = { ...updated[index], [field]: value }
     setEditProjects(updated)
   }
 
-  const handleRemoveProject = (index: number) => {
+  const handleRemoveProject = (index) => {
     setEditProjects(editProjects.filter((_, i) => i !== index))
   }
 
@@ -252,13 +234,13 @@ export function StudentDashboardPage() {
     ])
   }
 
-  const handleUpdateCertification = (index: number, field: keyof Certification, value: string) => {
+  const handleUpdateCertification = (index, field, value) => {
     const updated = [...editCertifications]
     updated[index] = { ...updated[index], [field]: value }
     setEditCertifications(updated)
   }
 
-  const handleRemoveCertification = (index: number) => {
+  const handleRemoveCertification = (index) => {
     setEditCertifications(editCertifications.filter((_, i) => i !== index))
   }
 
@@ -272,7 +254,7 @@ export function StudentDashboardPage() {
     setNewTargetRole('')
   }
 
-  const handleRemoveTargetRole = (role: string) => {
+  const handleRemoveTargetRole = (role) => {
     setEditTargetRoles(editTargetRoles.filter((r) => r !== role))
   }
 
@@ -285,12 +267,12 @@ export function StudentDashboardPage() {
     setNewLocation('')
   }
 
-  const handleRemoveLocation = (loc: string) => {
+  const handleRemoveLocation = (loc) => {
     setEditPreferredLocations(editPreferredLocations.filter((l) => l !== loc))
   }
 
   // Save changes to backend MongoDB
-  const handleSaveAllEdits = async (e: FormEvent) => {
+  const handleSaveAllEdits = async (e) => {
     e.preventDefault()
     setModalError(null)
 
@@ -341,8 +323,8 @@ export function StudentDashboardPage() {
           description: p.description?.trim() || '',
           technologies: Array.isArray(p.technologies)
             ? p.technologies
-            : typeof (p.technologies as any) === 'string'
-              ? (p.technologies as any).split(',').map((t: string) => t.trim()).filter(Boolean)
+            : typeof p.technologies === 'string'
+              ? p.technologies.split(',').map((t) => t.trim()).filter(Boolean)
               : [],
         }))
 
@@ -356,7 +338,7 @@ export function StudentDashboardPage() {
           credentialUrl: c.credentialUrl?.trim() || '',
         }))
 
-      const payload: Partial<StudentProfile> = {
+      const payload = {
         fullName: editFullName.trim(),
         phoneNumber: editPhone.trim(),
         education: {
@@ -384,7 +366,7 @@ export function StudentDashboardPage() {
       setProfile(res.profile)
       setIsEditModalOpen(false)
       setToastMessage('Profile updated successfully! All changes are saved.')
-    } catch (err: any) {
+    } catch (err) {
       setModalError(err.message || 'Failed to update profile. Please try again.')
     } finally {
       setEditSaving(false)
@@ -392,10 +374,10 @@ export function StudentDashboardPage() {
   }
 
   // Calculate Profile Completeness (40% base + 20% skills + 20% projects + 10% certs + 10% roles)
-  const getProfileCompleteness = (prof: StudentProfile | null): { score: number; items: CompletenessItem[] } => {
+  const getProfileCompleteness = (prof) => {
     if (!prof) return { score: 0, items: [] }
 
-    const items: CompletenessItem[] = [
+    const items = [
       {
         id: 'academic',
         label: 'Academic Foundation',
@@ -1527,7 +1509,7 @@ export function StudentDashboardPage() {
                           step="0.01"
                           min="0"
                           max="10"
-                          value={editEducation.cgpa !== undefined ? editEducation.cgpa : ''}
+                          value={editEducation.cgpa !== undefined && editEducation.cgpa !== null ? editEducation.cgpa : ''}
                           onChange={(e) =>
                             setEditEducation({
                               ...editEducation,
@@ -1575,7 +1557,7 @@ export function StudentDashboardPage() {
                       />
                       <select
                         value={newSkillLevel}
-                        onChange={(e) => setNewSkillLevel(e.target.value as SkillLevel)}
+                        onChange={(e) => setNewSkillLevel(e.target.value)}
                         style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--color-sand-dark)' }}
                       >
                         <option value="Beginner">Beginner</option>
@@ -1614,7 +1596,7 @@ export function StudentDashboardPage() {
                             <select
                               value={skill.level}
                               onChange={(e) =>
-                                handleChangeSkillLevel(index, e.target.value as SkillLevel)
+                                handleChangeSkillLevel(index, e.target.value)
                               }
                               style={{
                                 fontSize: '0.75rem',
@@ -1884,7 +1866,7 @@ export function StudentDashboardPage() {
                         <select
                           id="editWorkMode"
                           value={editWorkMode}
-                          onChange={(e) => setEditWorkMode(e.target.value as any)}
+                          onChange={(e) => setEditWorkMode(e.target.value)}
                         >
                           <option value="any">Open to Any (Remote / Hybrid / On-site)</option>
                           <option value="remote">Remote Only</option>
@@ -1898,7 +1880,7 @@ export function StudentDashboardPage() {
                         <select
                           id="editWorkType"
                           value={editWorkType}
-                          onChange={(e) => setEditWorkType(e.target.value as any)}
+                          onChange={(e) => setEditWorkType(e.target.value)}
                         >
                           <option value="both">Both (Full-time & Internship)</option>
                           <option value="full-time">Full-time Only</option>
@@ -1992,3 +1974,5 @@ export function StudentDashboardPage() {
     </div>
   )
 }
+
+export default StudentDashboardPage

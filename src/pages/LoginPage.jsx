@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ArrowRight, Eye, EyeOff, Lock, Mail, ShieldAlert } from 'lucide-react'
 import { AuthLayout } from '@/components/auth/AuthLayout'
@@ -16,10 +16,10 @@ export function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
 
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
-  const [unverifiedWarning, setUnverifiedWarning] = useState<boolean>(false)
+  const [errorMessage, setErrorMessage] = useState(null)
+  const [unverifiedWarning, setUnverifiedWarning] = useState(false)
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     setErrorMessage(null)
     setUnverifiedWarning(false)
@@ -76,7 +76,7 @@ export function LoginPage() {
       }
 
       navigate('/onboarding')
-    } catch (err: any) {
+    } catch (err) {
       console.error('Sign in failed:', err)
       const friendlyMessage = err.code
         ? getFirebaseErrorMessage(err.code)

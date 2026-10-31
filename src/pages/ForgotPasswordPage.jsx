@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowLeft, ArrowRight, CheckCircle2, Mail, ShieldAlert } from 'lucide-react'
 import { AuthLayout } from '@/components/auth/AuthLayout'
@@ -10,10 +10,10 @@ export function ForgotPasswordPage() {
 
   const [email, setEmail] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
-  const [successMessage, setSuccessMessage] = useState<string | null>(null)
+  const [errorMessage, setErrorMessage] = useState(null)
+  const [successMessage, setSuccessMessage] = useState(null)
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     setErrorMessage(null)
     setSuccessMessage(null)
@@ -37,7 +37,7 @@ export function ForgotPasswordPage() {
       setSuccessMessage(
         `A password recovery link has been dispatched to ${email.trim()}. Please inspect your inbox and spam folder.`,
       )
-    } catch (err: any) {
+    } catch (err) {
       console.error('Password reset request failed:', err)
       const friendlyMessage = err.code
         ? getFirebaseErrorMessage(err.code)

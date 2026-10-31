@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   ArrowLeft,
@@ -16,13 +16,6 @@ import {
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { fetchOnboardingStatus, fetchProfile, submitOnboarding } from '@/lib/api'
-import type {
-  Certification,
-  Education,
-  Project,
-  Skill,
-  SkillLevel,
-} from '@/types/profile'
 
 const CURATED_SKILLS = [
   'Data Structures & Algorithms',
@@ -72,13 +65,13 @@ export function OnboardingPage() {
 
   const [checkingOnboarded, setCheckingOnboarded] = useState(true)
   const [currentStep, setCurrentStep] = useState(1)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [errorMessage, setErrorMessage] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   // Step 1: Academic & Contact
   const [fullName, setFullName] = useState(user?.displayName || '')
   const [phoneNumber, setPhoneNumber] = useState('')
-  const [education, setEducation] = useState<Education>({
+  const [education, setEducation] = useState({
     college: '',
     degree: 'B.Tech / B.E.',
     branch: 'Computer Science & Engineering',
@@ -88,7 +81,7 @@ export function OnboardingPage() {
   })
 
   // Step 2: Skills
-  const [skills, setSkills] = useState<Skill[]>([
+  const [skills, setSkills] = useState([
     { name: 'Data Structures & Algorithms', level: 'Intermediate' },
     { name: 'Java', level: 'Intermediate' },
     { name: 'React', level: 'Intermediate' },
@@ -96,7 +89,7 @@ export function OnboardingPage() {
   const [customSkillInput, setCustomSkillInput] = useState('')
 
   // Step 3: Projects & Certifications
-  const [projects, setProjects] = useState<Project[]>([
+  const [projects, setProjects] = useState([
     {
       title: 'Placement Preparation Platform',
       description: 'A full-stack web application for interview mock practice and tracking.',
@@ -105,16 +98,16 @@ export function OnboardingPage() {
       liveUrl: '',
     },
   ])
-  const [certifications, setCertifications] = useState<Certification[]>([])
+  const [certifications, setCertifications] = useState([])
 
   // Step 4: Career Preferences
-  const [targetRoles, setTargetRoles] = useState<string[]>([
+  const [targetRoles, setTargetRoles] = useState([
     'Software Development Engineer (SDE)',
     'Full Stack Developer',
   ])
-  const [workMode, setWorkMode] = useState<'remote' | 'hybrid' | 'on-site' | 'any'>('any')
-  const [workType, setWorkType] = useState<'full-time' | 'internship' | 'both'>('both')
-  const [preferredLocations, setPreferredLocations] = useState<string[]>([
+  const [workMode, setWorkMode] = useState('any')
+  const [workType, setWorkType] = useState('both')
+  const [preferredLocations, setPreferredLocations] = useState([
     'Bangalore',
     'Remote (Worldwide)',
   ])
@@ -176,7 +169,7 @@ export function OnboardingPage() {
   }, [navigate])
 
   // Helper methods for Skills
-  const toggleQuickSkill = (skillName: string) => {
+  const toggleQuickSkill = (skillName) => {
     const exists = skills.some((s) => s.name.toLowerCase() === skillName.toLowerCase())
     if (exists) {
       setSkills(skills.filter((s) => s.name.toLowerCase() !== skillName.toLowerCase()))
@@ -194,13 +187,13 @@ export function OnboardingPage() {
     setCustomSkillInput('')
   }
 
-  const updateSkillLevel = (index: number, level: SkillLevel) => {
+  const updateSkillLevel = (index, level) => {
     const updated = [...skills]
     updated[index].level = level
     setSkills(updated)
   }
 
-  const removeSkill = (index: number) => {
+  const removeSkill = (index) => {
     setSkills(skills.filter((_, i) => i !== index))
   }
 
@@ -218,13 +211,13 @@ export function OnboardingPage() {
     ])
   }
 
-  const handleUpdateProject = (index: number, field: keyof Project, value: any) => {
+  const handleUpdateProject = (index, field, value) => {
     const updated = [...projects]
     updated[index] = { ...updated[index], [field]: value }
     setProjects(updated)
   }
 
-  const handleRemoveProject = (index: number) => {
+  const handleRemoveProject = (index) => {
     setProjects(projects.filter((_, i) => i !== index))
   }
 
@@ -236,18 +229,18 @@ export function OnboardingPage() {
     ])
   }
 
-  const handleUpdateCertification = (index: number, field: keyof Certification, value: string) => {
+  const handleUpdateCertification = (index, field, value) => {
     const updated = [...certifications]
     updated[index] = { ...updated[index], [field]: value }
     setCertifications(updated)
   }
 
-  const handleRemoveCertification = (index: number) => {
+  const handleRemoveCertification = (index) => {
     setCertifications(certifications.filter((_, i) => i !== index))
   }
 
   // Helper methods for Roles & Locations
-  const toggleRole = (role: string) => {
+  const toggleRole = (role) => {
     if (targetRoles.includes(role)) {
       setTargetRoles(targetRoles.filter((r) => r !== role))
     } else {
@@ -255,7 +248,7 @@ export function OnboardingPage() {
     }
   }
 
-  const toggleLocation = (loc: string) => {
+  const toggleLocation = (loc) => {
     if (preferredLocations.includes(loc)) {
       setPreferredLocations(preferredLocations.filter((l) => l !== loc))
     } else {
@@ -264,7 +257,7 @@ export function OnboardingPage() {
   }
 
   // Validation
-  const validateStep = (step: number): boolean => {
+  const validateStep = (step) => {
     setErrorMessage(null)
 
     if (step === 1) {
@@ -326,7 +319,7 @@ export function OnboardingPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  const handleFinish = async (e: FormEvent) => {
+  const handleFinish = async (e) => {
     e.preventDefault()
     if (!validateStep(4)) return
 
@@ -339,7 +332,7 @@ export function OnboardingPage() {
       const sanitizedCerts = certifications.filter((c) => c.name.trim().length > 0)
 
       // Collect all technologies from skills and projects
-      const techSet = new Set<string>()
+      const techSet = new Set()
       skills.forEach((s) => techSet.add(s.name))
       sanitizedProjects.forEach((p) => {
         p.technologies.forEach((t) => techSet.add(t))
@@ -365,7 +358,7 @@ export function OnboardingPage() {
 
       await submitOnboarding(payload)
       navigate('/dashboard')
-    } catch (err: any) {
+    } catch (err) {
       console.error('Failed to submit onboarding:', err)
       setErrorMessage(
         err.message || 'Failed to save student profile. Please verify your connection.',
@@ -696,7 +689,7 @@ export function OnboardingPage() {
                   {/* Selected skills list with proficiency level toggle */}
                   <div>
                     <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>
-                      Selected Skills ({skills.length})
+                       Selected Skills ({skills.length})
                     </label>
                     {skills.length === 0 ? (
                       <p
@@ -714,7 +707,7 @@ export function OnboardingPage() {
                           <div key={skill.name} className="selected-skill-row">
                             <span className="selected-skill-name">{skill.name}</span>
                             <div className="selected-skill-controls">
-                              {(['Beginner', 'Intermediate', 'Advanced'] as SkillLevel[]).map(
+                              {['Beginner', 'Intermediate', 'Advanced'].map(
                                 (lvl) => (
                                   <button
                                     key={lvl}
@@ -1006,7 +999,7 @@ export function OnboardingPage() {
                         id="workMode"
                         className="form-select"
                         value={workMode}
-                        onChange={(e) => setWorkMode(e.target.value as any)}
+                        onChange={(e) => setWorkMode(e.target.value)}
                       >
                         <option value="any">Open to Any (Remote / Hybrid / On-site)</option>
                         <option value="remote">Remote Only</option>
@@ -1021,7 +1014,7 @@ export function OnboardingPage() {
                         id="workType"
                         className="form-select"
                         value={workType}
-                        onChange={(e) => setWorkType(e.target.value as any)}
+                        onChange={(e) => setWorkType(e.target.value)}
                       >
                         <option value="both">Open to Both (Full-time & Internship)</option>
                         <option value="full-time">Full-time Only</option>
@@ -1111,3 +1104,5 @@ export function OnboardingPage() {
     </div>
   )
 }
+
+export default OnboardingPage
