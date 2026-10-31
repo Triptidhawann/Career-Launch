@@ -1,15 +1,10 @@
-import { Response } from 'express'
-import { AuthenticatedRequest } from '../middleware/authMiddleware.js'
 import { StudentProfile } from '../models/StudentProfile.js'
 
 /**
  * GET /api/profile/me
  * Retrieves the authenticated student's profile.
  */
-export async function getProfile(
-  req: AuthenticatedRequest,
-  res: Response,
-): Promise<void> {
+export async function getProfile(req, res) {
   try {
     const uid = req.user?.uid
     const email = req.user?.email
@@ -44,7 +39,7 @@ export async function getProfile(
       profile,
       isCompleted: profile.onboarding?.isCompleted ?? false,
     })
-  } catch (error: any) {
+  } catch (error) {
     console.error('[ProfileController] getProfile error:', error)
     res.status(500).json({
       error: 'Failed to retrieve profile',
@@ -57,10 +52,7 @@ export async function getProfile(
  * GET /api/profile/status
  * Quickly checks whether the user has completed onboarding.
  */
-export async function getStatus(
-  req: AuthenticatedRequest,
-  res: Response,
-): Promise<void> {
+export async function getStatus(req, res) {
   try {
     const uid = req.user?.uid
     const email = req.user?.email
@@ -101,7 +93,7 @@ export async function getStatus(
       fullName: profile.fullName,
       role: profile.role,
     })
-  } catch (error: any) {
+  } catch (error) {
     console.error('[ProfileController] getStatus error:', error)
     res.status(500).json({ error: 'Failed to check status' })
   }
@@ -111,10 +103,7 @@ export async function getStatus(
  * POST /api/profile/onboarding
  * Saves initial onboarding data and marks onboarding as completed.
  */
-export async function saveOnboarding(
-  req: AuthenticatedRequest,
-  res: Response,
-): Promise<void> {
+export async function saveOnboarding(req, res) {
   try {
     const uid = req.user?.uid
     const email = req.user?.email || req.body.email
@@ -246,7 +235,7 @@ export async function saveOnboarding(
       message: 'Student profile onboarding completed successfully',
       profile: updatedProfile,
     })
-  } catch (error: any) {
+  } catch (error) {
     console.error('[ProfileController] saveOnboarding error:', error)
     res.status(500).json({
       error: 'Failed to complete onboarding',
@@ -259,10 +248,7 @@ export async function saveOnboarding(
  * PUT /api/profile/me
  * Updates student profile details after onboarding with deep validation and field merging.
  */
-export async function updateProfile(
-  req: AuthenticatedRequest,
-  res: Response,
-): Promise<void> {
+export async function updateProfile(req, res) {
   try {
     const uid = req.user?.uid
     if (!uid) {
@@ -307,8 +293,8 @@ export async function updateProfile(
     }
 
     if (Array.isArray(skills)) {
-      const seen = new Set<string>()
-      const sanitizedSkills: any[] = []
+      const seen = new Set()
+      const sanitizedSkills = []
       for (const s of skills) {
         if (s && s.name && s.name.trim()) {
           const lower = s.name.trim().toLowerCase()
@@ -329,12 +315,12 @@ export async function updateProfile(
 
     if (Array.isArray(projects)) {
       profile.projects = projects
-        .filter((p: any) => p && p.title && p.title.trim())
-        .map((p: any) => ({
+        .filter((p) => p && p.title && p.title.trim())
+        .map((p) => ({
           title: p.title.trim(),
           description: p.description?.trim() || '',
           technologies: Array.isArray(p.technologies)
-            ? p.technologies.map((t: any) => (typeof t === 'string' ? t.trim() : '')).filter(Boolean)
+            ? p.technologies.map((t) => (typeof t === 'string' ? t.trim() : '')).filter(Boolean)
             : [],
           repoUrl: p.repoUrl?.trim() || '',
           liveUrl: p.liveUrl?.trim() || '',
@@ -343,8 +329,8 @@ export async function updateProfile(
 
     if (Array.isArray(certifications)) {
       profile.certifications = certifications
-        .filter((c: any) => c && c.name && c.name.trim())
-        .map((c: any) => ({
+        .filter((c) => c && c.name && c.name.trim())
+        .map((c) => ({
           name: c.name.trim(),
           issuer: c.issuer?.trim() || '',
           issueDate: c.issueDate?.trim() || '',
@@ -372,7 +358,7 @@ export async function updateProfile(
     }
 
     // Synchronize unique technologies across skills and projects
-    const techSet = new Set<string>()
+    const techSet = new Set()
     profile.skills.forEach((s) => techSet.add(s.name))
     profile.projects.forEach((p) => {
       p.technologies.forEach((t) => techSet.add(t))
@@ -386,7 +372,7 @@ export async function updateProfile(
       message: 'Profile updated successfully',
       profile: updatedProfile,
     })
-  } catch (error: any) {
+  } catch (error) {
     console.error('[ProfileController] updateProfile error:', error)
     res.status(500).json({
       error: 'Failed to update profile',

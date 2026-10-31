@@ -1,13 +1,13 @@
-import { getApps, initializeApp, cert, type App } from 'firebase-admin/app'
-import { getAuth, type Auth } from 'firebase-admin/auth'
+import { getApps, initializeApp, cert } from 'firebase-admin/app'
+import { getAuth } from 'firebase-admin/auth'
 import fs from 'fs'
 import path from 'path'
 
 const projectId = process.env.FIREBASE_PROJECT_ID || 'careerlaunch-c8e7c'
 const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_KEY
 
-let adminApp: App | undefined
-let adminAuth: Auth | undefined
+let adminApp
+let adminAuth
 let isInitialized = false
 
 try {
@@ -36,25 +36,21 @@ try {
   console.warn('[Firebase Admin] Initialization note:', error)
 }
 
-export interface DecodedAuthToken {
-  uid: string
-  email?: string
-  name?: string
-  email_verified?: boolean
-}
-
 /**
  * Verifies a Firebase ID token using the Admin SDK, with a safe fallback parser
  * if service account credentials have not yet been provided locally.
+ *
+ * @param {string} idToken
+ * @returns {Promise<{ uid: string, email?: string, name?: string, email_verified?: boolean }>}
  */
-export async function verifyToken(idToken: string): Promise<DecodedAuthToken> {
+export async function verifyToken(idToken) {
   if (adminAuth) {
     try {
       const decoded = await adminAuth.verifyIdToken(idToken)
       return {
         uid: decoded.uid,
         email: decoded.email,
-        name: decoded.name || (decoded as any).displayName,
+        name: decoded.name || decoded.displayName,
         email_verified: decoded.email_verified,
       }
     } catch {

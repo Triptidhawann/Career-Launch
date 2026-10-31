@@ -1,69 +1,6 @@
-import mongoose, { Document, Schema } from 'mongoose'
+import mongoose, { Schema } from 'mongoose'
 
-export interface ISkill {
-  name: string
-  level: 'Beginner' | 'Intermediate' | 'Advanced'
-  verified?: boolean
-}
-
-export interface IProject {
-  title: string
-  description: string
-  technologies: string[]
-  repoUrl?: string
-  liveUrl?: string
-}
-
-export interface ICertification {
-  name: string
-  issuer: string
-  issueDate?: string
-  credentialUrl?: string
-}
-
-export interface IEducation {
-  college: string
-  degree: string
-  branch: string
-  graduationYear?: number
-  currentSemester?: number
-  cgpa?: number
-}
-
-export interface ICareerPreferences {
-  targetRoles: string[]
-  careerInterests: string[]
-  preferredLocations: string[]
-  workType?: 'full-time' | 'internship' | 'both'
-  workMode?: 'remote' | 'hybrid' | 'on-site' | 'any'
-  expectedSalary?: string
-}
-
-export interface IOnboardingStatus {
-  isCompleted: boolean
-  stepCompleted: number
-  completedAt?: Date
-}
-
-export interface IStudentProfile extends Document {
-  firebaseUid: string
-  email: string
-  fullName: string
-  phoneNumber?: string
-  avatarUrl?: string
-  role: 'student' | 'admin'
-  education: IEducation
-  skills: ISkill[]
-  technologies: string[]
-  projects: IProject[]
-  certifications: ICertification[]
-  careerPreferences: ICareerPreferences
-  onboarding: IOnboardingStatus
-  createdAt: Date
-  updatedAt: Date
-}
-
-const StudentProfileSchema = new Schema<IStudentProfile>(
+const StudentProfileSchema = new Schema(
   {
     firebaseUid: {
       type: String,
@@ -160,7 +97,7 @@ const StudentProfileSchema = new Schema<IStudentProfile>(
   },
 )
 
-export const StudentProfile = mongoose.model<IStudentProfile>(
+export const StudentProfile = mongoose.model(
   'StudentProfile',
   StudentProfileSchema,
 )

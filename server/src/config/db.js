@@ -1,6 +1,10 @@
 import mongoose from 'mongoose'
 
-export async function connectDB(): Promise<void> {
+/**
+ * Connect to MongoDB database instance.
+ * Preserves default connection URI: mongodb://127.0.0.1:27018/careerlaunch
+ */
+export async function connectDB() {
   const uri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27018/careerlaunch'
 
   try {

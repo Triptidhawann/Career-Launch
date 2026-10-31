@@ -1,15 +1,10 @@
-import { Request, Response, NextFunction } from 'express'
-import { verifyToken, DecodedAuthToken } from '../config/firebaseAdmin.js'
+import { verifyToken } from '../config/firebaseAdmin.js'
 
-export interface AuthenticatedRequest extends Request {
-  user?: DecodedAuthToken
-}
-
-export async function requireAuth(
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction,
-): Promise<void> {
+/**
+ * Authentication middleware for Express.
+ * Validates Firebase ID bearer token and attaches decoded user to req.user.
+ */
+export async function requireAuth(req, res, next) {
   const authHeader = req.headers.authorization
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -32,7 +27,7 @@ export async function requireAuth(
     const decoded = await verifyToken(token)
     req.user = decoded
     next()
-  } catch (error: any) {
+  } catch (error) {
     res.status(401).json({
       error: 'Unauthorized: Invalid or expired Firebase ID token.',
       details: error.message,
