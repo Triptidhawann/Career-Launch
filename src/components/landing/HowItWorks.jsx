@@ -5,18 +5,7 @@ import {
   Sparkles,
 } from 'lucide-react'
 
-interface Step {
-  num: string
-  title: string
-  desc: string
-  output: string
-  detailsTitle: string
-  detailsDesc: string
-  deliverables: string[]
-  flowNodes: string[]
-}
-
-const STEPS: Step[] = [
+const STEPS = [
   {
     num: '01',
     title: 'Build your profile',

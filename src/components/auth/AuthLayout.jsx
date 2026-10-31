@@ -1,22 +1,23 @@
-import { type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowLeft, Compass, ShieldCheck, Sparkles, Target, Trophy } from 'lucide-react'
 
-interface AuthLayoutProps {
-  eyebrow: string
-  title: string
-  subtitle: string
-  children: ReactNode
-  footerPrompt: ReactNode
-}
-
+/**
+ * Editorial split authentication layout for Sign In, Sign Up, and Password Reset screens.
+ *
+ * @param {Object} props
+ * @param {string} props.eyebrow - Small badge text above the main title
+ * @param {string} props.title - Primary page heading
+ * @param {string} props.subtitle - Descriptive subheading
+ * @param {import('react').ReactNode} props.children - Form body content
+ * @param {import('react').ReactNode} props.footerPrompt - Secondary navigation prompt link
+ */
 export function AuthLayout({
   eyebrow,
   title,
   subtitle,
   children,
   footerPrompt,
-}: AuthLayoutProps) {
+}) {
   return (
     <div className="auth-page">
       {/* Top Header */}

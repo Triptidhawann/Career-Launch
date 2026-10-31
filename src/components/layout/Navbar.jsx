@@ -19,7 +19,7 @@ export function Navbar() {
   }, [])
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
+    const handleKeyDown = (e) => {
       if (e.key === 'Escape') setMobileMenuOpen(false)
     }
     window.addEventListener('keydown', handleKeyDown)

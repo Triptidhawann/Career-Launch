@@ -1,23 +1,25 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useState } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { fetchOnboardingStatus, fetchProfile } from '@/lib/api'
 
-interface ProtectedRouteProps {
-  children: ReactNode
-  requireVerifiedEmail?: boolean
-  requireOnboarding?: boolean
-}
-
+/**
+ * Route protection wrapper requiring authentication, email verification, or onboarding completion.
+ *
+ * @param {Object} props
+ * @param {import('react').ReactNode} props.children - Protected children components
+ * @param {boolean} [props.requireVerifiedEmail=false] - Requires email verification before access
+ * @param {boolean} [props.requireOnboarding=false] - Requires completed student onboarding
+ */
 export function ProtectedRoute({
   children,
   requireVerifiedEmail = false,
   requireOnboarding = false,
-}: ProtectedRouteProps) {
+}) {
   const { user, isLoading, isAuthenticated, isEmailVerified } = useAuth()
   const location = useLocation()
 
-  const [isOnboardingCompleted, setIsOnboardingCompleted] = useState<boolean | null>(null)
+  const [isOnboardingCompleted, setIsOnboardingCompleted] = useState(null)
 
   const needOnboardingCheck = isAuthenticated && requireOnboarding
 
@@ -106,3 +108,5 @@ export function ProtectedRoute({
 
   return <>{children}</>
 }
+
+export default ProtectedRoute

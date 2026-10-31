@@ -10,20 +10,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 
-interface Opportunity {
-  id: string
-  company: string
-  initials: string
-  type: string
-  category: 'internship' | 'entry' | 'hackathon'
-  title: string
-  location: string
-  deadline: string
-  matchScore: number
-  tags: string[]
-}
-
-const OPPORTUNITIES_DATA: Opportunity[] = [
+const OPPORTUNITIES_DATA = [
   {
     id: 'opp-1',
     company: 'Stripe',
@@ -100,10 +87,10 @@ const OPPORTUNITIES_DATA: Opportunity[] = [
 
 export function Opportunities() {
   const { isAuthenticated } = useAuth()
-  const [selectedCategory, setSelectedCategory] = useState<string>('all')
-  const [savedIds, setSavedIds] = useState<string[]>(['opp-1'])
+  const [selectedCategory, setSelectedCategory] = useState('all')
+  const [savedIds, setSavedIds] = useState(['opp-1'])
 
-  const toggleSave = (id: string) => {
+  const toggleSave = (id) => {
     setSavedIds((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
     )

@@ -17,9 +17,9 @@ import { useAuth } from '@/hooks/useAuth'
 
 export function Hero() {
   const { isAuthenticated } = useAuth()
-  const heroRef = useRef<HTMLDivElement>(null)
-  const laptopRef = useRef<HTMLDivElement>(null)
-  const floatingOppRef = useRef<HTMLDivElement>(null)
+  const heroRef = useRef(null)
+  const laptopRef = useRef(null)
+  const floatingOppRef = useRef(null)
 
   useEffect(() => {
     if (!heroRef.current) return

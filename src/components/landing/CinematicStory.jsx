@@ -11,25 +11,7 @@ import {
 } from 'lucide-react'
 import { gsap, ScrollTrigger } from '@/lib/gsap'
 
-interface StageData {
-  id: string
-  number: string
-  badge: string
-  title: string
-  description: string
-  checklist: string[]
-  previewTitle: string
-  previewIcon: any
-  previewTag: string
-  previewItems: {
-    title: string
-    sub: string
-    badge: string
-    badgeType: 'terracotta' | 'sage'
-  }[]
-}
-
-const STAGES: StageData[] = [
+const STAGES = [
   {
     id: 'stage-1',
     number: '01',
@@ -250,9 +232,9 @@ const STAGES: StageData[] = [
 
 export function CinematicStory() {
   const [activeStageIndex, setActiveStageIndex] = useState(0)
-  const sectionRef = useRef<HTMLDivElement>(null)
-  const pinWrapperRef = useRef<HTMLDivElement>(null)
-  const cardRef = useRef<HTMLDivElement>(null)
+  const sectionRef = useRef(null)
+  const pinWrapperRef = useRef(null)
+  const cardRef = useRef(null)
 
   const activeStage = STAGES[activeStageIndex]
   const PreviewIcon = activeStage.previewIcon
