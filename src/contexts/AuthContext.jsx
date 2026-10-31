@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useState } from 'react'
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -10,15 +10,18 @@ import {
   setPersistence,
   browserLocalPersistence,
   browserSessionPersistence,
-  type User,
-  type UserCredential,
 } from 'firebase/auth'
 import { auth, getFirebaseAuth, isFirebaseConfigured } from '@/lib/firebase'
-import { AuthContext, type AuthContextType } from './authContextDef'
+import { AuthContext } from './authContextDef'
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
-  const [isLoading, setIsLoading] = useState<boolean>(isFirebaseConfigured && Boolean(auth))
+/**
+ * Authentication context provider wrapping the application with Firebase Auth state.
+ *
+ * @param {{ children: import('react').ReactNode }} props
+ */
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(null)
+  const [isLoading, setIsLoading] = useState(isFirebaseConfigured && Boolean(auth))
 
   useEffect(() => {
     if (!isFirebaseConfigured || !auth) {
@@ -35,11 +38,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => unsubscribe()
   }, [])
 
-  const signUp = async (
-    fullName: string,
-    email: string,
-    password: string,
-  ): Promise<UserCredential> => {
+  const signUp = async (fullName, email, password) => {
     const authInstance = getFirebaseAuth()
     const userCredential = await createUserWithEmailAndPassword(authInstance, email, password)
 
@@ -62,11 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return userCredential
   }
 
-  const signIn = async (
-    email: string,
-    password: string,
-    rememberMe = false,
-  ): Promise<UserCredential> => {
+  const signIn = async (email, password, rememberMe = false) => {
     const authInstance = getFirebaseAuth()
 
     try {
@@ -83,13 +78,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return userCredential
   }
 
-  const signOut = async (): Promise<void> => {
+  const signOut = async () => {
     const authInstance = getFirebaseAuth()
     await firebaseSignOut(authInstance)
     setUser(null)
   }
 
-  const sendVerificationEmail = async (): Promise<void> => {
+  const sendVerificationEmail = async () => {
     const authInstance = getFirebaseAuth()
     if (!authInstance.currentUser) {
       throw new Error('No authenticated user found to send verification email to.')
@@ -97,23 +92,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await sendEmailVerification(authInstance.currentUser)
   }
 
-  const sendPasswordReset = async (email: string): Promise<void> => {
+  const sendPasswordReset = async (email) => {
     const authInstance = getFirebaseAuth()
     await sendPasswordResetEmail(authInstance, email)
   }
 
-  const refreshUser = async (): Promise<User | null> => {
+  const refreshUser = async () => {
     const authInstance = getFirebaseAuth()
     if (authInstance.currentUser) {
       await authInstance.currentUser.reload()
       const updatedUser = authInstance.currentUser
-      setUser({ ...updatedUser } as User)
+      setUser({ ...updatedUser })
       return updatedUser
     }
     return null
   }
 
-  const value: AuthContextType = {
+  const value = {
     user,
     isLoading,
     isAuthenticated: Boolean(user),

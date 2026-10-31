@@ -1,5 +1,5 @@
-import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app'
-import { getAuth, type Auth } from 'firebase/auth'
+import { initializeApp, getApps, getApp } from 'firebase/app'
+import { getAuth } from 'firebase/auth'
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -13,15 +13,15 @@ const firebaseConfig = {
 /**
  * Checks whether all required Firebase credentials have been configured.
  */
-export const isFirebaseConfigured: boolean = Boolean(
+export const isFirebaseConfigured = Boolean(
   firebaseConfig.apiKey &&
     firebaseConfig.authDomain &&
     firebaseConfig.projectId &&
     firebaseConfig.apiKey !== 'your_api_key_here',
 )
 
-let app: FirebaseApp | null = null
-let auth: Auth | null = null
+let app = null
+let auth = null
 
 if (isFirebaseConfigured) {
   try {
@@ -35,8 +35,10 @@ if (isFirebaseConfigured) {
 /**
  * Returns the initialized Firebase Auth instance.
  * Throws a descriptive error if environment variables have not been configured.
+ *
+ * @returns {import('firebase/auth').Auth} Initialized Firebase Auth instance
  */
-export function getFirebaseAuth(): Auth {
+export function getFirebaseAuth() {
   if (!auth) {
     throw new Error(
       'Firebase is not configured. Please supply VITE_FIREBASE_* credentials in your .env file.',
@@ -47,8 +49,11 @@ export function getFirebaseAuth(): Auth {
 
 /**
  * Maps Firebase Auth error codes to user-friendly messages.
+ *
+ * @param {string} errorCode - Firebase error code string (e.g. 'auth/user-not-found')
+ * @returns {string} Human-readable error message
  */
-export function getFirebaseErrorMessage(errorCode: string): string {
+export function getFirebaseErrorMessage(errorCode) {
   switch (errorCode) {
     case 'auth/email-already-in-use':
       return 'An account with this email address already exists. Please sign in instead.'

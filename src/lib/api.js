@@ -1,13 +1,14 @@
 import { auth } from './firebase'
-import type {
-  OnboardingPayload,
-  StudentProfile,
-} from '@/types/profile'
 
 const API_BASE = '/api'
 
-async function getAuthHeader(): Promise<HeadersInit> {
-  const headers: HeadersInit = {
+/**
+ * Retrieves authorization headers attaching Firebase Bearer ID token if user is signed in.
+ *
+ * @returns {Promise<Record<string, string>>}
+ */
+async function getAuthHeader() {
+  const headers = {
     'Content-Type': 'application/json',
   }
 
@@ -25,24 +26,12 @@ async function getAuthHeader(): Promise<HeadersInit> {
   return headers
 }
 
-export interface ApiStatusResponse {
-  exists: boolean
-  isCompleted: boolean
-  stepCompleted: number
-  fullName?: string
-  role?: string
-}
-
-export interface ApiProfileResponse {
-  profile: StudentProfile | null
-  isCompleted: boolean
-  message?: string
-}
-
 /**
  * Checks the authenticated student's onboarding completion status.
+ *
+ * @returns {Promise<{ exists: boolean, isCompleted: boolean, stepCompleted: number, fullName?: string, role?: string }>}
  */
-export async function fetchOnboardingStatus(): Promise<ApiStatusResponse> {
+export async function fetchOnboardingStatus() {
   const headers = await getAuthHeader()
   const res = await fetch(`${API_BASE}/profile/status`, {
     headers,
@@ -58,8 +47,10 @@ export async function fetchOnboardingStatus(): Promise<ApiStatusResponse> {
 
 /**
  * Retrieves the full student profile for the currently logged-in user.
+ *
+ * @returns {Promise<{ profile: object | null, isCompleted: boolean, message?: string }>}
  */
-export async function fetchProfile(): Promise<ApiProfileResponse> {
+export async function fetchProfile() {
   const headers = await getAuthHeader()
   const res = await fetch(`${API_BASE}/profile/me`, {
     headers,
@@ -75,10 +66,11 @@ export async function fetchProfile(): Promise<ApiProfileResponse> {
 
 /**
  * Submits the complete onboarding data payload to create/update student profile.
+ *
+ * @param {object} data - Onboarding payload
+ * @returns {Promise<{ success: boolean, message: string, profile: object }>}
  */
-export async function submitOnboarding(
-  data: OnboardingPayload,
-): Promise<{ success: boolean; message: string; profile: StudentProfile }> {
+export async function submitOnboarding(data) {
   const headers = await getAuthHeader()
   const res = await fetch(`${API_BASE}/profile/onboarding`, {
     method: 'POST',
@@ -96,10 +88,11 @@ export async function submitOnboarding(
 
 /**
  * Updates an existing student profile.
+ *
+ * @param {object} data - Partial profile updates
+ * @returns {Promise<{ success: boolean, message: string, profile: object }>}
  */
-export async function updateProfile(
-  data: Partial<StudentProfile>,
-): Promise<{ success: boolean; message: string; profile: StudentProfile }> {
+export async function updateProfile(data) {
   const headers = await getAuthHeader()
   const res = await fetch(`${API_BASE}/profile/me`, {
     method: 'PUT',
