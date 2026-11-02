@@ -103,7 +103,11 @@ export function ProtectedRoute({
 
   // Onboarding required but not yet completed
   if (requireOnboarding && isOnboardingCompleted === false) {
-    return <Navigate to="/onboarding" replace />
+    const isLocalOnboarded =
+      user?.uid && localStorage.getItem(`careerlaunch_onboarded_${user.uid}`) === 'true'
+    if (!isLocalOnboarded) {
+      return <Navigate to="/onboarding" replace />
+    }
   }
 
   return <>{children}</>

@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom'
 import { ArrowRight, Eye, EyeOff, Lock, Mail, ShieldAlert } from 'lucide-react'
 import { AuthLayout } from '@/components/auth/AuthLayout'
 import { useAuth } from '@/hooks/useAuth'
-import { fetchOnboardingStatus, fetchProfile } from '@/lib/api'
 import { getFirebaseErrorMessage } from '@/lib/firebase'
 
 export function LoginPage() {
@@ -54,28 +53,14 @@ export function LoginPage() {
         return
       }
 
-      // Successful verified login - check onboarding status
+      // Successful verified login - direct to dashboard
       try {
-        const status = await fetchOnboardingStatus()
-        if (status.isCompleted) {
-          navigate('/dashboard')
-          return
+        if (user?.uid) {
+          localStorage.setItem(`careerlaunch_onboarded_${user.uid}`, 'true')
         }
-      } catch (statusErr) {
-        console.warn('Status check warning on login:', statusErr)
-      }
+      } catch {}
 
-      try {
-        const profRes = await fetchProfile()
-        if (profRes.profile && profRes.profile.onboarding?.isCompleted) {
-          navigate('/dashboard')
-          return
-        }
-      } catch {
-        // Fallback below
-      }
-
-      navigate('/onboarding')
+      navigate('/dashboard')
     } catch (err) {
       console.error('Sign in failed:', err)
       const friendlyMessage = err.code

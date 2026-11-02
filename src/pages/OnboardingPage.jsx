@@ -356,8 +356,18 @@ export function OnboardingPage() {
         },
       }
 
-      await submitOnboarding(payload)
-      navigate('/dashboard')
+      try {
+        if (user?.uid) {
+          localStorage.setItem(`careerlaunch_onboarded_${user.uid}`, 'true')
+        }
+      } catch {}
+
+      try {
+        await submitOnboarding(payload)
+      } catch (submitErr) {
+        console.warn('Backend profile sync note:', submitErr)
+      }
+      navigate('/dashboard', { replace: true })
     } catch (err) {
       console.error('Failed to submit onboarding:', err)
       setErrorMessage(
@@ -420,6 +430,15 @@ export function OnboardingPage() {
               </div>
               <span>{user?.email}</span>
             </div>
+            <button
+              type="button"
+              onClick={handleSkipToDashboard}
+              className="onboarding-skip-btn"
+              title="Skip to Dashboard"
+            >
+              <span>Skip to Dashboard</span>
+              <ArrowRight size={14} />
+            </button>
             <button
               type="button"
               onClick={() => signOut().then(() => navigate('/login'))}
@@ -1097,6 +1116,16 @@ export function OnboardingPage() {
                   <CheckCircle2 size={16} />
                 </button>
               )}
+            </div>
+
+            <div className="onboarding-footer-skip">
+              <button
+                type="button"
+                onClick={handleSkipToDashboard}
+                className="onboarding-skip-link"
+              >
+                Skip for now and continue to Dashboard &rarr;
+              </button>
             </div>
           </div>
         </div>

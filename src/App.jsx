@@ -47,7 +47,7 @@ export default function App() {
           <Route
             path="/dashboard"
             element={
-              <ProtectedRoute requireVerifiedEmail={true} requireOnboarding={true}>
+              <ProtectedRoute requireVerifiedEmail={true} requireOnboarding={false}>
                 <StudentDashboardPage />
               </ProtectedRoute>
             }

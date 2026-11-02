@@ -97,6 +97,51 @@
   color: var(--color-terracotta);
 }
 
+.onboarding-skip-btn {
+  background-color: var(--color-white);
+  border: 1px solid var(--color-sand);
+  color: var(--color-terracotta);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: var(--font-semibold);
+  font-family: inherit;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  transition: all var(--transition-fast);
+}
+
+.onboarding-skip-btn:hover {
+  background-color: var(--color-terracotta);
+  border-color: var(--color-terracotta);
+  color: var(--color-white);
+  transform: translateY(-1px);
+}
+
+.onboarding-footer-skip {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.onboarding-skip-link {
+  background: none;
+  border: none;
+  color: var(--color-charcoal-muted);
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-family: inherit;
+  font-weight: var(--font-medium);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  transition: color var(--transition-fast);
+}
+
+.onboarding-skip-link:hover {
+  color: var(--color-terracotta);
+}
+
 /* Main Container */
 .onboarding-main {
   flex: 1;

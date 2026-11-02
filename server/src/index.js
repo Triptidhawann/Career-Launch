@@ -69,7 +69,7 @@ app.use('/api/*', (_req, res) => {
 async function startServer() {
   try {
     await connectDB()
-    const server = app.listen(PORT, () => {
+    const server = app.listen(PORT, '0.0.0.0', () => {
       console.log(`[CareerLaunch Server] Running on http://localhost:${PORT}`)
       console.log(`[CareerLaunch Server] API ready at http://localhost:${PORT}/api`)
     })
