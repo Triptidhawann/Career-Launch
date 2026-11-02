@@ -4,19 +4,17 @@ import {
   AlertCircle,
   ArrowRight,
   Award,
-  BookOpen,
   Brain,
   Briefcase,
   Check,
   CheckCircle2,
+  ChevronRight,
   Code2,
   Compass,
   Edit3,
   ExternalLink,
   FolderGit2,
   GraduationCap,
-  Info,
-  Layers,
   LogOut,
   MapPin,
   Menu,
@@ -24,7 +22,6 @@ import {
   Sparkles,
   Target,
   Trash2,
-  User,
   X,
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
@@ -644,719 +641,597 @@ export function StudentDashboardPage() {
 
       {/* Main Content Area */}
       <main className="dashboard-main">
-        <div className="container">
-          {/* SECTION 1: Welcome Section */}
-          <section className="dashboard-welcome" aria-label="Welcome banner">
-            <div className="dashboard-welcome__inner">
-              <div>
-                <div className="dashboard-welcome__eyebrow">
-                  <Sparkles size={14} />
-                  <span>Student Readiness Center</span>
-                </div>
-                <h1 className="dashboard-welcome__title">
-                  Welcome back, {profile.fullName}
-                </h1>
-                <p className="dashboard-welcome__desc">
-                  Here is your career preparation overview and academic baseline. Keep your profile
-                  thoroughly documented to receive calibrated question sets and interview tracks.
-                </p>
-
-                <div className="dashboard-welcome__meta">
-                  <div className="dashboard-meta-chip">
-                    <GraduationCap size={15} />
-                    <span>
-                      {profile.education?.degree} &bull; {profile.education?.branch || 'Engineering'}
-                    </span>
-                  </div>
-                  <div className="dashboard-meta-chip">
-                    <Briefcase size={15} />
-                    <span>
-                      Target: {profile.careerPreferences?.targetRoles?.[0] || 'Software Development Engineer'}
-                    </span>
-                  </div>
-                  <div className="dashboard-meta-chip" style={{ backgroundColor: 'rgba(135, 148, 119, 0.25)' }}>
-                    <CheckCircle2 size={14} color="var(--color-sage)" />
-                    <span>Baseline Verified</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="dashboard-welcome__actions">
-                <button
-                  type="button"
-                  onClick={() => handleOpenEditModal('academic')}
-                  className="dashboard-btn-edit-primary"
-                >
-                  <Edit3 size={15} />
-                  <span>Edit Profile</span>
-                </button>
-              </div>
-            </div>
-          </section>
-
-          {/* SECTION 2: Readiness Overview (Profile Completeness vs Interview Readiness) */}
-          <section className="readiness-overview" aria-label="Readiness and baseline assessment">
-            <div className="section-heading-row">
-              <h2 className="section-heading">
-                <Target size={20} color="var(--color-terracotta)" />
-                <span>Readiness & Baseline Assessment</span>
-              </h2>
-              <span className="section-subheading">
-                Two distinct metrics for candidate evaluation
+        <div className="container dashboard-container">
+          {/* SECTION 1: Welcome Banner */}
+          <section className="dashboard-welcome-banner" aria-label="Student Welcome Banner">
+            <div className="dashboard-welcome-banner__content">
+              <span className="dashboard-welcome-banner__label">
+                CAREERLAUNCH / STUDENT WORKSPACE
               </span>
+              <h1 className="dashboard-welcome-banner__title">
+                Welcome back, {currentProfile.fullName || 'Student'}.
+              </h1>
+              <p className="dashboard-welcome-banner__subtitle">
+                Your career journey is taking shape. Here&apos;s where you stand.
+              </p>
             </div>
-
-            <div className="readiness-grid">
-              {/* Card A: Profile Completeness */}
-              <div className="readiness-card readiness-card--completeness">
-                <div>
-                  <div className="readiness-card__header">
-                    <div>
-                      <span className="readiness-card__tag readiness-card__tag--completeness">
-                        Profile Metric
-                      </span>
-                      <h3 className="readiness-card__title">Profile Completeness</h3>
-                    </div>
-                  </div>
-
-                  <div className="readiness-score-display">
-                    <span className="readiness-score-number readiness-score-number--terracotta">
-                      {completenessScore}%
-                    </span>
-                    <span className="readiness-score-max">/ 100% complete</span>
-                  </div>
-
-                  <div className="completeness-bar">
-                    <div
-                      className="completeness-bar__fill"
-                      style={{ width: `${completenessScore}%` }}
-                    />
-                  </div>
-
-                  <p className="readiness-card__desc">
-                    Measures how thoroughly your academic background, technical proficiencies,
-                    showcase projects, and career preferences are documented.
-                  </p>
-                </div>
-
-                <div className="completeness-checklist">
-                  {completenessChecklist.map((item) => (
-                    <div key={item.id} className="completeness-item">
-                      <div className="completeness-item__left">
-                        <div
-                          className={`completeness-item__check ${
-                            item.isCompleted
-                              ? 'completeness-item__check--done'
-                              : 'completeness-item__check--pending'
-                          }`}
-                        >
-                          {item.isCompleted ? <Check size={12} strokeWidth={3} /> : <AlertCircle size={12} />}
-                        </div>
-                        <span>{item.label}</span>
-                      </div>
-                      <span
-                        className={`completeness-item__status ${
-                          item.isCompleted ? 'completeness-item__status--done' : ''
-                        }`}
-                      >
-                        {item.tip}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Card B: Interview Readiness */}
-              <div className="readiness-card readiness-card--readiness">
-                <div>
-                  <div className="readiness-card__header">
-                    <div>
-                      <span className="readiness-card__tag readiness-card__tag--pending">
-                        Preparation Metric
-                      </span>
-                      <h3 className="readiness-card__title">Interview Readiness</h3>
-                    </div>
-                    <span className="readiness-untested-badge">
-                      <Brain size={16} color="var(--color-sage)" />
-                      <span>Not Assessed Yet</span>
-                    </span>
-                  </div>
-
-                  <p className="readiness-card__desc">
-                    Interview readiness evaluates your verified problem-solving speed, data structure
-                    proficiency, and simulated technical interview performance.
-                  </p>
-
-                  <div className="readiness-honest-box">
-                    <div className="readiness-honest-box__title">
-                      <Info size={16} color="var(--color-terracotta)" />
-                      <span>Requires Genuine Assessment Data</span>
-                    </div>
-                    <p className="readiness-honest-box__text">
-                      Unlike profile completeness, interview readiness cannot be calculated from
-                      registration details alone. In the upcoming Interview Preparation phase, you
-                      will solve coding challenges and complete adaptive mock interviews to establish
-                      your verified benchmark.
-                    </p>
-                  </div>
-                </div>
-
-                <div>
-                  <a
-                    href="#roadmap"
-                    className="btn btn-outline-dark"
-                    style={{ width: '100%', justifyContent: 'center', fontSize: '0.825rem' }}
-                  >
-                    <span>View Placement Roadmap</span>
-                    <ArrowRight size={14} />
-                  </a>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* SECTION 3: Career Snapshot */}
-          <section className="career-snapshot-card" aria-label="Career snapshot">
-            <div className="card-header-action">
-              <h2 className="card-title-sm">
-                <GraduationCap size={18} color="var(--color-forest)" />
-                <span>Career Snapshot</span>
-              </h2>
+            <div className="dashboard-welcome-banner__action">
               <button
                 type="button"
                 onClick={() => handleOpenEditModal('academic')}
-                className="btn-card-action"
+                className="dashboard-banner-edit-btn"
+                aria-label="Edit student profile"
               >
-                <Edit3 size={13} />
-                <span>Edit Academic & Career Info</span>
+                <Edit3 size={15} />
+                <span>Edit Profile</span>
               </button>
             </div>
+          </section>
 
-            <div className="career-snapshot-grid">
-              {/* Column 1: Academic & Contact */}
-              <div className="career-snapshot-column">
-                <span className="career-snapshot-column__title">
-                  <User size={14} />
-                  <span>Academic & Contact Baseline</span>
+          {/* SECTION 2: Progress Summary (Two side-by-side sections) */}
+          <section className="dashboard-progress-summary" aria-label="Progress Summary">
+            {/* Left: Profile Completeness */}
+            <div className="dashboard-progress-card">
+              <div className="progress-card__header">
+                <span className="progress-card__tag">Profile Completeness</span>
+                <span className="progress-card__status-label">
+                  {completenessScore >= 80 ? 'Well Calibrated' : 'In Progress'}
                 </span>
-
-                <div className="snapshot-detail-row">
-                  <span className="snapshot-label">College / University</span>
-                  <span className="snapshot-value">
-                    {profile.education?.college || 'Not specified'}
-                  </span>
-                </div>
-
-                <div className="snapshot-detail-row">
-                  <span className="snapshot-label">Degree & Branch</span>
-                  <span className="snapshot-value">
-                    {profile.education?.degree} &bull; {profile.education?.branch}
-                  </span>
-                </div>
-
-                <div className="snapshot-detail-row">
-                  <span className="snapshot-label">Graduation Batch & Semester</span>
-                  <span className="snapshot-value">
-                    Class of {profile.education?.graduationYear || '2026'}{' '}
-                    {profile.education?.currentSemester
-                      ? `• Semester ${profile.education.currentSemester}`
-                      : ''}
-                  </span>
-                </div>
-
-                <div className="snapshot-detail-row">
-                  <span className="snapshot-label">Cumulative GPA / Score</span>
-                  <span className="snapshot-value">
-                    {profile.education?.cgpa !== undefined && profile.education?.cgpa !== null
-                      ? `${profile.education.cgpa} / 10.0`
-                      : 'Not provided'}
-                  </span>
-                </div>
-
-                <div className="snapshot-detail-row">
-                  <span className="snapshot-label">Email & Phone</span>
-                  <span className="snapshot-value snapshot-value--sub">
-                    {profile.email} {profile.phoneNumber ? `• ${profile.phoneNumber}` : ''}
-                  </span>
-                </div>
               </div>
-
-              {/* Column 2: Career Preferences */}
-              <div className="career-snapshot-column">
-                <span className="career-snapshot-column__title">
-                  <Briefcase size={14} />
-                  <span>Placement Preferences</span>
+              <div className="progress-card__metric">
+                <span className="progress-card__number">{completenessScore}%</span>
+                <span className="progress-card__sublabel">
+                  {completenessChecklist.filter((i) => i.isCompleted).length} of {completenessChecklist.length} sections documented
                 </span>
+              </div>
+              <div className="progress-card__bar-wrap">
+                <div
+                  className="progress-card__bar-fill"
+                  style={{ width: `${completenessScore}%` }}
+                />
+              </div>
+            </div>
 
-                <div className="snapshot-detail-row">
-                  <span className="snapshot-label">Target Positions</span>
-                  <div className="snapshot-tags-wrap">
-                    {profile.careerPreferences?.targetRoles && profile.careerPreferences.targetRoles.length > 0 ? (
-                      profile.careerPreferences.targetRoles.map((role) => (
-                        <span key={role} className="snapshot-tag snapshot-tag--primary">
-                          {role}
-                        </span>
-                      ))
-                    ) : (
-                      <span className="snapshot-value snapshot-value--sub">No target roles selected</span>
-                    )}
+            {/* Right: Interview Readiness */}
+            <div className="dashboard-progress-card">
+              <div className="progress-card__header">
+                <span className="progress-card__tag">Interview Readiness</span>
+                <span className="dashboard-readiness-badge">
+                  <Brain size={14} />
+                  <span>Not Assessed Yet</span>
+                </span>
+              </div>
+              <p className="progress-card__desc">
+                Interview readiness evaluates your verified problem-solving speed, data structure
+                proficiency, and simulated technical interview performance. Take a readiness drill to generate your baseline score.
+              </p>
+            </div>
+          </section>
+
+          {/* SECTION 3: Main Workspace Heading */}
+          <div className="dashboard-workspace-header">
+            <h2 className="dashboard-workspace-title">Main workspace</h2>
+          </div>
+
+          {/* SECTION 4: Two-Column Workspace (68% / 32%) */}
+          <div className="dashboard-workspace-grid">
+            {/* Left Column (Approx 68%) */}
+            <div className="dashboard-workspace-main">
+              {/* A. Career Snapshot */}
+              <section className="workspace-card" aria-label="Career Snapshot">
+                <div className="workspace-card__header">
+                  <div className="workspace-card__title-group">
+                    <GraduationCap size={18} color="var(--color-forest)" />
+                    <h3 className="workspace-card__title">Career Snapshot</h3>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleOpenEditModal('academic')}
+                    className="workspace-card__action-btn"
+                  >
+                    <Edit3 size={14} />
+                    <span>Edit</span>
+                  </button>
+                </div>
+
+                <div className="snapshot-grid">
+                  <div className="snapshot-cell">
+                    <span className="snapshot-label">Education</span>
+                    <span className="snapshot-value">
+                      {currentProfile.education?.degree} &bull; {currentProfile.education?.branch || 'Engineering'}
+                    </span>
+                    <span className="snapshot-subtext">
+                      {currentProfile.education?.college}
+                    </span>
+                  </div>
+
+                  <div className="snapshot-cell">
+                    <span className="snapshot-label">Academic Standing</span>
+                    <span className="snapshot-value">
+                      Semester {currentProfile.education?.currentSemester || 6} &bull; Class of {currentProfile.education?.graduationYear || 2026}
+                    </span>
+                    <span className="snapshot-subtext">
+                      CGPA: {currentProfile.education?.cgpa || '8.8'} / 10.0
+                    </span>
+                  </div>
+
+                  <div className="snapshot-cell">
+                    <span className="snapshot-label">Target Roles</span>
+                    <div className="snapshot-chips-wrap">
+                      {currentProfile.careerPreferences?.targetRoles && currentProfile.careerPreferences.targetRoles.length > 0 ? (
+                        currentProfile.careerPreferences.targetRoles.map((role) => (
+                          <span key={role} className="snapshot-chip snapshot-chip--forest">
+                            {role}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="snapshot-subtext">Open to technical engineering roles</span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="snapshot-cell">
+                    <span className="snapshot-label">Work Preferences</span>
+                    <span className="snapshot-value" style={{ textTransform: 'capitalize' }}>
+                      {currentProfile.careerPreferences?.workMode || 'Any mode'} &bull; {currentProfile.careerPreferences?.workType || 'Full-time / Internship'}
+                    </span>
+                    <span className="snapshot-subtext">
+                      Target Compensation: {currentProfile.careerPreferences?.expectedSalary || 'Industry competitive'}
+                    </span>
                   </div>
                 </div>
 
-                <div className="snapshot-detail-row">
-                  <span className="snapshot-label">Preferred Locations</span>
-                  <div className="snapshot-tags-wrap">
-                    {profile.careerPreferences?.preferredLocations && profile.careerPreferences.preferredLocations.length > 0 ? (
-                      profile.careerPreferences.preferredLocations.map((loc) => (
-                        <span key={loc} className="snapshot-tag">
-                          <MapPin size={11} style={{ display: 'inline', marginRight: 3 }} />
+                {currentProfile.careerPreferences?.preferredLocations && currentProfile.careerPreferences.preferredLocations.length > 0 && (
+                  <div className="snapshot-footer-row">
+                    <span className="snapshot-label">Preferred Locations:</span>
+                    <div className="snapshot-chips-wrap">
+                      {currentProfile.careerPreferences.preferredLocations.map((loc) => (
+                        <span key={loc} className="snapshot-chip snapshot-chip--subtle">
+                          <MapPin size={11} style={{ marginRight: 3 }} />
                           {loc}
                         </span>
-                      ))
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </section>
+
+              {/* B. Skills */}
+              <section className="workspace-card" aria-label="Skills & Competencies">
+                <div className="workspace-card__header">
+                  <div className="workspace-card__title-group">
+                    <Code2 size={18} color="var(--color-forest)" />
+                    <h3 className="workspace-card__title">
+                      Skills &amp; Competencies ({skillsList.length})
+                    </h3>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleOpenEditModal('skills')}
+                    className="workspace-card__action-btn"
+                  >
+                    <Edit3 size={14} />
+                    <span>Manage Skills</span>
+                  </button>
+                </div>
+
+                <div className="workspace-skills-content">
+                  {/* Categorized Technical Skills */}
+                  {advancedSkills.length > 0 && (
+                    <div className="skills-level-group">
+                      <div className="skills-level-label">
+                        <span className="skills-dot skills-dot--advanced" />
+                        <span>Advanced Proficiency ({advancedSkills.length})</span>
+                      </div>
+                      <div className="skills-chips-wrap">
+                        {advancedSkills.map((s) => (
+                          <div key={s.name} className="skill-chip skill-chip--advanced">
+                            <CheckCircle2 size={12} color="var(--color-forest)" />
+                            <span>{s.name}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {intermediateSkills.length > 0 && (
+                    <div className="skills-level-group">
+                      <div className="skills-level-label">
+                        <span className="skills-dot skills-dot--intermediate" />
+                        <span>Intermediate Competencies ({intermediateSkills.length})</span>
+                      </div>
+                      <div className="skills-chips-wrap">
+                        {intermediateSkills.map((s) => (
+                          <div key={s.name} className="skill-chip skill-chip--intermediate">
+                            <CheckCircle2 size={12} color="var(--color-sage-dark)" />
+                            <span>{s.name}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {beginnerSkills.length > 0 && (
+                    <div className="skills-level-group">
+                      <div className="skills-level-label">
+                        <span className="skills-dot skills-dot--beginner" />
+                        <span>Foundational / Exploring ({beginnerSkills.length})</span>
+                      </div>
+                      <div className="skills-chips-wrap">
+                        {beginnerSkills.map((s) => (
+                          <div key={s.name} className="skill-chip skill-chip--beginner">
+                            <span>{s.name}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Technologies Stack Cloud */}
+                  {currentProfile.technologies && currentProfile.technologies.length > 0 && (
+                    <div className="skills-level-group" style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--color-sand)' }}>
+                      <div className="skills-level-label">
+                        <span>Technologies &amp; Frameworks</span>
+                      </div>
+                      <div className="skills-chips-wrap">
+                        {currentProfile.technologies.map((tech) => (
+                          <span key={tech} className="snapshot-chip snapshot-chip--subtle">
+                            {tech}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Interpersonal Skills */}
+                  <div className="skills-level-group" style={{ marginTop: '12px' }}>
+                    <div className="skills-level-label">
+                      <span>Interpersonal &amp; Behavioral</span>
+                    </div>
+                    <div className="skills-chips-wrap">
+                      {['Structured Problem Solving', 'Cross-Functional Collaboration', 'Technical Communication', 'STAR Method Articulation'].map((item) => (
+                        <span key={item} className="snapshot-chip snapshot-chip--sage">
+                          {item}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              {/* C. Projects & Certifications (Combined Organised Section) */}
+              <section className="workspace-card" aria-label="Projects and Certifications">
+                <div className="workspace-card__header">
+                  <div className="workspace-card__title-group">
+                    <FolderGit2 size={18} color="var(--color-forest)" />
+                    <h3 className="workspace-card__title">Projects &amp; Certifications</h3>
+                  </div>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button
+                      type="button"
+                      onClick={() => handleOpenEditModal('projects')}
+                      className="workspace-card__action-btn"
+                    >
+                      <Plus size={13} />
+                      <span>Project</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleOpenEditModal('certifications')}
+                      className="workspace-card__action-btn"
+                    >
+                      <Plus size={13} />
+                      <span>Certification</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="proj-certs-container">
+                  {/* Sub-section: Projects */}
+                  <div className="proj-certs-subgroup">
+                    <div className="proj-certs-subtitle">
+                      <FolderGit2 size={15} color="var(--color-terracotta)" />
+                      <span>Verified Technical Projects ({currentProfile.projects?.length || 0})</span>
+                    </div>
+
+                    {currentProfile.projects && currentProfile.projects.length > 0 ? (
+                      <div className="proj-cards-list">
+                        {currentProfile.projects.map((proj, idx) => (
+                          <div key={idx} className="proj-item-card">
+                            <div className="proj-item-card__header">
+                              <h4 className="proj-item-card__title">{proj.title}</h4>
+                              <div className="proj-item-card__links">
+                                {proj.repoUrl && (
+                                  <a
+                                    href={proj.repoUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="proj-link-btn"
+                                    title="View Source Code"
+                                  >
+                                    <span>Code</span>
+                                    <ExternalLink size={12} />
+                                  </a>
+                                )}
+                                {proj.liveUrl && (
+                                  <a
+                                    href={proj.liveUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="proj-link-btn proj-link-btn--live"
+                                    title="View Live Demo"
+                                  >
+                                    <span>Live</span>
+                                    <ExternalLink size={12} />
+                                  </a>
+                                )}
+                              </div>
+                            </div>
+                            <p className="proj-item-card__desc">{proj.description}</p>
+                            {proj.technologies && proj.technologies.length > 0 && (
+                              <div className="proj-item-card__tags">
+                                {proj.technologies.map((t) => (
+                                  <span key={t} className="proj-tech-pill">{t}</span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
                     ) : (
-                      <span className="snapshot-value snapshot-value--sub">Open to any location</span>
+                      <div className="empty-sub-card">
+                        <p>No projects documented yet. Add your flagship projects to stand out.</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Sub-section: Certifications */}
+                  <div className="proj-certs-subgroup" style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid var(--color-sand)' }}>
+                    <div className="proj-certs-subtitle">
+                      <Award size={15} color="var(--color-sage-dark)" />
+                      <span>Accreditations &amp; Certifications ({currentProfile.certifications?.length || 0})</span>
+                    </div>
+
+                    {currentProfile.certifications && currentProfile.certifications.length > 0 ? (
+                      <div className="cert-cards-list">
+                        {currentProfile.certifications.map((cert, idx) => (
+                          <div key={idx} className="cert-item-card">
+                            <div className="cert-item-card__main">
+                              <span className="cert-item-card__name">{cert.name}</span>
+                              <span className="cert-item-card__issuer">
+                                Issued by {cert.issuer} &bull; {cert.issueDate || '2026'}
+                              </span>
+                            </div>
+                            {cert.credentialUrl && (
+                              <a
+                                href={cert.credentialUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="proj-link-btn"
+                              >
+                                <span>Verify</span>
+                                <ExternalLink size={12} />
+                              </a>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="empty-sub-card">
+                        <p>No certifications recorded yet. Add credentials to demonstrate depth.</p>
+                      </div>
                     )}
                   </div>
                 </div>
+              </section>
 
-                <div className="snapshot-detail-row">
-                  <span className="snapshot-label">Work Environment & Type</span>
-                  <span className="snapshot-value snapshot-value--sub" style={{ textTransform: 'capitalize' }}>
-                    {profile.careerPreferences?.workMode || 'Any mode'}{' '}
-                    &bull; {profile.careerPreferences?.workType || 'Full-time / Internship'}
-                  </span>
+              {/* D. Career Roadmap */}
+              <section className="workspace-card" aria-label="Career Roadmap">
+                <div className="workspace-card__header">
+                  <div className="workspace-card__title-group">
+                    <Target size={18} color="var(--color-forest)" />
+                    <h3 className="workspace-card__title">Career Roadmap</h3>
+                  </div>
+                  <span className="workspace-card__meta-tag">Phase 2 Active</span>
                 </div>
 
-                <div className="snapshot-detail-row">
-                  <span className="snapshot-label">Target CTC / Salary Range</span>
-                  <span className="snapshot-value">
-                    {profile.careerPreferences?.expectedSalary || 'Open to industry standards'}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* SECTION 4: Skills and Technologies */}
-          <section className="skills-showcase-card" aria-label="Skills and technologies">
-            <div className="card-header-action">
-              <h2 className="card-title-sm">
-                <Code2 size={18} color="var(--color-forest)" />
-                <span>Documented Skills & Competencies ({profile.skills?.length || 0})</span>
-              </h2>
-              <button
-                type="button"
-                onClick={() => handleOpenEditModal('skills')}
-                className="btn-card-action"
-              >
-                <Plus size={13} />
-                <span>Manage Skills</span>
-              </button>
-            </div>
-
-            {profile.skills && profile.skills.length > 0 ? (
-              <div>
-                {advancedSkills.length > 0 && (
-                  <div className="skills-tier-group">
-                    <div className="skills-tier-header">
-                      <span>Advanced Proficiency ({advancedSkills.length})</span>
+                <div className="workspace-roadmap-timeline">
+                  {/* Milestone 1: Completed */}
+                  <div className="roadmap-step roadmap-step--completed">
+                    <div className="roadmap-step__marker">
+                      <Check size={13} strokeWidth={3} />
                     </div>
-                    <div className="skills-chips-wrap">
-                      {advancedSkills.map((s) => (
-                        <span key={s.name} className="skill-chip skill-chip--advanced">
-                          <CheckCircle2 size={13} color="var(--color-forest)" />
-                          <span>{s.name}</span>
+                    <div className="roadmap-step__body">
+                      <div className="roadmap-step__header">
+                        <span className="roadmap-step__title">
+                          01. Academic &amp; Skills Baseline
                         </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {intermediateSkills.length > 0 && (
-                  <div className="skills-tier-group">
-                    <div className="skills-tier-header">
-                      <span>Intermediate Proficiency ({intermediateSkills.length})</span>
-                    </div>
-                    <div className="skills-chips-wrap">
-                      {intermediateSkills.map((s) => (
-                        <span key={s.name} className="skill-chip skill-chip--intermediate">
-                          <span>{s.name}</span>
+                        <span className="roadmap-status-badge roadmap-status-badge--completed">
+                          Completed
                         </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {beginnerSkills.length > 0 && (
-                  <div className="skills-tier-group">
-                    <div className="skills-tier-header">
-                      <span>Foundational / Beginner ({beginnerSkills.length})</span>
-                    </div>
-                    <div className="skills-chips-wrap">
-                      {beginnerSkills.map((s) => (
-                        <span key={s.name} className="skill-chip skill-chip--beginner">
-                          <span>{s.name}</span>
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {profile.technologies && profile.technologies.length > 0 && (
-                  <div className="tech-tag-cloud">
-                    <div className="tech-tag-cloud__title">
-                      Technologies Across Stack & Projects ({profile.technologies.length})
-                    </div>
-                    <div className="skills-chips-wrap">
-                      {profile.technologies.map((tech) => (
-                        <span key={tech} className="tech-tag">
-                          {tech}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="empty-state-box">
-                <Code2 size={24} color="var(--color-charcoal-muted)" />
-                <p>No technical skills documented yet.</p>
-                <button
-                  type="button"
-                  onClick={() => handleOpenEditModal('skills')}
-                  className="empty-state-btn"
-                >
-                  <Plus size={13} />
-                  <span>Add Technical Skills</span>
-                </button>
-              </div>
-            )}
-          </section>
-
-          {/* SECTION 5: Projects and Certifications */}
-          <section className="projects-certs-grid" aria-label="Projects and certifications">
-            {/* Column 1: Projects */}
-            <div className="projects-column-card">
-              <div className="card-header-action">
-                <h2 className="card-title-sm">
-                  <FolderGit2 size={18} color="var(--color-terracotta)" />
-                  <span>Showcase Projects ({profile.projects?.length || 0})</span>
-                </h2>
-                <button
-                  type="button"
-                  onClick={() => handleOpenEditModal('projects')}
-                  className="btn-card-action"
-                >
-                  <Plus size={13} />
-                  <span>Add Project</span>
-                </button>
-              </div>
-
-              {profile.projects && profile.projects.length > 0 ? (
-                <div>
-                  {profile.projects.map((proj, idx) => (
-                    <div key={idx} className="project-item">
-                      <div className="project-item__top">
-                        <span className="project-item__title">{proj.title}</span>
-                        <div className="project-item__links">
-                          {proj.repoUrl && (
-                            <a
-                              href={proj.repoUrl}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="project-link-pill"
-                              title="View repository"
-                            >
-                              <span>Code</span>
-                              <ExternalLink size={11} />
-                            </a>
-                          )}
-                          {proj.liveUrl && (
-                            <a
-                              href={proj.liveUrl}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="project-link-pill"
-                              title="View live deployment"
-                            >
-                              <span>Demo</span>
-                              <ExternalLink size={11} />
-                            </a>
-                          )}
-                        </div>
                       </div>
-
-                      {proj.description && (
-                        <p className="project-item__desc">{proj.description}</p>
-                      )}
-
-                      {proj.technologies && proj.technologies.length > 0 && (
-                        <div className="project-item__techs">
-                          {proj.technologies.map((tech) => (
-                            <span key={tech} className="tech-tag">
-                              {tech}
-                            </span>
-                          ))}
-                        </div>
-                      )}
+                      <p className="roadmap-step__desc">
+                        Academic profile, course curriculum, and baseline programming competencies recorded and verified.
+                      </p>
                     </div>
-                  ))}
+                  </div>
+
+                  {/* Milestone 2: Current */}
+                  <div className="roadmap-step roadmap-step--current">
+                    <div className="roadmap-step__marker">
+                      <span className="roadmap-step__pulse-dot" />
+                    </div>
+                    <div className="roadmap-step__body">
+                      <div className="roadmap-step__header">
+                        <span className="roadmap-step__title">
+                          02. Core Technical Preparation
+                        </span>
+                        <span className="roadmap-status-badge roadmap-status-badge--current">
+                          In Progress
+                        </span>
+                      </div>
+                      <p className="roadmap-step__desc">
+                        Role-calibrated algorithmic question bank: Arrays, Two Pointers, Trees, Graphs, and Dynamic Programming patterns.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Milestone 3: Upcoming */}
+                  <div className="roadmap-step roadmap-step--upcoming">
+                    <div className="roadmap-step__marker">
+                      <span>03</span>
+                    </div>
+                    <div className="roadmap-step__body">
+                      <div className="roadmap-step__header">
+                        <span className="roadmap-step__title">
+                          03. System Architecture &amp; Engineering Depth
+                        </span>
+                        <span className="roadmap-status-badge roadmap-status-badge--upcoming">
+                          Upcoming
+                        </span>
+                      </div>
+                      <p className="roadmap-step__desc">
+                        Database indexing, distributed caching, RESTful API contract design, and scalable microservice trade-offs.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Milestone 4: Upcoming */}
+                  <div className="roadmap-step roadmap-step--upcoming">
+                    <div className="roadmap-step__marker">
+                      <span>04</span>
+                    </div>
+                    <div className="roadmap-step__body">
+                      <div className="roadmap-step__header">
+                        <span className="roadmap-step__title">
+                          04. Adaptive AI Mock Interview &amp; Placement Drives
+                        </span>
+                        <span className="roadmap-status-badge roadmap-status-badge--upcoming">
+                          Upcoming
+                        </span>
+                      </div>
+                      <p className="roadmap-step__desc">
+                        Simulated real-time technical and behavioral interview with automated evaluation rubric and verified placement access.
+                      </p>
+                    </div>
+                  </div>
                 </div>
-              ) : (
-                <div className="empty-state-box">
-                  <FolderGit2 size={24} color="var(--color-charcoal-muted)" />
-                  <p>No showcase projects documented yet.</p>
-                  <span style={{ fontSize: '0.775rem' }}>
-                    Documenting at least 1 project increases profile completeness by +20%.
+              </section>
+            </div>
+
+            {/* Right Supporting Panel (Approx 32%) */}
+            <aside className="dashboard-workspace-side" aria-label="Supporting actions and guidance">
+              {/* Next Recommended Action */}
+              <div className="side-card side-card--recommendation">
+                <div className="side-card__header">
+                  <span className="side-card__tag">
+                    <Sparkles size={13} color="var(--color-terracotta)" />
+                    <span>Next Recommended Action</span>
                   </span>
+                </div>
+                <h4 className="side-card__title">Take System Architecture Drill</h4>
+                <p className="side-card__desc">
+                  Your academic profile is ready. Solidify your technical score with an idempotent webhook consumer drill.
+                </p>
+                <div className="side-card__metric-badge">
+                  <span>Medium &bull; 30 mins &bull; High Impact</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setToastMessage('Starting System Architecture Drill module...')}
+                  className="side-card__cta-btn"
+                >
+                  <span>Start Drill</span>
+                  <ArrowRight size={14} />
+                </button>
+              </div>
+
+              {/* Quick Actions */}
+              <div className="side-card">
+                <div className="side-card__header">
+                  <h4 className="side-card__title" style={{ fontSize: '0.95rem', margin: 0 }}>
+                    Quick Actions
+                  </h4>
+                </div>
+                <div className="side-actions-list">
                   <button
                     type="button"
-                    onClick={() => handleOpenEditModal('projects')}
-                    className="empty-state-btn"
+                    onClick={() => handleOpenEditModal('academic')}
+                    className="side-action-item"
                   >
-                    <Plus size={13} />
-                    <span>Add Project</span>
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* Column 2: Certifications */}
-            <div className="certs-column-card">
-              <div className="card-header-action">
-                <h2 className="card-title-sm">
-                  <Award size={18} color="var(--color-sage)" />
-                  <span>Industry Credentials ({profile.certifications?.length || 0})</span>
-                </h2>
-                <button
-                  type="button"
-                  onClick={() => handleOpenEditModal('certifications')}
-                  className="btn-card-action"
-                >
-                  <Plus size={13} />
-                  <span>Add Credential</span>
-                </button>
-              </div>
-
-              {profile.certifications && profile.certifications.length > 0 ? (
-                <div>
-                  {profile.certifications.map((cert, idx) => (
-                    <div key={idx} className="cert-item-row">
-                      <div>
-                        <div className="cert-item__name">{cert.name}</div>
-                        <div className="cert-item__issuer">
-                          {cert.issuer} {cert.issueDate ? `• ${cert.issueDate}` : ''}
-                        </div>
-                      </div>
-                      {cert.credentialUrl && (
-                        <a
-                          href={cert.credentialUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="project-link-pill"
-                          title="Verify credential"
-                        >
-                          <span>Verify</span>
-                          <ExternalLink size={11} />
-                        </a>
-                      )}
+                    <div className="side-action-item__icon side-action-item__icon--forest">
+                      <Edit3 size={15} />
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="empty-state-box">
-                  <Award size={24} color="var(--color-charcoal-muted)" />
-                  <p>No industry certifications added yet.</p>
-                  <span style={{ fontSize: '0.775rem' }}>
-                    Adding credentials validates specialized engineering competency.
-                  </span>
+                    <div className="side-action-item__text">
+                      <span className="side-action-item__label">Edit Profile</span>
+                      <span className="side-action-item__sub">Update academics &amp; background</span>
+                    </div>
+                    <ChevronRight size={14} className="side-action-item__arrow" />
+                  </button>
+
                   <button
                     type="button"
-                    onClick={() => handleOpenEditModal('certifications')}
-                    className="empty-state-btn"
+                    onClick={() => navigate('/onboarding')}
+                    className="side-action-item"
                   >
-                    <Plus size={13} />
-                    <span>Add Certification</span>
+                    <div className="side-action-item__icon side-action-item__icon--terracotta">
+                      <GraduationCap size={15} />
+                    </div>
+                    <div className="side-action-item__text">
+                      <span className="side-action-item__label">Review Onboarding</span>
+                      <span className="side-action-item__sub">Re-run onboarding wizard</span>
+                    </div>
+                    <ChevronRight size={14} className="side-action-item__arrow" />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleOpenEditModal('skills')}
+                    className="side-action-item"
+                  >
+                    <div className="side-action-item__icon side-action-item__icon--sage">
+                      <Code2 size={15} />
+                    </div>
+                    <div className="side-action-item__text">
+                      <span className="side-action-item__label">Manage Skills</span>
+                      <span className="side-action-item__sub">Add or adjust proficiencies</span>
+                    </div>
+                    <ChevronRight size={14} className="side-action-item__arrow" />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleOpenEditModal('preferences')}
+                    className="side-action-item"
+                  >
+                    <div className="side-action-item__icon side-action-item__icon--sand">
+                      <Briefcase size={15} />
+                    </div>
+                    <div className="side-action-item__text">
+                      <span className="side-action-item__label">Career Preferences</span>
+                      <span className="side-action-item__sub">Roles, locations &amp; salary</span>
+                    </div>
+                    <ChevronRight size={14} className="side-action-item__arrow" />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => navigate('/')}
+                    className="side-action-item"
+                  >
+                    <div className="side-action-item__icon side-action-item__icon--forest">
+                      <Compass size={15} />
+                    </div>
+                    <div className="side-action-item__text">
+                      <span className="side-action-item__label">Platform Overview</span>
+                      <span className="side-action-item__sub">Return to public overview</span>
+                    </div>
+                    <ChevronRight size={14} className="side-action-item__arrow" />
                   </button>
                 </div>
-              )}
-            </div>
-          </section>
-
-          {/* SECTION 6: Placement Roadmap */}
-          <section id="roadmap" className="placement-roadmap-card" aria-label="Placement roadmap">
-            <div className="card-header-action">
-              <h2 className="card-title-sm">
-                <BookOpen size={18} color="var(--color-forest)" />
-                <span>Placement Roadmap & Milestone Progress</span>
-              </h2>
-              <span className="section-subheading">
-                Step-by-step technical progression
-              </span>
-            </div>
-
-            <div className="roadmap-timeline">
-              {/* Milestone 1: Profile & Baseline */}
-              <div
-                className={`roadmap-milestone ${
-                  profile.onboarding?.isCompleted
-                    ? 'roadmap-milestone--completed'
-                    : 'roadmap-milestone--in-progress'
-                }`}
-              >
-                <div className="milestone-badge">
-                  {profile.onboarding?.isCompleted ? <Check size={18} strokeWidth={2.6} /> : '1'}
-                </div>
-                <div className="milestone-content">
-                  <div className="milestone-header">
-                    <div className="milestone-title-wrap">
-                      <span className="milestone-title">Profile & Career Baseline</span>
-                      <span className="milestone-subtitle">&bull; Candidate Foundation</span>
-                    </div>
-                    <span className="milestone-status-pill milestone-status-pill--completed">
-                      {profile.onboarding?.isCompleted ? 'Completed' : 'In Progress'}
-                    </span>
-                  </div>
-                  <p className="milestone-desc">
-                    Academic details, verified technical competencies, showcase projects, and target
-                    career preferences successfully documented in your permanent record.
-                  </p>
-                  <div className="milestone-meta">
-                    ✓ Completed and verified in database
-                  </div>
-                </div>
               </div>
-
-              {/* Milestone 2: DSA & Problem Solving */}
-              <div className="roadmap-milestone roadmap-milestone--not-started">
-                <div className="milestone-badge">2</div>
-                <div className="milestone-content">
-                  <div className="milestone-header">
-                    <div className="milestone-title-wrap">
-                      <span className="milestone-title">DSA & Problem Solving</span>
-                      <span className="milestone-subtitle">&bull; Algorithmic Mastery</span>
-                    </div>
-                    <span className="milestone-status-pill milestone-status-pill--not-started">
-                      Not Started
-                    </span>
-                  </div>
-                  <p className="milestone-desc">
-                    Role-calibrated algorithmic question bank: Arrays, Two Pointers, Trees, Graphs,
-                    and Dynamic Programming patterns designed for top tech placement drives.
-                  </p>
-                  <div className="milestone-meta" style={{ color: 'var(--color-charcoal-muted)' }}>
-                    • Preparation module unlocks in Phase 4 &bull; 0 / 150 problems solved
-                  </div>
-                </div>
-              </div>
-
-              {/* Milestone 3: System Architecture */}
-              <div className="roadmap-milestone roadmap-milestone--not-started">
-                <div className="milestone-badge">3</div>
-                <div className="milestone-content">
-                  <div className="milestone-header">
-                    <div className="milestone-title-wrap">
-                      <span className="milestone-title">System Architecture & Engineering Depth</span>
-                      <span className="milestone-subtitle">&bull; Core CS & Design</span>
-                    </div>
-                    <span className="milestone-status-pill milestone-status-pill--not-started">
-                      Not Started
-                    </span>
-                  </div>
-                  <p className="milestone-desc">
-                    Database indexing, distributed caching, RESTful API contract design, and scalable
-                    microservice architectural trade-offs.
-                  </p>
-                  <div className="milestone-meta" style={{ color: 'var(--color-charcoal-muted)' }}>
-                    • Prerequisite: Complete DSA coding baseline
-                  </div>
-                </div>
-              </div>
-
-              {/* Milestone 4: Adaptive AI Mock Interview */}
-              <div className="roadmap-milestone roadmap-milestone--not-started">
-                <div className="milestone-badge">4</div>
-                <div className="milestone-content">
-                  <div className="milestone-header">
-                    <div className="milestone-title-wrap">
-                      <span className="milestone-title">Adaptive AI Mock Interview</span>
-                      <span className="milestone-subtitle">&bull; Simulated Rounds</span>
-                    </div>
-                    <span className="milestone-status-pill milestone-status-pill--not-started">
-                      Not Started
-                    </span>
-                  </div>
-                  <p className="milestone-desc">
-                    Simulated real-time technical and behavioral interview with automated evaluation
-                    rubric and personalized score feedback.
-                  </p>
-                  <div className="milestone-meta" style={{ color: 'var(--color-charcoal-muted)' }}>
-                    • Prerequisite: Complete foundational milestones
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* SECTION 7: Quick Actions */}
-          <section className="quick-actions-section" aria-label="Quick actions">
-            <div className="section-heading-row">
-              <h2 className="section-heading">
-                <Layers size={18} color="var(--color-forest)" />
-                <span>Quick Actions</span>
-              </h2>
-            </div>
-
-            <div className="quick-actions-grid">
-              <button
-                type="button"
-                onClick={() => handleOpenEditModal('academic')}
-                className="quick-action-card"
-              >
-                <div className="quick-action-icon quick-action-icon--terracotta">
-                  <Edit3 size={18} />
-                </div>
-                <div>
-                  <div className="quick-action-title">Edit Full Profile</div>
-                  <div className="quick-action-subtitle">Update academics, skills & projects</div>
-                </div>
-              </button>
-
-              <Link to="/onboarding" className="quick-action-card">
-                <div className="quick-action-icon quick-action-icon--forest">
-                  <GraduationCap size={18} />
-                </div>
-                <div>
-                  <div className="quick-action-title">Review Onboarding</div>
-                  <div className="quick-action-subtitle">Re-run setup wizard</div>
-                </div>
-              </Link>
-
-              <Link to="/" className="quick-action-card">
-                <div className="quick-action-icon quick-action-icon--sage">
-                  <Compass size={18} />
-                </div>
-                <div>
-                  <div className="quick-action-title">Platform Overview</div>
-                  <div className="quick-action-subtitle">Explore product features</div>
-                </div>
-              </Link>
-
-              <button
-                type="button"
-                onClick={() => handleOpenEditModal('preferences')}
-                className="quick-action-card"
-              >
-                <div className="quick-action-icon quick-action-icon--sand">
-                  <Briefcase size={18} />
-                </div>
-                <div>
-                  <div className="quick-action-title">Career Preferences</div>
-                  <div className="quick-action-subtitle">Adjust target roles & mode</div>
-                </div>
-              </button>
-            </div>
-          </section>
+            </aside>
+          </div>
         </div>
       </main>
 
