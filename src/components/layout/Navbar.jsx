@@ -55,7 +55,6 @@ export function Navbar() {
         <div className="navbar__links">
           <a href="/#features" className="navbar__link">Features</a>
           <a href="/#how-it-works" className="navbar__link">How It Works</a>
-          <a href="/#opportunities" className="navbar__link">Opportunities</a>
         </div>
 
         {/* Desktop Actions */}
@@ -160,13 +159,6 @@ export function Navbar() {
           onClick={() => setMobileMenuOpen(false)}
         >
           How It Works
-        </a>
-        <a
-          href="/#opportunities"
-          className="navbar__mobile-link"
-          onClick={() => setMobileMenuOpen(false)}
-        >
-          Opportunities
         </a>
         <div className="navbar__mobile-actions">
           {isAuthenticated ? (

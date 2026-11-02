@@ -32,9 +32,6 @@ export function Footer() {
               <a href="#interview-prep" className="footer-nav-link">
                 Interview Preparation
               </a>
-              <a href="#opportunities" className="footer-nav-link">
-                Opportunities
-              </a>
               <a href="#how-it-works" className="footer-nav-link">
                 How It Works
               </a>

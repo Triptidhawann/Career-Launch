@@ -2,7 +2,6 @@ import { Navbar } from '@/components/layout/Navbar'
 import { Hero } from '@/components/landing/Hero'
 import { CinematicStory } from '@/components/landing/CinematicStory'
 import { InterviewPrep } from '@/components/landing/InterviewPrep'
-import { Opportunities } from '@/components/landing/Opportunities'
 import { HowItWorks } from '@/components/landing/HowItWorks'
 import { ClosingCTA } from '@/components/landing/ClosingCTA'
 import { Footer } from '@/components/layout/Footer'
@@ -23,17 +22,14 @@ export function LandingPage() {
         {/* Section 4: Interview Preparation */}
         <InterviewPrep />
 
-        {/* Section 5: Opportunities */}
-        <Opportunities />
-
-        {/* Section 6: How CareerLaunch Works (4-Step Connected Journey) */}
+        {/* Section 5: How CareerLaunch Works (4-Step Connected Journey) */}
         <HowItWorks />
 
-        {/* Section 7: Closing CTA */}
+        {/* Section 6: Closing CTA */}
         <ClosingCTA />
       </main>
 
-      {/* Section 8: Footer */}
+      {/* Section 7: Footer */}
       <Footer />
     </div>
   )
