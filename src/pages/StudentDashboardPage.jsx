@@ -1121,7 +1121,7 @@ export function StudentDashboardPage() {
 
             {/* Right Supporting Panel (Approx 32%) */}
             <aside className="dashboard-workspace-side" aria-label="Supporting actions and guidance">
-              {/* Next Recommended Action */}
+              {/* Card 1: Next Recommended Action */}
               <div className="side-card side-card--recommendation">
                 <div className="side-card__header">
                   <span className="side-card__tag">
@@ -1141,12 +1141,46 @@ export function StudentDashboardPage() {
                   onClick={() => setToastMessage('Starting System Architecture Drill module...')}
                   className="side-card__cta-btn"
                 >
-                  <span>Start Drill</span>
+                  <span>Start Practice Drill</span>
                   <ArrowRight size={14} />
                 </button>
               </div>
 
-              {/* Quick Actions */}
+              {/* Card 2: Placement Drive Target */}
+              <div className="side-card">
+                <div className="side-card__header">
+                  <span className="side-card__tag" style={{ color: 'var(--color-forest)' }}>
+                    <Target size={13} color="var(--color-forest)" />
+                    <span>Placement Benchmark &bull; 2026</span>
+                  </span>
+                </div>
+                <div className="side-stat-row">
+                  <span className="side-stat-label">Target Role</span>
+                  <span className="side-stat-value">
+                    {currentProfile.careerPreferences?.targetRoles?.[0] || 'Software Development Engineer'}
+                  </span>
+                </div>
+                <div className="side-stat-row">
+                  <span className="side-stat-label">Academic Standing</span>
+                  <span className="side-stat-value">
+                    Class of {currentProfile.education?.graduationYear || 2026} &bull; Sem {currentProfile.education?.currentSemester || 6}
+                  </span>
+                </div>
+                <div className="side-stat-row">
+                  <span className="side-stat-label">Placement Phase</span>
+                  <span className="side-stat-value" style={{ color: 'var(--color-terracotta)' }}>
+                    Phase 2 Core Prep
+                  </span>
+                </div>
+                <div className="side-stat-row" style={{ borderBottom: 'none', paddingBottom: 0 }}>
+                  <span className="side-stat-label">Target Range</span>
+                  <span className="side-stat-value">
+                    {currentProfile.careerPreferences?.expectedSalary || '10 - 18 LPA'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Card 3: Quick Actions */}
               <div className="side-card">
                 <div className="side-card__header">
                   <h4 className="side-card__title" style={{ fontSize: '0.95rem', margin: 0 }}>
@@ -1229,6 +1263,56 @@ export function StudentDashboardPage() {
                     <ChevronRight size={14} className="side-action-item__arrow" />
                   </button>
                 </div>
+              </div>
+
+              {/* Card 4: Technical Screening Best Practices */}
+              <div className="side-card">
+                <div className="side-card__header">
+                  <span className="side-card__tag" style={{ color: 'var(--color-sage-dark)' }}>
+                    <Brain size={13} color="var(--color-sage-dark)" />
+                    <span>Screening Best Practices</span>
+                  </span>
+                </div>
+                <div className="side-tips-list">
+                  <div className="side-tip-item">
+                    <span className="side-tip-num">1</span>
+                    <p className="side-tip-text">
+                      <strong>STAR Framework:</strong> Defend architecture choices by clearly articulating trade-offs.
+                    </p>
+                  </div>
+                  <div className="side-tip-item">
+                    <span className="side-tip-num">2</span>
+                    <p className="side-tip-text">
+                      <strong>Complexity First:</strong> State Big-O time and memory bounds prior to implementing code.
+                    </p>
+                  </div>
+                  <div className="side-tip-item">
+                    <span className="side-tip-num">3</span>
+                    <p className="side-tip-text">
+                      <strong>Edge Cases:</strong> Explicitly test null inputs, large payloads, and distributed network partitions.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 5: Campus Placement Guidance */}
+              <div className="side-card side-card--support">
+                <div className="side-card__header" style={{ marginBottom: 6 }}>
+                  <span className="side-card__tag" style={{ color: 'var(--color-charcoal-muted)' }}>
+                    <span>Campus Placement Support</span>
+                  </span>
+                </div>
+                <p className="side-card__desc" style={{ marginBottom: 12, fontSize: '0.8rem' }}>
+                  Have questions about benchmark rubrics, company cutoffs, or profile verification?
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setToastMessage('Placement guidance documentation loaded.')}
+                  className="side-help-link-btn"
+                >
+                  <span>Review Rubrics Guide</span>
+                  <ArrowRight size={12} />
+                </button>
               </div>
             </aside>
           </div>
