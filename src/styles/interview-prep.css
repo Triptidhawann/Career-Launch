@@ -253,6 +253,80 @@
   gap: var(--space-4);
 }
 
+/* View Mode Toggle Pill */
+.prep-header-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: var(--space-12);
+}
+
+.prep-view-toggle {
+  display: inline-flex;
+  align-items: center;
+  background-color: var(--color-sand-light);
+  border: 1px solid var(--color-sand);
+  border-radius: var(--radius-full);
+  padding: 4px;
+  gap: 4px;
+}
+
+.prep-view-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: var(--radius-full);
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-charcoal-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.prep-view-btn:hover {
+  color: var(--color-charcoal);
+}
+
+.prep-view-btn.is-active {
+  background-color: var(--color-forest);
+  color: var(--color-white);
+  box-shadow: 0 2px 6px rgba(36, 55, 47, 0.2);
+}
+
+/* 3D Orbit Showcase Layout */
+.prep-orbit-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.prep-orbit-preview-wrap {
+  width: 100%;
+  max-width: 780px;
+  margin: 0 auto;
+}
+
+.prep-orbit-preview-wrap .prep-dashboard-card {
+  position: static;
+  box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.1);
+}
+
+.prep-capability-card.is-active {
+  border-color: var(--color-terracotta);
+  box-shadow: 0 12px 30px -8px rgba(198, 106, 74, 0.2);
+  transform: translateY(-2px);
+}
+
+.prep-capability-card.is-active .prep-capability-num {
+  color: var(--color-terracotta);
+}
+
 @media (max-width: 960px) {
   .prep-grid {
     grid-template-columns: 1fr;
