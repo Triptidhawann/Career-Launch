@@ -19,7 +19,7 @@ const CAPABILITY_ITEMS = [
   {
     id: '1',
     num: '01',
-    tag: 'Role Paths',
+    tag: '01 • Role Paths',
     icon: Compass,
     title: 'Role-based preparation paths',
     description:
@@ -28,7 +28,7 @@ const CAPABILITY_ITEMS = [
   {
     id: '2',
     num: '02',
-    tag: 'Skill Gap',
+    tag: '02 • Skill Gap',
     icon: BrainCircuit,
     title: 'Personalised skill-gap analysis',
     description:
@@ -37,7 +37,7 @@ const CAPABILITY_ITEMS = [
   {
     id: '3',
     num: '03',
-    tag: 'Practice Drills',
+    tag: '03 • Practice Drills',
     icon: FileQuestion,
     title: 'Topic-wise practice questions',
     description:
@@ -46,7 +46,7 @@ const CAPABILITY_ITEMS = [
   {
     id: '4',
     num: '04',
-    tag: 'AI Feedback',
+    tag: '04 • AI Feedback',
     icon: Sparkles,
     title: 'AI-assisted mock interviews & feedback',
     description:
@@ -55,7 +55,7 @@ const CAPABILITY_ITEMS = [
   {
     id: '5',
     num: '05',
-    tag: 'System Design',
+    tag: '05 • System Design',
     icon: Terminal,
     title: 'System architecture drills',
     description:
@@ -64,7 +64,7 @@ const CAPABILITY_ITEMS = [
   {
     id: '6',
     num: '06',
-    tag: 'Benchmark',
+    tag: '06 • Benchmark',
     icon: CheckCircle2,
     title: 'Placement readiness benchmarking',
     description:
@@ -189,8 +189,7 @@ export function InterviewPrep() {
             </h2>
 
             <p className="section-desc">
-              Know what to learn, understand what you're missing, and practise for the
-              roles you want with interactive, movable preparation cards.
+              Know what to learn, understand what you're missing, and practise for the roles you want.
             </p>
           </div>
 
@@ -230,9 +229,7 @@ export function InterviewPrep() {
                 activeIndex={activeIndex}
                 onActiveChange={setActiveIndex}
                 autoPlay={true}
-                autoPlayInterval={4200}
-                radiusX={250}
-                radiusY={105}
+                autoPlayInterval={4500}
               />
             </div>
 
@@ -302,7 +299,7 @@ export function InterviewPrep() {
             {/* Bottom CTA Action */}
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>
               <Link to={isAuthenticated ? '/dashboard' : '/signup'} className="btn btn-terracotta">
-                <span>{isAuthenticated ? 'Go to Preparation Dashboard' : 'Explore Interview Preparation'}</span>
+                <span>Go to Preparation Dashboard</span>
                 <ArrowRight size={16} />
               </Link>
             </div>
@@ -406,7 +403,7 @@ export function InterviewPrep() {
 
               <div className="prep-bottom-action">
                 <Link to={isAuthenticated ? '/dashboard' : '/signup'} className="btn btn-terracotta">
-                  <span>{isAuthenticated ? 'Go to Preparation Dashboard' : 'Explore Interview Preparation'}</span>
+                  <span>Go to Preparation Dashboard</span>
                   <ArrowRight size={16} />
                 </Link>
               </div>

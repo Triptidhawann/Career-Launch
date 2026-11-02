@@ -5,8 +5,6 @@ import { cn } from '@/lib/utils'
 import '@/styles/circular-carousel.css'
 
 const VISIBLE_COUNT = 5
-const DEFAULT_RADIUS_X = 250
-const DEFAULT_RADIUS_Y = 105
 
 /**
  * Calculates the elliptical 3D coordinate and transform values for an item in the carousel.
@@ -18,13 +16,7 @@ const DEFAULT_RADIUS_Y = 105
  * @param {number} radiusY - Vertical radius of the orbital ellipse
  * @returns {{ x: number, y: number, scale: number, opacity: number, zIndex: number, adjustedOffset: number } | null}
  */
-function getItemPosition(
-  index,
-  activeIndex,
-  total,
-  radiusX = DEFAULT_RADIUS_X,
-  radiusY = DEFAULT_RADIUS_Y,
-) {
+function getItemPosition(index, activeIndex, total, radiusX, radiusY) {
   const offset = index - activeIndex
   const half = Math.floor(VISIBLE_COUNT / 2)
   let adjustedOffset = offset
@@ -39,10 +31,10 @@ function getItemPosition(
   const y = -Math.cos(angle) * radiusY
 
   const distance = Math.abs(adjustedOffset)
-  const maxDistance = half + 1
-  const scale = Math.max(0, 1 - (distance / maxDistance) * 0.3)
-  const opacity = Math.max(0.3, 1 - (distance / maxDistance) * 0.7)
-  const zIndex = VISIBLE_COUNT - distance
+  // Generous scale & opacity calibrated to Image 2: active is crisp, neighbors readable, far echoes subtle
+  const scale = distance === 0 ? 1 : distance === 1 ? 0.9 : 0.74
+  const opacity = distance === 0 ? 1 : distance === 1 ? 0.75 : 0.22
+  const zIndex = distance === 0 ? 10 : distance === 1 ? 8 : 4
 
   return { x, y, scale, opacity, zIndex, adjustedOffset }
 }
@@ -55,9 +47,9 @@ function getItemPosition(
  * @param {number} [props.activeIndex] - Controlled active index
  * @param {(index: number) => void} [props.onActiveChange] - Callback invoked when active card changes
  * @param {boolean} [props.autoPlay=true] - Whether the carousel auto-advances
- * @param {number} [props.autoPlayInterval=4000] - Duration in ms between auto-rotations
- * @param {number} [props.radiusX=220] - Horizontal elliptical radius
- * @param {number} [props.radiusY=100] - Vertical elliptical radius
+ * @param {number} [props.autoPlayInterval=4500] - Duration in ms between auto-rotations
+ * @param {number} [props.radiusX] - Custom horizontal elliptical radius
+ * @param {number} [props.radiusY] - Custom vertical elliptical radius
  * @param {string} [props.className] - Optional custom container class
  */
 export function CircularCarousel({
@@ -65,9 +57,9 @@ export function CircularCarousel({
   activeIndex: controlledIndex,
   onActiveChange,
   autoPlay = true,
-  autoPlayInterval = 4000,
-  radiusX = DEFAULT_RADIUS_X,
-  radiusY = DEFAULT_RADIUS_Y,
+  autoPlayInterval = 4500,
+  radiusX,
+  radiusY,
   className,
 }) {
   const [internalIndex, setInternalIndex] = useState(0)
@@ -75,6 +67,37 @@ export function CircularCarousel({
   const [isFocused, setIsFocused] = useState(false)
   const intervalRef = useRef(null)
   const containerRef = useRef(null)
+
+  const [windowWidth, setWindowWidth] = useState(
+    typeof window !== 'undefined' ? window.innerWidth : 1200,
+  )
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  // Responsive radius calibrated for normal desktop and mobile screens
+  const effectiveRadiusX =
+    radiusX ??
+    (windowWidth >= 1200
+      ? 420
+      : windowWidth >= 960
+        ? 330
+        : windowWidth >= 640
+          ? 240
+          : 150)
+
+  const effectiveRadiusY =
+    radiusY ??
+    (windowWidth >= 1200
+      ? 125
+      : windowWidth >= 960
+        ? 105
+        : windowWidth >= 640
+          ? 85
+          : 60)
 
   const activeIndex = controlledIndex !== undefined ? controlledIndex : internalIndex
   const total = items.length
@@ -94,7 +117,7 @@ export function CircularCarousel({
   const next = useCallback(() => goTo(activeIndex + 1), [activeIndex, goTo])
   const prev = useCallback(() => goTo(activeIndex - 1), [activeIndex, goTo])
 
-  // Auto-play interval timer (pauses when user hovers or focuses)
+  // Auto-play interval timer (pauses on hover or focus)
   useEffect(() => {
     if (!autoPlay || isHovered || isFocused || total <= 1) return
     intervalRef.current = setInterval(next, autoPlayInterval)
@@ -114,6 +137,16 @@ export function CircularCarousel({
     return () => el?.removeEventListener('keydown', handler)
   }, [next, prev])
 
+  // Drag/swipe gesture handling
+  const handleDragEnd = (_, info) => {
+    const threshold = 40
+    if (info.offset.x < -threshold) {
+      next()
+    } else if (info.offset.x > threshold) {
+      prev()
+    }
+  }
+
   if (!items || items.length === 0) {
     return null
   }
@@ -125,7 +158,7 @@ export function CircularCarousel({
       ref={containerRef}
       tabIndex={0}
       role="region"
-      aria-label="Circular carousel"
+      aria-label="3D Circular Carousel"
       aria-roledescription="carousel"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -133,11 +166,17 @@ export function CircularCarousel({
       onBlur={() => setIsFocused(false)}
       className={cn('circular-carousel', className)}
     >
-      {/* 3D Circular / Elliptical Orbit Track */}
-      <div className="circular-carousel__track">
+      {/* 3D Circular / Elliptical Orbit Track with Swipe/Drag Support */}
+      <motion.div
+        className="circular-carousel__track"
+        drag="x"
+        dragConstraints={{ left: 0, right: 0 }}
+        dragElastic={0.12}
+        onDragEnd={handleDragEnd}
+      >
         <AnimatePresence mode="popLayout">
           {items.map((item, i) => {
-            const pos = getItemPosition(i, activeIndex, total, radiusX, radiusY)
+            const pos = getItemPosition(i, activeIndex, total, effectiveRadiusX, effectiveRadiusY)
             if (!pos) return null
 
             const isActive = i === activeIndex
@@ -174,13 +213,13 @@ export function CircularCarousel({
                 {/* Card Tag Badge */}
                 {item.tag && (
                   <span className="circular-carousel__tag">
-                    {ItemIcon && <ItemIcon size={11} strokeWidth={2.4} />}
+                    {ItemIcon && <ItemIcon size={13} strokeWidth={2.4} />}
                     <span>{item.tag}</span>
                   </span>
                 )}
 
-                {/* Card Title & Description */}
-                <div style={{ width: '100%' }}>
+                {/* Card Title & Full Description */}
+                <div className="circular-carousel__content">
                   <h3 className="circular-carousel__title">
                     {item.title}
                   </h3>
@@ -192,9 +231,9 @@ export function CircularCarousel({
             )
           })}
         </AnimatePresence>
-      </div>
+      </motion.div>
 
-      {/* Center Index Count (e.g. 01 of 06) */}
+      {/* Center Index Count (e.g. 01 of 06) matching Image 2 */}
       <motion.div
         key={activeItem.id || activeIndex}
         initial={{ opacity: 0, y: 8 }}
@@ -210,7 +249,7 @@ export function CircularCarousel({
         </span>
       </motion.div>
 
-      {/* Navigation Controls */}
+      {/* Navigation Controls matching Image 2 */}
       <div className="circular-carousel__controls">
         <motion.button
           type="button"
@@ -220,7 +259,7 @@ export function CircularCarousel({
           aria-label="Previous card"
           className="circular-carousel__btn"
         >
-          <ChevronLeft size={18} strokeWidth={2.4} />
+          <ChevronLeft size={22} strokeWidth={2.4} />
         </motion.button>
 
         {/* Dot Indicators */}
@@ -251,7 +290,7 @@ export function CircularCarousel({
           aria-label="Next card"
           className="circular-carousel__btn"
         >
-          <ChevronRight size={18} strokeWidth={2.4} />
+          <ChevronRight size={22} strokeWidth={2.4} />
         </motion.button>
       </div>
     </div>
