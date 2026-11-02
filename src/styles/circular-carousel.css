@@ -1,7 +1,7 @@
 /* ==========================================================================
    CareerLaunch - Circular 3D Movable Carousel
    Pure CSS Implementation (Zero Tailwind Dependency)
-   Matches Image 2 Dark Reference with Normal Desktop Sizing (No Zoom Needed)
+   Matches Image 2 Dark Reference with Symmetrical Alignment & Readable Sizing
    ========================================================================== */
 
 .circular-carousel-wrapper {
@@ -49,16 +49,25 @@
   position: relative;
   height: 480px;
   width: 100%;
-  max-width: 1080px;
+  max-width: 1040px;
   margin: 0 auto;
 }
 
-/* Orbiting card component — Normal, comfortable desktop size */
+/* Orbiting card component
+   CRITICAL FOR ALIGNMENT:
+   left: 0; right: 0; top: 0; bottom: 0; margin: auto;
+   This anchors the card's rest origin at the DEAD CENTER of the track.
+   When Framer Motion animates translateX(pos.x) translateY(pos.y),
+   x=0 is mathematically at the exact horizontal center of the carousel.
+   This guarantees perfect symmetry: 2 cards left, 1 card center, 2 cards right.
+*/
 .circular-carousel__card {
   position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  margin: auto;
   cursor: pointer;
   display: flex;
   flex-direction: column;
@@ -82,8 +91,8 @@
 
 /* Inactive card sizing & hover */
 .circular-carousel__card--inactive {
-  width: 325px;
-  height: 208px;
+  width: 320px;
+  height: 206px;
   padding: 18px 20px;
   box-shadow: 0 10px 28px -4px rgba(0, 0, 0, 0.45);
 }
@@ -95,8 +104,8 @@
 
 /* Active center card styling — Prominent, rich accent matching Image 2 */
 .circular-carousel__card--active {
-  width: 375px;
-  height: 228px;
+  width: 370px;
+  height: 226px;
   padding: 22px 24px;
   border-color: rgba(198, 106, 74, 0.7);
   box-shadow: 0 24px 64px -12px rgba(0, 0, 0, 0.8),
@@ -282,12 +291,12 @@
     max-width: 900px;
   }
   .circular-carousel__card--active {
-    width: 335px;
+    width: 330px;
     height: 215px;
     padding: 20px 22px;
   }
   .circular-carousel__card--inactive {
-    width: 295px;
+    width: 290px;
     height: 195px;
     padding: 16px 18px;
   }
@@ -319,12 +328,12 @@
     max-width: 720px;
   }
   .circular-carousel__card--active {
-    width: 295px;
+    width: 290px;
     height: 200px;
     padding: 16px 18px;
   }
   .circular-carousel__card--inactive {
-    width: 260px;
+    width: 255px;
     height: 180px;
     padding: 14px 16px;
   }

@@ -18,22 +18,25 @@ const VISIBLE_COUNT = 5
  */
 function getItemPosition(index, activeIndex, total, radiusX, radiusY) {
   const offset = index - activeIndex
-  const half = Math.floor(VISIBLE_COUNT / 2)
+  const half = Math.floor(VISIBLE_COUNT / 2) // half = 2
   let adjustedOffset = offset
 
+  // Wrap around circularly
   if (offset > half) adjustedOffset = offset - total
   if (offset < -half) adjustedOffset = offset + total
 
-  if (Math.abs(adjustedOffset) > half * 2) return null
+  // ONLY render items within visible count (-2 to +2: 2 left, 1 center, 2 right)
+  // This guarantees perfect symmetry: never leaves one side empty or piles extra cards on the other
+  if (Math.abs(adjustedOffset) > half) return null
 
   const angle = (adjustedOffset / VISIBLE_COUNT) * Math.PI
   const x = Math.sin(angle) * radiusX
   const y = -Math.cos(angle) * radiusY
 
   const distance = Math.abs(adjustedOffset)
-  // Generous scale & opacity calibrated to Image 2: active is crisp, neighbors readable, far echoes subtle
+  // Calibrated scale, opacity and z-index: active is crisp, neighbors readable, far cards subtle
   const scale = distance === 0 ? 1 : distance === 1 ? 0.9 : 0.74
-  const opacity = distance === 0 ? 1 : distance === 1 ? 0.75 : 0.22
+  const opacity = distance === 0 ? 1 : distance === 1 ? 0.75 : 0.25
   const zIndex = distance === 0 ? 10 : distance === 1 ? 8 : 4
 
   return { x, y, scale, opacity, zIndex, adjustedOffset }
@@ -78,26 +81,27 @@ export function CircularCarousel({
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  // Responsive radius calibrated for normal desktop and mobile screens
+  // Responsive radius calibrated so the 5 cards fan out with generous breathing room
+  // and stay perfectly centered inside the container without overflowing
   const effectiveRadiusX =
     radiusX ??
     (windowWidth >= 1200
-      ? 420
+      ? 350
       : windowWidth >= 960
-        ? 330
+        ? 285
         : windowWidth >= 640
-          ? 240
-          : 150)
+          ? 210
+          : 130)
 
   const effectiveRadiusY =
     radiusY ??
     (windowWidth >= 1200
-      ? 125
+      ? 120
       : windowWidth >= 960
-        ? 105
+        ? 95
         : windowWidth >= 640
-          ? 85
-          : 60)
+          ? 75
+          : 50)
 
   const activeIndex = controlledIndex !== undefined ? controlledIndex : internalIndex
   const total = items.length
