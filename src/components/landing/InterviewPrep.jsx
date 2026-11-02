@@ -233,69 +233,6 @@ export function InterviewPrep() {
               />
             </div>
 
-            {/* Synchronized Live Drill Preview Card */}
-            <div className="prep-orbit-preview-wrap">
-              <div className="prep-dashboard-card">
-                <div className="prep-dashboard-top">
-                  <div className="prep-dashboard-role">
-                    <div className="prep-dashboard-role__icon">
-                      <Terminal size={15} />
-                    </div>
-                    <div>
-                      <div className="prep-dashboard-role__title">{activeDrill.roleTitle}</div>
-                      <div className="prep-dashboard-role__tag">{activeDrill.moduleTag}</div>
-                    </div>
-                  </div>
-                  <span className="prep-dashboard-score-pill">{activeDrill.readiness}</span>
-                </div>
-
-                <div className="prep-dashboard-body">
-                  <div className="prep-question-card">
-                    <div className="prep-question-header">
-                      <span className="prep-question-tag">{activeDrill.drillTag}</span>
-                      <span className="prep-question-difficulty">{activeDrill.difficulty}</span>
-                    </div>
-                    <div className="prep-question-title">
-                      {activeDrill.drillTitle}
-                    </div>
-
-                    <div className="prep-rubric-list">
-                      {activeDrill.rubrics.map((rubric, idx) => (
-                        <div key={idx} className="prep-rubric-item">
-                          <CheckCircle2 size={14} />
-                          <span>{rubric}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="prep-metrics-row">
-                    <div className="prep-metric-box">
-                      <div className="prep-metric-label">{activeDrill.metric1.label}</div>
-                      <div className="prep-metric-val">{activeDrill.metric1.val}</div>
-                      <div className="prep-metric-progress">
-                        <div
-                          className="prep-metric-bar"
-                          style={{ width: activeDrill.metric1.val }}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="prep-metric-box">
-                      <div className="prep-metric-label">{activeDrill.metric2.label}</div>
-                      <div className="prep-metric-val">{activeDrill.metric2.val}</div>
-                      <div className="prep-metric-progress">
-                        <div
-                          className="prep-metric-bar"
-                          style={{ width: activeDrill.metric2.val }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
             {/* Bottom CTA Action */}
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>
               <Link to={isAuthenticated ? '/dashboard' : '/signup'} className="btn btn-terracotta">
