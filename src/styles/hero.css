@@ -235,31 +235,130 @@
   perspective: 1200px;
 }
 
-.hero-laptop-frame {
+/* Ambient luminous backdrop glow */
+.hero-visual-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 580px;
+  height: 480px;
+  background: radial-gradient(
+    circle,
+    rgba(198, 106, 74, 0.15) 0%,
+    rgba(135, 148, 119, 0.12) 38%,
+    rgba(240, 234, 224, 0.5) 65%,
+    transparent 78%
+  );
+  filter: blur(55px);
+  pointer-events: none;
+  z-index: 0;
+  border-radius: 50%;
+  animation: hero-visual-glow-breathe 8s ease-in-out infinite alternate;
+}
+
+@keyframes hero-visual-glow-breathe {
+  0% {
+    transform: translate(-50%, -50%) scale(0.92);
+    opacity: 0.65;
+  }
+  50% {
+    transform: translate(-49%, -52%) scale(1.05);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translate(-51%, -48%) scale(0.98);
+    opacity: 0.72;
+  }
+}
+
+/* Continuous 3D Floating Levitation on Laptop Wrapper */
+.hero-laptop-wrapper {
   position: relative;
   width: 100%;
   max-width: 590px;
+  z-index: 1;
+  animation: hero-laptop-float 6s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+@keyframes hero-laptop-float {
+  0% {
+    transform: translateY(0px);
+  }
+  100% {
+    transform: translateY(-8px);
+  }
+}
+
+.hero-laptop-frame {
+  position: relative;
+  width: 100%;
   background-color: var(--color-forest);
   border-radius: var(--radius-2xl);
   padding: 12px;
   box-shadow: 
-    0 30px 60px -15px rgba(36, 55, 47, 0.25),
-    0 10px 24px -5px rgba(41, 42, 39, 0.15);
-  border: 1px solid rgba(229, 222, 210, 0.3);
+    0 32px 64px -16px rgba(36, 55, 47, 0.3),
+    0 12px 28px -6px rgba(41, 42, 39, 0.18),
+    inset 0 1px 1px rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(229, 222, 210, 0.32);
   transform: rotateY(-3deg) rotateX(2deg);
-  transition: transform var(--transition-smooth);
+  transition: transform var(--transition-smooth), box-shadow 0.4s ease;
 }
 
 .hero-laptop-frame:hover {
-  transform: rotateY(0deg) rotateX(0deg);
+  box-shadow: 
+    0 40px 75px -15px rgba(36, 55, 47, 0.36),
+    0 16px 36px -6px rgba(198, 106, 74, 0.2),
+    inset 0 1px 2px rgba(255, 255, 255, 0.25);
 }
 
-/* Laptop Screen Inner */
+/* Laptop Screen Inner with Glass Sheen */
 .hero-screen {
+  position: relative;
   background-color: var(--color-ivory);
   border-radius: calc(var(--radius-2xl) - 6px);
   overflow: hidden;
   border: 1px solid var(--color-sand);
+}
+
+/* Elegant Light Sheen Reflection sweeping diagonally */
+.hero-screen::after {
+  content: '';
+  position: absolute;
+  top: -60%;
+  left: -80%;
+  width: 55%;
+  height: 240%;
+  background: linear-gradient(
+    108deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.04) 30%,
+    rgba(255, 255, 255, 0.28) 50%,
+    rgba(255, 255, 255, 0.04) 70%,
+    transparent 100%
+  );
+  transform: rotate(26deg);
+  pointer-events: none;
+  z-index: 10;
+  animation: hero-screen-sheen 7s ease-in-out infinite;
+}
+
+@keyframes hero-screen-sheen {
+  0%, 65% {
+    left: -80%;
+    opacity: 0;
+  }
+  70% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    left: 170%;
+    opacity: 0;
+  }
 }
 
 /* Screen Top Bar */
@@ -282,6 +381,17 @@
   height: 8px;
   border-radius: var(--radius-full);
   background-color: var(--color-sand-dark);
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.hero-screen:hover .hero-screen__dot:nth-child(1) {
+  background-color: #EF4444;
+}
+.hero-screen:hover .hero-screen__dot:nth-child(2) {
+  background-color: #F59E0B;
+}
+.hero-screen:hover .hero-screen__dot:nth-child(3) {
+  background-color: #10B981;
 }
 
 .hero-screen__role-pill {
@@ -295,6 +405,13 @@
   font-weight: var(--font-semibold);
   color: var(--color-forest);
   border: 1px solid var(--color-sand);
+  box-shadow: 0 1px 3px rgba(41, 42, 39, 0.04);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.hero-screen__role-pill:hover {
+  transform: translateY(-1px);
+  border-color: var(--color-sand-dark);
 }
 
 .hero-screen__status {
@@ -306,12 +423,27 @@
   gap: 4px;
 }
 
+.hero-screen__status svg {
+  animation: sparkle-twinkle 3.2s ease-in-out infinite;
+}
+
+@keyframes sparkle-twinkle {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 0.85;
+  }
+  50% {
+    transform: scale(1.22) rotate(15deg);
+    opacity: 1;
+  }
+}
+
 /* Screen Content */
 .hero-screen__content {
-  padding: 16px;
+  padding: 13px 15px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   background: linear-gradient(180deg, #F9F6F0 0%, #F4EFE5 100%);
 }
 
@@ -324,6 +456,14 @@
   padding: 10px 14px;
   border-radius: var(--radius-md);
   border: 1px solid var(--color-sand);
+  box-shadow: 0 2px 6px rgba(41, 42, 39, 0.03);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.hero-screen__overview:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px -4px rgba(41, 42, 39, 0.08);
+  border-color: var(--color-sand-dark);
 }
 
 .hero-screen__candidate {
@@ -333,16 +473,45 @@
 }
 
 .hero-screen__avatar {
+  position: relative;
   width: 32px;
   height: 32px;
   border-radius: var(--radius-md);
-  background-color: var(--color-forest);
+  background: linear-gradient(135deg, var(--color-forest) 0%, #3a5548 100%);
   color: var(--color-ivory);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 0.75rem;
   font-weight: var(--font-bold);
+  box-shadow: 0 2px 8px rgba(36, 55, 47, 0.25);
+  flex-shrink: 0;
+}
+
+/* Candidate online pulse beacon dot */
+.hero-screen__avatar::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 9px;
+  height: 9px;
+  border-radius: var(--radius-full);
+  background-color: #22C55E;
+  border: 1.5px solid var(--color-white);
+  box-shadow: 0 0 6px rgba(34, 197, 94, 0.7);
+  animation: avatar-online-pulse 2.2s cubic-bezier(0.24, 0, 0.38, 1) infinite;
+}
+
+@keyframes avatar-online-pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+  }
+  50% {
+    transform: scale(1.15);
+    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0);
+  }
 }
 
 .hero-screen__name {
@@ -358,6 +527,9 @@
 
 .hero-screen__score {
   text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
 }
 
 .hero-screen__score-num {
@@ -365,6 +537,7 @@
   font-size: 1.15rem;
   font-weight: var(--font-bold);
   color: var(--color-terracotta);
+  line-height: 1.1;
 }
 
 .hero-screen__score-lbl {
@@ -372,6 +545,34 @@
   color: var(--color-charcoal-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  margin-top: 1px;
+}
+
+/* Animated Progress Fill Bar under Readiness Score */
+.hero-screen__score-bar {
+  width: 68px;
+  height: 4px;
+  background-color: var(--color-sand);
+  border-radius: var(--radius-full);
+  margin-top: 5px;
+  overflow: hidden;
+}
+
+.hero-screen__score-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #c66a4a 0%, #e07d5c 100%);
+  border-radius: var(--radius-full);
+  animation: score-bar-fill 1.8s cubic-bezier(0.22, 1, 0.36, 1) 0.35s forwards;
+}
+
+@keyframes score-bar-fill {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 88%;
+  }
 }
 
 /* Screen Grid */
@@ -385,10 +586,18 @@
   background-color: var(--color-white);
   border-radius: var(--radius-md);
   border: 1px solid var(--color-sand);
-  padding: 12px;
+  padding: 10px 12px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
+  box-shadow: 0 2px 6px rgba(41, 42, 39, 0.03);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.hero-screen__card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px -4px rgba(41, 42, 39, 0.08);
+  border-color: var(--color-sand-dark);
 }
 
 .hero-screen__card-title {
@@ -405,10 +614,15 @@
 /* Roadmap Items */
 .roadmap-step {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 8px;
-  padding: 6px 0;
+  padding: 3px 0;
   border-bottom: 1px solid var(--color-sand-light);
+  transition: transform 0.2s ease;
+}
+
+.roadmap-step:hover {
+  transform: translateX(2px);
 }
 
 .roadmap-step:last-child {
@@ -416,12 +630,12 @@
 }
 
 .roadmap-step__num {
-  font-size: 0.65rem;
+  font-size: 0.62rem;
   font-weight: var(--font-bold);
   color: var(--color-forest);
   background-color: var(--color-sand-light);
-  width: 18px;
-  height: 18px;
+  width: 17px;
+  height: 17px;
   border-radius: var(--radius-full);
   display: flex;
   align-items: center;
@@ -430,18 +644,18 @@
 }
 
 .roadmap-step__title {
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: var(--font-medium);
   color: var(--color-charcoal);
-  line-height: 1.25;
+  line-height: 1.2;
 }
 
 .roadmap-step__badge {
-  font-size: 0.6rem;
+  font-size: 0.58rem;
   font-weight: var(--font-semibold);
-  padding: 1px 6px;
+  padding: 1px 5px;
   border-radius: var(--radius-full);
-  margin-top: 2px;
+  margin-top: 1px;
   display: inline-block;
 }
 
@@ -453,6 +667,30 @@
 .roadmap-step__badge--active {
   background-color: var(--color-terracotta-light);
   color: var(--color-terracotta);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Pulsing dot inside active roadmap step */
+.roadmap-step__badge--active::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-terracotta);
+  animation: badge-dot-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes badge-dot-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.35;
+    transform: scale(0.65);
+  }
 }
 
 /* Mock Interview Preview Card */
@@ -461,6 +699,12 @@
   padding: 8px 10px;
   border-radius: var(--radius-sm);
   border-left: 3px solid var(--color-terracotta);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mock-preview-box:hover {
+  transform: translateX(2px);
+  box-shadow: 0 2px 8px rgba(198, 106, 74, 0.12);
 }
 
 .mock-preview-box__title {
@@ -473,6 +717,32 @@
   font-size: 0.65rem;
   color: var(--color-charcoal-muted);
   margin-top: 2px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Live pulsing indicator for AI mock interview */
+.mock-preview-box__dot {
+  width: 5px;
+  height: 5px;
+  border-radius: var(--radius-full);
+  background-color: #22C55E;
+  display: inline-block;
+  flex-shrink: 0;
+  box-shadow: 0 0 5px rgba(34, 197, 94, 0.6);
+  animation: mock-dot-pulse 2s ease-in-out infinite;
+}
+
+@keyframes mock-dot-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.95;
+  }
+  50% {
+    transform: scale(1.35);
+    opacity: 0.4;
+  }
 }
 
 /* Opportunity Snippet */
@@ -481,6 +751,12 @@
   color: var(--color-ivory);
   padding: 8px 10px;
   border-radius: var(--radius-sm);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.opp-preview-box:hover {
+  transform: translateX(2px);
+  box-shadow: 0 4px 12px rgba(36, 55, 47, 0.2);
 }
 
 .opp-preview-box__role {
@@ -513,18 +789,25 @@
   gap: 12px;
   max-width: 280px;
   z-index: var(--z-float);
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.hero-floating-opp:hover {
+  box-shadow: 0 20px 40px -10px rgba(36, 55, 47, 0.2);
+  border-color: var(--color-sand-dark);
 }
 
 .hero-floating-opp__icon {
   width: 36px;
   height: 36px;
   border-radius: var(--radius-md);
-  background-color: var(--color-terracotta);
+  background: linear-gradient(135deg, var(--color-terracotta) 0%, #b85b3b 100%);
   color: var(--color-white);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(198, 106, 74, 0.3);
 }
 
 .hero-floating-opp__title {
@@ -537,6 +820,9 @@
   font-size: 0.68rem;
   color: var(--color-sage-dark);
   font-weight: var(--font-medium);
+  display: flex;
+  align-items: center;
+  gap: 3px;
 }
 
 /* Responsive */

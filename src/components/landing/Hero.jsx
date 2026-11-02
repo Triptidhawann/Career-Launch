@@ -191,7 +191,11 @@ export function Hero() {
 
         {/* Right Product Mockup */}
         <div className="hero-visual">
-          <div className="hero-laptop-frame" ref={laptopRef}>
+          {/* Ambient luminous glow behind laptop mockup */}
+          <div className="hero-visual-glow" aria-hidden="true" />
+
+          <div className="hero-laptop-wrapper">
+            <div className="hero-laptop-frame" ref={laptopRef}>
             <div className="hero-screen">
               {/* Window Bar */}
               <div className="hero-screen__topbar">
@@ -226,6 +230,9 @@ export function Hero() {
                       88%
                     </div>
                     <div className="hero-screen__score-lbl">Readiness Index</div>
+                    <div className="hero-screen__score-bar" aria-hidden="true">
+                      <div className="hero-screen__score-fill" />
+                    </div>
                   </div>
                 </div>
 
@@ -279,7 +286,8 @@ export function Hero() {
                     <div className="mock-preview-box">
                       <div className="mock-preview-box__title">High-Throughput API Design</div>
                       <div className="mock-preview-box__meta">
-                        Tomorrow, 10:00 AM • AI Feedback Enabled
+                        <span className="mock-preview-box__dot" aria-hidden="true" />
+                        <span>Tomorrow, 10:00 AM • AI Feedback Enabled</span>
                       </div>
                     </div>
 
@@ -299,6 +307,8 @@ export function Hero() {
                 </div>
               </div>
             </div>
+          </div>
+
           </div>
 
           {/* Floating Opportunity Notification */}
