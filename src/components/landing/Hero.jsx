@@ -20,6 +20,7 @@ export function Hero() {
   const heroRef = useRef(null)
   const laptopRef = useRef(null)
   const floatingOppRef = useRef(null)
+  const scoreRef = useRef(null)
 
   useEffect(() => {
     if (!heroRef.current) return
@@ -44,6 +45,20 @@ export function Hero() {
         },
       )
 
+      // Live animated readiness counter (0% -> 88%)
+      const scoreCounter = { val: 0 }
+      gsap.to(scoreCounter, {
+        val: 88,
+        duration: 1.8,
+        ease: 'power2.out',
+        delay: 0.35,
+        onUpdate: () => {
+          if (scoreRef.current) {
+            scoreRef.current.textContent = `${Math.round(scoreCounter.val)}%`
+          }
+        },
+      })
+
       // Laptop frame rise & scale
       tl.from(
         laptopRef.current,
@@ -57,7 +72,7 @@ export function Hero() {
         '-=0.7',
       )
 
-      // Floating card pop-in
+      // Floating card pop-in & ambient hover
       if (floatingOppRef.current) {
         tl.from(
           floatingOppRef.current,
@@ -71,10 +86,9 @@ export function Hero() {
           '-=0.5',
         )
 
-        // Subtle ambient float
         gsap.to(floatingOppRef.current, {
-          y: -8,
-          duration: 3.5,
+          y: -10,
+          duration: 3.2,
           repeat: -1,
           yoyo: true,
           ease: 'sine.inOut',
@@ -85,8 +99,58 @@ export function Hero() {
     return () => ctx.revert()
   }, [])
 
+  // Smooth interactive cursor parallax
+  const handleMouseMove = (e) => {
+    if (typeof window === 'undefined' || window.innerWidth < 1024 || !heroRef.current) return
+    const rect = heroRef.current.getBoundingClientRect()
+    const xRel = (e.clientX - rect.left) / rect.width - 0.5
+    const yRel = (e.clientY - rect.top) / rect.height - 0.5
+
+    gsap.to('.hero-content', {
+      x: xRel * 14,
+      y: yRel * 10,
+      duration: 0.8,
+      ease: 'power2.out',
+    })
+
+    if (laptopRef.current) {
+      gsap.to(laptopRef.current, {
+        rotateY: -3 + xRel * 7,
+        rotateX: 2 - yRel * 5,
+        duration: 0.8,
+        ease: 'power2.out',
+      })
+    }
+  }
+
+  const handleMouseLeave = () => {
+    gsap.to('.hero-content', {
+      x: 0,
+      y: 0,
+      duration: 0.8,
+      ease: 'power2.out',
+    })
+    if (laptopRef.current) {
+      gsap.to(laptopRef.current, {
+        rotateY: -3,
+        rotateX: 2,
+        duration: 0.8,
+        ease: 'power2.out',
+      })
+    }
+  }
+
   return (
-    <section className="hero-section" ref={heroRef} aria-label="Hero">
+    <section
+      className="hero-section"
+      ref={heroRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      aria-label="Hero"
+    >
+      {/* Ambient background glow for left side */}
+      <div className="hero-ambient-glow" aria-hidden="true" />
+
       <div className="hero-container">
         {/* Left Editorial Content */}
         <div className="hero-content">
@@ -158,7 +222,9 @@ export function Hero() {
                     </div>
                   </div>
                   <div className="hero-screen__score">
-                    <div className="hero-screen__score-num">88%</div>
+                    <div className="hero-screen__score-num" ref={scoreRef}>
+                      88%
+                    </div>
                     <div className="hero-screen__score-lbl">Readiness Index</div>
                   </div>
                 </div>
