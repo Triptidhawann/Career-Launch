@@ -69,6 +69,14 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/interview-preparation/:roleId/topic/:topicId"
+            element={
+              <ProtectedRoute requireVerifiedEmail={true} requireOnboarding={false}>
+                <InterviewPreparationPage />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Fallback to Home */}
           <Route path="*" element={<LandingPage />} />
