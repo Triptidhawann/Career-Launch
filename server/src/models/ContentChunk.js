@@ -4,6 +4,8 @@ import mongoose, { Schema } from 'mongoose'
  * ContentChunk Schema
  * Represents an atomic, searchable text passage extracted from an IngestedDocument.
  * Retains end-to-end provenance to original source, document, snapshot hash, and version.
+ * Now features explicit content origin and grounding passage separation to ensure
+ * pedagogical code examples are never falsely attributed to external authors.
  * Embeddings are explicitly excluded in Phase 2A.
  */
 const ContentChunkSchema = new Schema(
@@ -64,6 +66,36 @@ const ContentChunkSchema = new Schema(
       default: '1.0',
       trim: true,
     },
+
+    // Explicit Content Origin and Separation
+    contentOrigin: {
+      type: String,
+      enum: ['canonical_source', 'careerlaunch_authored', 'hybrid_pedagogical'],
+      default: 'canonical_source',
+      index: true,
+    },
+    canonicalSource: {
+      name: { type: String, default: '' },
+      url: { type: String, default: '' },
+      passage: { type: String, default: '' },
+    },
+    groundingPassage: {
+      type: String,
+      default: '',
+    },
+    codeExemplar: {
+      author: { type: String, default: 'CareerLaunch Engineering' },
+      language: { type: String, default: 'python' },
+      code: { type: String, default: '' },
+      notes: { type: String, default: '' },
+    },
+    crossReferences: [
+      {
+        name: { type: String, required: true },
+        url: { type: String, required: true },
+        relationship: { type: String, default: 'cross_reference' },
+      },
+    ],
   },
   {
     timestamps: true,

@@ -63,6 +63,8 @@ function splitByHeadingsAndCodeBlocks(text) {
 
 /**
  * Divides a cleaned document into meaningful, coherent chunks adhering to token limits.
+ * Attaches explicit provenance and content-origin metadata to maintain absolute clarity
+ * on canonical source quotes vs original pedagogical implementations.
  *
  * @param {object} params
  * @param {string} params.docId
@@ -73,6 +75,11 @@ function splitByHeadingsAndCodeBlocks(text) {
  * @param {string[]} [params.topicTags]
  * @param {'beginner' | 'intermediate' | 'advanced'} [params.difficultyTier]
  * @param {string} [params.documentVersion]
+ * @param {'canonical_source' | 'careerlaunch_authored' | 'hybrid_pedagogical'} [params.contentOrigin]
+ * @param {object} [params.canonicalSource]
+ * @param {string} [params.groundingPassage]
+ * @param {object} [params.codeExemplar]
+ * @param {Array<object>} [params.crossReferences]
  * @returns {Array<object>} Array of ContentChunk specifications
  */
 export function chunkDocument({
@@ -84,6 +91,11 @@ export function chunkDocument({
   topicTags = [],
   difficultyTier = 'intermediate',
   documentVersion = '1.0',
+  contentOrigin = 'canonical_source',
+  canonicalSource = {},
+  groundingPassage = '',
+  codeExemplar = {},
+  crossReferences = [],
 }) {
   if (!cleanedText || !cleanedText.trim()) {
     return []
@@ -186,6 +198,20 @@ export function chunkDocument({
       tokenCount: c.tokenCount,
       contentHash,
       documentVersion,
+      contentOrigin,
+      canonicalSource: {
+        name: canonicalSource.name || sourceId,
+        url: canonicalSource.url || '',
+        passage: canonicalSource.passage || '',
+      },
+      groundingPassage: groundingPassage || c.content,
+      codeExemplar: {
+        author: codeExemplar.author || 'CareerLaunch Engineering',
+        language: codeExemplar.language || 'python',
+        code: codeExemplar.code || '',
+        notes: codeExemplar.notes || '',
+      },
+      crossReferences,
     }
   })
 }

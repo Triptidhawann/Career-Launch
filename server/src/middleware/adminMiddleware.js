@@ -52,9 +52,9 @@ export async function requireAdmin(req, res, next) {
       error: 'Forbidden: Verified administrator permissions are required to access knowledge ingestion APIs.',
     })
   } catch (error) {
+    console.error('[AdminMiddleware] Internal authorization error:', error)
     res.status(500).json({
-      error: 'Internal authorization error verifying administrator privileges.',
-      details: error.message,
+      error: 'Internal server error verifying administrator privileges.',
     })
   }
 }

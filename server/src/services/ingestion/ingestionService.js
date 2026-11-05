@@ -9,11 +9,13 @@ import { chunkDocument } from './semanticChunker.js'
 
 /**
  * Executes an idempotent, provenance-tracked ingestion job for a registered KnowledgeSource.
+ * Enforces explicit separation between canonical source passages and CareerLaunch-authored
+ * pedagogical code examples.
  *
  * @param {object} params
  * @param {string} params.sourceId
  * @param {string} params.initiatedBy - Admin user identifier
- * @param {Array<{ title: string, url: string, rawContent: string, contentType?: string, roleTags?: string[], topicTags?: string[], difficultyTier?: string, sectionHierarchy?: string[] }>} params.documents
+ * @param {Array<object>} params.documents
  * @returns {Promise<object>} Result summary and IngestionJob record
  */
 export async function executeIngestionJob({ sourceId, initiatedBy, documents = [] }) {
@@ -84,6 +86,11 @@ export async function executeIngestionJob({ sourceId, initiatedBy, documents = [
       topicTags = [],
       difficultyTier = 'intermediate',
       sectionHierarchy = [],
+      contentOrigin = 'canonical_source',
+      canonicalSource = {},
+      groundingPassage = '',
+      codeExemplar = {},
+      crossReferences = [],
     } = docEntry
 
     try {
@@ -113,7 +120,7 @@ export async function executeIngestionJob({ sourceId, initiatedBy, documents = [
         continue
       }
 
-      // 4d. Prepare document upsert
+      // 4d. Prepare document upsert with explicit provenance metadata
       docOperations.push({
         updateOne: {
           filter: { docId },
@@ -130,13 +137,15 @@ export async function executeIngestionJob({ sourceId, initiatedBy, documents = [
               documentVersion: source.activeVersionTag || '1.0',
               sectionHierarchy,
               storagePermitted: isStoragePermitted,
+              contentOrigin,
+              crossReferences,
             },
           },
           upsert: true,
         },
       })
 
-      // 4e. Semantic Chunking
+      // 4e. Semantic Chunking with Explicit Provenance Fields
       const generatedChunks = chunkDocument({
         docId,
         sourceId,
@@ -146,6 +155,15 @@ export async function executeIngestionJob({ sourceId, initiatedBy, documents = [
         topicTags,
         difficultyTier,
         documentVersion: source.activeVersionTag || '1.0',
+        contentOrigin,
+        canonicalSource: {
+          name: canonicalSource.name || source.name,
+          url: canonicalSource.url || url,
+          passage: canonicalSource.passage || groundingPassage,
+        },
+        groundingPassage,
+        codeExemplar,
+        crossReferences,
       })
 
       // If document was previously ingested with different content, clear old chunks

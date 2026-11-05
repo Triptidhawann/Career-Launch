@@ -4,6 +4,7 @@ import mongoose, { Schema } from 'mongoose'
  * IngestedDocument Schema
  * Stores normalized document text, metadata, section hierarchies, and content hashes.
  * Strictly respects source storage permissions (content is omitted if storage is not permitted).
+ * Distinguishes canonical source documents from hybrid pedagogical guides.
  */
 const IngestedDocumentSchema = new Schema(
   {
@@ -71,6 +72,18 @@ const IngestedDocumentSchema = new Schema(
       type: Boolean,
       default: true,
     },
+    contentOrigin: {
+      type: String,
+      enum: ['canonical_source', 'careerlaunch_authored', 'hybrid_pedagogical'],
+      default: 'canonical_source',
+    },
+    crossReferences: [
+      {
+        name: { type: String, required: true },
+        url: { type: String, required: true },
+        relationship: { type: String, default: 'cross_reference' },
+      },
+    ],
   },
   {
     timestamps: true,

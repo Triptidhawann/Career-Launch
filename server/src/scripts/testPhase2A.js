@@ -1,6 +1,7 @@
 import mongoose from 'mongoose'
 import { KnowledgeSource } from '../models/KnowledgeSource.js'
 import { ContentChunk } from '../models/ContentChunk.js'
+import { IngestedDocument } from '../models/IngestedDocument.js'
 import { StudentProfile } from '../models/StudentProfile.js'
 import { validateSourceLicence, validateUrlSafety } from '../services/ingestion/sourceValidator.js'
 import { cleanDocumentContent } from '../services/ingestion/markdownCleaner.js'
@@ -118,42 +119,38 @@ async function runTests() {
   const allowedDomains = ['xlinux.nist.gov', 'docs.python.org']
 
   // SSRF Attempt A: Loopback (127.0.0.1)
-  const ssrfLoopback = await validateUrlSafety('http://127.0.0.1:27018/admin', allowedDomains)
-  assert(ssrfLoopback.valid === false, 'Test 15a: SSRF loopback IP (127.0.0.1) blocked')
+  const loopbackTest = await validateUrlSafety('http://127.0.0.1:5000/api/admin', allowedDomains)
+  assert(!loopbackTest.valid, 'Test 15a: SSRF blocked on loopback IP (127.0.0.1)', loopbackTest.reason)
 
-  // SSRF Attempt B: Localhost alias
-  const ssrfLocalhost = await validateUrlSafety('http://localhost:5000/api', allowedDomains)
-  assert(ssrfLocalhost.valid === false, 'Test 15b: SSRF localhost domain blocked')
+  // SSRF Attempt B: Cloud Metadata (169.254.169.254)
+  const metaTest = await validateUrlSafety('http://169.254.169.254/latest/meta-data/', allowedDomains)
+  assert(!metaTest.valid, 'Test 15b: SSRF blocked on cloud metadata endpoint (169.254.169.254)', metaTest.reason)
 
-  // SSRF Attempt C: Cloud Metadata Service (169.254.169.254)
-  const ssrfMeta = await validateUrlSafety('http://169.254.169.254/latest/meta-data', allowedDomains)
-  assert(ssrfMeta.valid === false, 'Test 15c: SSRF AWS/Cloud metadata IP (169.254.169.254) blocked')
+  // SSRF Attempt C: Private network range (192.168.1.1)
+  const privTest = await validateUrlSafety('http://192.168.1.1/admin', allowedDomains)
+  assert(!privTest.valid, 'Test 15c: SSRF blocked on RFC-1918 private IP (192.168.1.1)', privTest.reason)
 
-  // SSRF Attempt D: Unauthorized external domain
-  const ssrfForeign = await validateUrlSafety('https://attacker-site.com/exploit.md', allowedDomains)
-  assert(ssrfForeign.valid === false, 'Test 15d: Unapproved foreign domain blocked by whitelist')
+  // SSRF Attempt D: Domain not in allowlist
+  const unauthDomain = await validateUrlSafety('https://evil-unapproved-site.com/doc', allowedDomains)
+  assert(!unauthDomain.valid, 'Test 15d: Unapproved domain rejected by whitelist', unauthDomain.reason)
 
-  // SSRF Attempt E: Valid approved URL
-  const validUrl = await validateUrlSafety('https://docs.python.org/3/library/bisect.html', allowedDomains)
-  assert(validUrl.valid === true, 'Test 15e: Approved domain and public IP permitted')
+  // Valid Allowlisted Public Domain (NIST DADS)
+  const validDomain = await validateUrlSafety('https://xlinux.nist.gov/dads/HTML/array.html', allowedDomains)
+  assert(validDomain.valid === true, 'Test 15e: Approved public domain and URL accepted (NIST DADS array.html)')
 
   // --------------------------------------------------------------------------
-  // TEST 3: Text Cleaning & AST Normalization (Criteria 5)
+  // TEST 3: Sanitization & Cleaning Pipelines (Criteria 5)
   // --------------------------------------------------------------------------
-  console.log('\n--- 3. Testing Text Cleaning & AST Normalization ---')
+  console.log('\n--- 3. Testing Markdown Sanitization & Cleaning ---')
 
   const dirtyText = `---
 title: Sample Frontmatter
-author: Test
+author: Bad Actor
 ---
-<script>alert("exploit");</script>
-<nav><a href="/home">Home</a></nav>
-# Arrays and Two-Pointer Mechanics
-
-Two-pointer mechanics allow linear $O(n)$ scanning across ordered arrays.
-<div onclick="evil()">Click Me</div>
-<!-- HTML Comment to strip -->
-
+# Introduction to Arrays
+<script>alert("xss")</script>
+Arrays provide $O(1)$ lookup time.
+Here is an interactive <button onclick="stealTokens()">Click</button> example:
 \`\`\`python
 def two_sum(arr, target):
     left, right = 0, len(arr) - 1
@@ -188,11 +185,35 @@ def two_sum(arr, target):
     topicTags: ['swe-top-1', 'arrays-and-two-pointers'],
     difficultyTier: 'beginner',
     documentVersion: '1.0',
+    contentOrigin: 'hybrid_pedagogical',
+    canonicalSource: {
+      name: 'NIST DADS: Array',
+      url: 'https://xlinux.nist.gov/dads/HTML/array.html',
+      passage: 'A contiguous collection of cells, each of which stores an element accessed by one or more integer indices.',
+    },
+    groundingPassage: 'A contiguous collection of cells, each of which stores an element accessed by one or more integer indices.',
+    codeExemplar: {
+      author: 'CareerLaunch Engineering',
+      language: 'python',
+      code: 'def two_sum(arr, target): ...',
+      notes: 'CareerLaunch-authored two-pointer scanning implementation',
+    },
+    crossReferences: [
+      {
+        name: 'NIST DADS: Partition',
+        url: 'https://xlinux.nist.gov/dads/HTML/partition.html',
+        relationship: 'two_pointer_convergence',
+      },
+    ],
   })
 
   assert(chunks.length >= 1, 'Test 6a: Chunks successfully generated')
   assert(chunks[0].chunkId.startsWith('doc_nist_two_pointer_chk_'), 'Test 7a: Chunk ID preserves document prefix')
   assert(chunks[0].sourceId === 'nist-dads', 'Test 7b: Chunk preserves source provenance')
+  assert(chunks[0].contentOrigin === 'hybrid_pedagogical', 'Test 7c: Chunk tagged as hybrid_pedagogical')
+  assert(chunks[0].codeExemplar.author === 'CareerLaunch Engineering', 'Test 7d: Code exemplar explicitly attributed to CareerLaunch Engineering')
+  assert(chunks[0].canonicalSource.url === 'https://xlinux.nist.gov/dads/HTML/array.html', 'Test 7e: Canonical source URL matches verified NIST DADS array.html')
+  assert(chunks[0].crossReferences.length > 0 && chunks[0].crossReferences[0].name === 'NIST DADS: Partition', 'Test 7f: Cross-reference attached for partition convergence')
   assert(chunks[0].roleTags.includes('software-engineer'), 'Test 6b: Correct role tagging')
   assert(chunks[0].topicTags.includes('swe-top-1'), 'Test 6c: Correct topic tagging')
   assert(chunks[0].content.includes('def two_sum'), 'Test 6d: Code block preserved inside chunk without corruption')
@@ -202,6 +223,10 @@ def two_sum(arr, target):
   // --------------------------------------------------------------------------
   console.log('\n--- 5. Ingesting Pilot Knowledge for 5 SE Algorithm Topics ---')
 
+  // Clear previous NIST DADS ingestion test documents & chunks to ensure clean provenance
+  await IngestedDocument.deleteMany({ sourceId: 'nist-dads' })
+  await ContentChunk.deleteMany({ sourceId: 'nist-dads' })
+
   // Register NIST DADS in MongoDB
   await KnowledgeSource.findOneAndUpdate(
     { sourceId: validNistSource.sourceId },
@@ -209,7 +234,7 @@ def two_sum(arr, target):
     { upsert: true, new: true },
   )
 
-  // Register Python Stdlib in MongoDB
+  // Register Python Stdlib in MongoDB (flagged for review, not ingested)
   const validPythonSource = {
     sourceId: 'python-stdlib-ds',
     name: 'Python Standard Library Data Structures Documentation',
@@ -231,7 +256,7 @@ def two_sum(arr, target):
     },
     ingestionMethod: 'static_dump',
     allowedDomains: ['docs.python.org'],
-    status: 'active',
+    status: 'flagged_for_review', // Flagged for review as mandated
   }
 
   await KnowledgeSource.findOneAndUpdate(
@@ -240,21 +265,51 @@ def two_sum(arr, target):
     { upsert: true, new: true },
   )
 
-  // Curated NIST DADS documents for the 5 Pilot Topics (all URLs match xlinux.nist.gov allowlist)
+  // Curated NIST DADS documents for the 5 Pilot Topics with verified canonical URLs and pedagogical separation
   const pilotDocuments = [
     {
       title: 'Arrays and Two-Pointer Scanning Mechanics',
-      url: 'https://xlinux.nist.gov/dads/HTML/twoPointer.html',
+      url: 'https://xlinux.nist.gov/dads/HTML/array.html',
+      contentOrigin: 'hybrid_pedagogical',
+      canonicalSource: {
+        name: 'NIST DADS: Array',
+        url: 'https://xlinux.nist.gov/dads/HTML/array.html',
+        passage: 'A contiguous collection of cells, each of which stores an element accessed by one or more integer indices.',
+      },
+      groundingPassage: 'A contiguous collection of cells, each of which stores an element accessed by one or more integer indices.',
+      codeExemplar: {
+        author: 'CareerLaunch Engineering',
+        language: 'python',
+        code: `def remove_duplicates(nums):
+    if not nums:
+        return 0
+    slow = 0
+    for fast in range(1, len(nums)):
+        if nums[fast] != nums[slow]:
+            slow += 1
+            nums[slow] = nums[fast]
+    return slow + 1`,
+        notes: 'CareerLaunch-authored in-place two-pointer deduplication exemplar. Not from NIST DADS.',
+      },
+      crossReferences: [
+        {
+          name: 'NIST DADS: Partition',
+          url: 'https://xlinux.nist.gov/dads/HTML/partition.html',
+          relationship: 'two_pointer_convergence',
+        },
+      ],
       rawContent: `# Arrays and Two-Pointer Mechanics
 
-An array is a linear data structure composed of contiguous memory cells where elements are accessed via constant-time O(1) index calculation.
+### Canonical Definition (NIST DADS)
+An array is a contiguous collection of cells, each of which stores an element accessed by one or more integer indices. Constant-time O(1) random access is guaranteed through direct address arithmetic.
 
-## Two-Pointer Technique
+### CareerLaunch Pedagogical Guide: Two-Pointer Technique
 The two-pointer technique uses two integer indices to traverse an array simultaneously:
 1. Opposite ends (Left and Right pointers) converging toward the center: used in sorted array two-sum, palindrome verification, and Dutch National Flag partition.
 2. Fast and Slow pointers moving in the same direction: used in in-place deduplication and sliding window subarray problems.
 
 \`\`\`python
+# Author: CareerLaunch Engineering (Pedagogical Exemplar)
 def remove_duplicates(nums):
     if not nums:
         return 0
@@ -266,8 +321,8 @@ def remove_duplicates(nums):
     return slow + 1
 \`\`\`
 
-## Complexity Invariants
-Two-pointer mechanics reduce brute-force O(n²) quadratic search space down to O(n) linear time by eliminating redundant sub-state evaluations while maintaining O(1) auxiliary space.`,
+### Complexity & Grounding Notes
+Two-pointer mechanics reduce brute-force O(n²) quadratic search space down to O(n) linear time by eliminating redundant sub-state evaluations while maintaining O(1) auxiliary space. Partitioning convergence semantics align with NIST DADS partition definition.`,
       roleTags: ['software-engineer'],
       topicTags: ['swe-top-1', 'arrays-and-two-pointers'],
       difficultyTier: 'beginner',
@@ -276,15 +331,38 @@ Two-pointer mechanics reduce brute-force O(n²) quadratic search space down to O
     {
       title: 'Binary Search Mechanics and Interval Bisection',
       url: 'https://xlinux.nist.gov/dads/HTML/binarySearch.html',
+      contentOrigin: 'hybrid_pedagogical',
+      canonicalSource: {
+        name: 'NIST DADS: Binary Search',
+        url: 'https://xlinux.nist.gov/dads/HTML/binarySearch.html',
+        passage: 'Search a sorted array by repeatedly dividing the search interval in half. Begin with an interval covering the whole array.',
+      },
+      groundingPassage: 'Search a sorted array by repeatedly dividing the search interval in half. Begin with an interval covering the whole array.',
+      codeExemplar: {
+        author: 'CareerLaunch Engineering',
+        language: 'python',
+        code: `def binary_search_lower_bound(arr, target):
+    low, high = 0, len(arr)
+    while low < high:
+        mid = (low + high) // 2
+        if arr[mid] < target:
+            low = mid + 1
+        else:
+            high = mid
+    return low`,
+        notes: 'CareerLaunch-authored lower-bound binary search exemplar.',
+      },
       rawContent: `# Binary Search and Interval Partitioning
 
+### Canonical Definition (NIST DADS)
 Binary search locates the target value in a monotonically sorted sequence by repeatedly bisecting the search space in O(log n) time.
 
-## Lower and Upper Bound Invariants
+### CareerLaunch Pedagogical Guide: Lower and Upper Bounds
 - Lower Bound: Finds the first index i where element >= target.
 - Upper Bound: Finds the first index i where element > target.
 
 \`\`\`python
+# Author: CareerLaunch Engineering (Pedagogical Exemplar)
 def binary_search_lower_bound(arr, target):
     low, high = 0, len(arr)
     while low < high:
@@ -296,7 +374,7 @@ def binary_search_lower_bound(arr, target):
     return low
 \`\`\`
 
-## Interval Merging Mechanics
+### Interval Merging Mechanics
 When querying or inserting intervals [start, end], sorting intervals by starting boundaries allows linear verification of overlap invariants: Interval A [s1, e1] and Interval B [s2, e2] overlap if and only if s2 <= e1.`,
       roleTags: ['software-engineer'],
       topicTags: ['swe-top-4', 'binary-search-and-intervals'],
@@ -306,11 +384,31 @@ When querying or inserting intervals [start, end], sorting intervals by starting
     {
       title: 'Binary Search Trees, Invariants and Balancing',
       url: 'https://xlinux.nist.gov/dads/HTML/binarySearchTree.html',
+      contentOrigin: 'hybrid_pedagogical',
+      canonicalSource: {
+        name: 'NIST DADS: Binary Search Tree',
+        url: 'https://xlinux.nist.gov/dads/HTML/binarySearchTree.html',
+        passage: 'A binary tree where every node in the left subtree has a key less than the node key, and every node in the right subtree has a key greater.',
+      },
+      groundingPassage: 'A binary tree where every node in the left subtree has a key less than the node key, and every node in the right subtree has a key greater.',
+      codeExemplar: {
+        author: 'CareerLaunch Engineering',
+        language: 'python',
+        code: `def is_valid_bst(root, min_val=float('-inf'), max_val=float('inf')):
+    if not root:
+        return True
+    if not (min_val < root.val < max_val):
+        return False
+    return (is_valid_bst(root.left, min_val, root.val) and
+            is_valid_bst(root.right, root.val, max_val))`,
+        notes: 'CareerLaunch-authored recursive BST validation exemplar.',
+      },
       rawContent: `# Binary Search Trees and Balancing Invariants
 
+### Canonical Definition (NIST DADS)
 A Binary Search Tree (BST) is a hierarchical node-based data structure where each node satisfies the BST ordering property.
 
-## The BST Invariant
+### CareerLaunch Pedagogical Guide: The BST Invariant
 For any node N:
 - Every key in N's left subtree is strictly less than N.key.
 - Every key in N's right subtree is strictly greater than N.key.
@@ -318,6 +416,7 @@ For any node N:
 Validating an arbitrary binary tree requires bounding each node recursively within a valid constraint window (min_val < node.val < max_val), rather than simply comparing immediate parent-child nodes.
 
 \`\`\`python
+# Author: CareerLaunch Engineering (Pedagogical Exemplar)
 def is_valid_bst(root, min_val=float('-inf'), max_val=float('inf')):
     if not root:
         return True
@@ -327,7 +426,7 @@ def is_valid_bst(root, min_val=float('-inf'), max_val=float('inf')):
             is_valid_bst(root.right, root.val, max_val))
 \`\`\`
 
-## Tree Balancing & Height Invariants
+### Tree Balancing & Height Invariants
 Unbalanced BSTs degenerate into O(n) linked lists in worst-case insertion order. Self-balancing architectures (AVL, Red-Black) maintain height h = O(log n) via tree rotations.`,
       roleTags: ['software-engineer'],
       topicTags: ['swe-top-7', 'binary-search-trees'],
@@ -337,17 +436,41 @@ Unbalanced BSTs degenerate into O(n) linked lists in worst-case insertion order.
     {
       title: 'Graph Traversals: BFS, DFS and Cycle Detection',
       url: 'https://xlinux.nist.gov/dads/HTML/cycle.html',
+      contentOrigin: 'hybrid_pedagogical',
+      canonicalSource: {
+        name: 'NIST DADS: Cycle',
+        url: 'https://xlinux.nist.gov/dads/HTML/cycle.html',
+        passage: 'A path of positive length that starts and ends at the same vertex and has no other repeated vertices.',
+      },
+      groundingPassage: 'A path of positive length that starts and ends at the same vertex and has no other repeated vertices.',
+      codeExemplar: {
+        author: 'CareerLaunch Engineering',
+        language: 'python',
+        code: `def has_cycle_directed(graph, num_nodes):
+    state = [0] * num_nodes
+    def dfs(node):
+        state[node] = 1
+        for neighbor in graph[node]:
+            if state[neighbor] == 1:
+                return True
+            if state[neighbor] == 0 and dfs(neighbor):
+                return True
+        state[node] = 2
+        return False
+    return any(dfs(i) for i in range(num_nodes) if state[i] == 0)`,
+        notes: 'CareerLaunch-authored 3-color directed cycle detection exemplar.',
+      },
       rawContent: `# Graph Traversals: BFS, DFS and Cycle Detection
 
-Graphs represent entities as vertices and relationships as edges. In campus technical interviews, graph mechanics center on traversal completeness and cycle detection.
+### Canonical Definition (NIST DADS)
+Graphs represent entities as vertices and relationships as edges. A cycle is a path of positive length that starts and ends at the same vertex with no other repeated vertices.
 
-## Breadth-First Search (BFS)
-BFS explores vertices level by level using a FIFO queue. BFS guarantees the shortest path in unweighted graphs in O(V + E) time.
-
-## Depth-First Search (DFS) and Cycle Invariants
+### CareerLaunch Pedagogical Guide: Traversal & Invariants
+BFS explores vertices level by level using a FIFO queue, guaranteeing shortest path in unweighted graphs in O(V + E) time.
 In a directed graph, a cycle exists if and only if a DFS traversal encounters a back-edge pointing to an ancestor currently on the active recursion call stack.
 
 \`\`\`python
+# Author: CareerLaunch Engineering (Pedagogical Exemplar)
 def has_cycle_directed(graph, num_nodes):
     # 0 = unvisited, 1 = visiting (in stack), 2 = visited
     state = [0] * num_nodes
@@ -374,19 +497,36 @@ Undirected graphs identify cycles when an adjacent visited node is not the immed
     {
       title: 'Dynamic Programming: Optimal Substructure and Memoization',
       url: 'https://xlinux.nist.gov/dads/HTML/dynamicProgramming.html',
+      contentOrigin: 'hybrid_pedagogical',
+      canonicalSource: {
+        name: 'NIST DADS: Dynamic Programming',
+        url: 'https://xlinux.nist.gov/dads/HTML/dynamicProgramming.html',
+        passage: 'An algorithm design technique where an optimization problem is solved by caching subproblem solutions rather than recomputing them.',
+      },
+      groundingPassage: 'An algorithm design technique where an optimization problem is solved by caching subproblem solutions rather than recomputing them.',
+      codeExemplar: {
+        author: 'CareerLaunch Engineering',
+        language: 'python',
+        code: `def knapsack(weights, values, capacity):
+    n = len(weights)
+    dp = [0] * (capacity + 1)
+    for i in range(n):
+        for w in range(capacity, weights[i] - 1, -1):
+            dp[w] = max(dp[w], values[i] + dp[w - weights[i]])
+    return dp[capacity]`,
+        notes: 'CareerLaunch-authored 1D rolling array 0/1 knapsack exemplar.',
+      },
       rawContent: `# Dynamic Programming Foundations
 
+### Canonical Definition (NIST DADS)
 Dynamic Programming (DP) solves complex optimization problems by breaking them down into overlapping subproblems governed by the Principle of Optimality.
 
-## Core DP Prerequisites
+### CareerLaunch Pedagogical Guide: Optimal Substructure & Memoization
 1. Optimal Substructure: An optimal solution to the problem contains optimal solutions to subproblems.
 2. Overlapping Subproblems: A recursive algorithm revisits the same subproblems repeatedly rather than generating new subproblems.
 
-## Top-Down Memoization vs Bottom-Up Tabulation
-- Top-Down: Solves recursively and stores computed results in a hash table or array cache.
-- Bottom-Up: Solves base cases first, iteratively filling a table in topological dependency order.
-
 \`\`\`python
+# Author: CareerLaunch Engineering (Pedagogical Exemplar)
 # 0/1 Knapsack State Recurrence:
 # dp[i][w] = max(dp[i-1][w], val[i-1] + dp[i-1][w - wt[i-1]])
 def knapsack(weights, values, capacity):
@@ -434,6 +574,13 @@ Space optimization reduces 2D tables into 1D rolling arrays when state transitio
       `Test 6 (${t.tag}): Chunks verified in DB for "${t.name}" (count: ${topicChunks.length})`,
     )
   }
+
+  // Verify specific provenance and separation fields for Topic 1
+  const topic1Chunk = await ContentChunk.findOne({ topicTags: 'swe-top-1' })
+  assert(topic1Chunk.contentOrigin === 'hybrid_pedagogical', 'Test 6e: Topic 1 chunk tagged as hybrid_pedagogical')
+  assert(topic1Chunk.canonicalSource.url === 'https://xlinux.nist.gov/dads/HTML/array.html', 'Test 6f: Topic 1 canonical URL is array.html')
+  assert(topic1Chunk.crossReferences.length > 0 && topic1Chunk.crossReferences[0].url === 'https://xlinux.nist.gov/dads/HTML/partition.html', 'Test 6g: Topic 1 cross-reference is partition.html')
+  assert(topic1Chunk.codeExemplar.author === 'CareerLaunch Engineering', 'Test 6h: Topic 1 code exemplar authored by CareerLaunch Engineering')
 
   // --------------------------------------------------------------------------
   // TEST 6: Idempotency & Duplicate Skipping (Criteria 8, 9)
