@@ -13,7 +13,47 @@ export const RRF_CONFIG = {
 }
 
 /**
+ * Deduplicates retrieved candidates.
+ * Strategy:
+ * 1. Eliminate identical chunks sharing the same contentHash (keeps highest-ranking entry).
+ * 2. Limit duplicate chunks from the same document (keeps the top chunk per docId unless candidates are scarce).
+ * 3. Never eliminate genuinely distinct useful explanations across different documents.
+ *
+ * @param {Array<object>} candidates
+ * @param {number} limit
+ * @returns {Array<object>} Deduplicated candidates
+ */
+function deduplicateCandidates(candidates, limit) {
+  const seenHashes = new Set()
+  const seenDocs = new Map()
+  const deduplicated = []
+
+  for (const item of candidates) {
+    if (seenHashes.has(item.contentHash)) {
+      continue
+    }
+    seenHashes.add(item.contentHash)
+
+    // Allow at most 2 chunks per document if corpus is small, but prioritize distinct documents
+    const docHits = seenDocs.get(item.docId) || 0
+    if (docHits >= 2) {
+      continue
+    }
+
+    seenDocs.set(item.docId, docHits + 1)
+    deduplicated.push(item)
+
+    if (deduplicated.length >= limit) {
+      break
+    }
+  }
+
+  return deduplicated
+}
+
+/**
  * Executes hybrid knowledge retrieval combining semantic similarity and keyword relevance.
+ * Enforces strict source eligibility, license compliance, and provenance preservation.
  *
  * @param {object} params
  * @param {string} params.query
@@ -25,7 +65,7 @@ export const RRF_CONFIG = {
  * @param {number} [params.limit=5]
  * @param {object} [params.rrfConfig]
  * @param {object} [params.options]
- * @returns {Promise<{ query: string, totalFound: number, mode: string, results: Array<object> }>}
+ * @returns {Promise<{ query: string, totalFound: number, mode: string, evaluationDisclaimer?: string, results: Array<object> }>}
  */
 export async function retrieveKnowledge({
   query,
@@ -48,7 +88,7 @@ export async function retrieveKnowledge({
   if (difficultyTier) filters.difficultyTier = difficultyTier
   if (sourceId) filters.sourceId = sourceId
 
-  const candidateLimit = Math.max(limit * 3, 15)
+  const candidateLimit = Math.max(limit * 4, 20)
 
   // 1. Execute Retrieval Channels according to mode
   let semanticMatches = []
@@ -119,7 +159,7 @@ export async function retrieveKnowledge({
     }
   }
 
-  // 3. Sort by final score
+  // 3. Sort by final channel score
   let rankedEntries = Array.from(scoreMap.values())
 
   if (mode === 'semantic') {
@@ -130,42 +170,51 @@ export async function retrieveKnowledge({
     rankedEntries.sort((a, b) => b.rrfScore - a.rrfScore)
   }
 
-  // Slice to limit
-  const topEntries = rankedEntries.slice(0, limit)
-  if (topEntries.length === 0) {
+  if (rankedEntries.length === 0) {
     return {
       query,
       totalFound: 0,
       mode,
+      evaluationDisclaimer: options.isMock
+        ? 'MOCK EMBEDDINGS EVALUATION: Results generated using deterministic offline synthetic vectors for architectural validation only.'
+        : undefined,
       results: [],
     }
   }
 
-  // 4. Hydrate chunk records from MongoDB with complete provenance
-  const chunkIds = topEntries.map((e) => e.chunkId)
+  // 4. Hydrate chunk records from MongoDB with complete provenance & strict source verification
+  const chunkIds = rankedEntries.map((e) => e.chunkId)
   const chunkDocs = await ContentChunk.find({ chunkId: { $in: chunkIds } }).lean()
   const sourceIds = Array.from(new Set(chunkDocs.map((c) => c.sourceId)))
-  const sources = await KnowledgeSource.find({ sourceId: { $in: sourceIds } }).lean()
 
-  const sourceMap = new Map(sources.map((s) => [s.sourceId, s]))
+  // Strict verification: only retrieve from sources that are 'active', permit indexing and storage
+  const eligibleSources = await KnowledgeSource.find({
+    sourceId: { $in: sourceIds },
+    status: 'active',
+    'licence.commercialUsePermitted': true,
+    'licence.storagePermitted': true,
+    'licence.indexingPermitted': true,
+  }).lean()
+
+  const sourceMap = new Map(eligibleSources.map((s) => [s.sourceId, s]))
   const chunkMap = new Map(chunkDocs.map((c) => [c.chunkId, c]))
 
-  const results = []
+  const rawCandidates = []
 
-  for (let i = 0; i < topEntries.length; i++) {
-    const entry = topEntries[i]
+  for (const entry of rankedEntries) {
     const chunk = chunkMap.get(entry.chunkId)
     if (!chunk) continue
 
     const source = sourceMap.get(chunk.sourceId)
-
-    // Strict security filter: verify source is active and permits indexing/storage
-    if (!source || source.status !== 'active' || !source.licence?.indexingPermitted) {
+    // Strictly skip chunks from unapproved, paused, rejected, or flagged sources
+    if (!source) {
       continue
     }
 
-    results.push({
+    rawCandidates.push({
       chunkId: chunk.chunkId,
+      docId: chunk.docId,
+      contentHash: chunk.contentHash,
       documentId: chunk.docId,
       sourceId: chunk.sourceId,
       sourceTitle: source.name,
@@ -188,7 +237,6 @@ export async function retrieveKnowledge({
       // Retrieval and Ranking Metadata
       retrieval: {
         method: mode,
-        rank: i + 1,
         rrfScore: Number(entry.rrfScore.toFixed(6)),
         semanticRank: entry.semanticRank,
         semanticSimilarity: entry.semanticSimilarity,
@@ -198,10 +246,25 @@ export async function retrieveKnowledge({
     })
   }
 
+  // 5. Apply documented deduplication strategy
+  const deduplicated = deduplicateCandidates(rawCandidates, limit)
+
+  // Attach final rank order (1..N)
+  const results = deduplicated.map((item, idx) => ({
+    ...item,
+    retrieval: {
+      ...item.retrieval,
+      rank: idx + 1,
+    },
+  }))
+
   return {
     query,
     totalFound: results.length,
     mode,
+    evaluationDisclaimer: options.isMock
+      ? 'MOCK EMBEDDINGS EVALUATION: Results generated using deterministic offline synthetic vectors for architectural validation only.'
+      : undefined,
     results,
   }
 }

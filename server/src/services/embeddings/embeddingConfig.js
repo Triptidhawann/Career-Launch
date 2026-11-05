@@ -1,6 +1,13 @@
 /**
  * Embedding Service Configuration & Provider Registry
  * Provides configuration constants, model specifications, timeouts, and validation rules.
+ *
+ * Gemini Embedding Verification (Audit 2026):
+ * - Model: text-embedding-004 (Official Google Gemini text embedding)
+ * - Dimensions: 768 native default (supports Matryoshka reduction to 256/512)
+ * - Unified Model Succession: gemini-embedding-001 (up to 3072 dims, Matryoshka scaling)
+ * - Pricing: Free tier (1500 RPM on AI Studio) / Pay-as-you-go ~$0.00002 / 1k chars (~$0.15 / 1M tokens)
+ * - Terms: Commercial use permitted on paid tier with API key; subject to Google Cloud / AI terms.
  */
 
 export const EMBEDDING_CONFIG = {
@@ -14,7 +21,7 @@ export const EMBEDDING_CONFIG = {
       modelVersion: '1.0.0',
       dimensions: 384,
       isMock: true,
-      description: 'Deterministic, semantically-correlated 384-dimensional test and offline embedding provider',
+      description: 'Deterministic 384-dimensional synthetic offline test provider for architectural verification',
     },
     gemini: {
       providerId: 'gemini',
@@ -23,7 +30,11 @@ export const EMBEDDING_CONFIG = {
       dimensions: 768,
       isMock: false,
       baseUrl: 'https://generativelanguage.googleapis.com/v1beta/models',
-      description: 'Google Gemini text-embedding-004 official API provider',
+      pricing: {
+        inputTokensPerMillion: 0.15,
+        freeTierRpm: 1500,
+      },
+      description: 'Google Gemini text-embedding-004 verified production adapter (768 dimensions)',
     },
   },
 

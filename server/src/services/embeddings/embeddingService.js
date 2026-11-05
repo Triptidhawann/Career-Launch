@@ -1,8 +1,11 @@
 import { getEmbeddingProvider } from './embeddingProvider.js'
-import { EMBEDDING_CONFIG } from './embeddingConfig.js'
+import { EMBEDDING_CONFIG, getProviderConfig } from './embeddingConfig.js'
 import { ContentChunk } from '../../models/ContentChunk.js'
 import { KnowledgeSource } from '../../models/KnowledgeSource.js'
 import { invalidateVectorIndex } from '../retrieval/vectorIndex.js'
+
+// In-flight embedding jobs set to prevent concurrent duplicate executions for the same source
+const activeEmbeddingJobs = new Set()
 
 /**
  * Executes an operation with exponential backoff retry.
@@ -69,6 +72,7 @@ export async function generateEmbeddingForText(text, options = {}) {
 
 /**
  * Embeds all eligible, pending, or stale chunks for a registered KnowledgeSource.
+ * Features safe atomic updates, concurrent job deduplication, and vector preservation.
  *
  * @param {string} sourceId
  * @param {object} [options]
@@ -77,121 +81,144 @@ export async function generateEmbeddingForText(text, options = {}) {
  * @returns {Promise<{ sourceId: string, totalEligible: number, succeeded: number, failed: number, skipped: number, errors: Array<{ chunkId: string, error: string }> }>}
  */
 export async function embedChunksForSource(sourceId, options = {}) {
-  // 1. Verify source exists and is eligible for embedding
-  const source = await KnowledgeSource.findOne({ sourceId })
-  if (!source) {
-    throw new Error(`KnowledgeSource "${sourceId}" not found.`)
+  // 1. Prevent concurrent duplicate jobs on the same source
+  if (activeEmbeddingJobs.has(sourceId)) {
+    throw new Error(`An embedding job for source "${sourceId}" is already running. Duplicate concurrent jobs are rejected.`)
   }
 
-  if (source.status !== 'active') {
-    throw new Error(
-      `Cannot embed chunks for source "${sourceId}": source status is "${source.status}". Only "active" sources are eligible.`,
-    )
-  }
+  activeEmbeddingJobs.add(sourceId)
 
-  if (!source.licence.indexingPermitted) {
-    throw new Error(
-      `Cannot embed chunks for source "${sourceId}": licence prohibits indexing (indexingPermitted=false).`,
-    )
-  }
-
-  const provider = getEmbeddingProvider(options.providerId)
-
-  // 2. Query chunks for this source
-  const allChunks = await ContentChunk.find({ sourceId })
-
-  const chunksToProcess = []
-  let skipped = 0
-
-  for (const chunk of allChunks) {
-    const isStale = chunk.embedding?.contentHash !== chunk.contentHash
-    const isModelMismatch = chunk.embedding?.model !== provider.modelId
-    const isPendingOrFailed =
-      !chunk.embedding ||
-      chunk.embedding.status === 'pending' ||
-      chunk.embedding.status === 'failed' ||
-      chunk.embedding.status === 'stale'
-    const needsEmbed = options.forceReembed || isStale || isModelMismatch || isPendingOrFailed
-
-    if (needsEmbed) {
-      chunksToProcess.push(chunk)
-    } else {
-      skipped++
+  try {
+    // 2. Verify source exists and is eligible for embedding
+    const source = await KnowledgeSource.findOne({ sourceId })
+    if (!source) {
+      throw new Error(`KnowledgeSource "${sourceId}" not found.`)
     }
-  }
 
-  let succeeded = 0
-  let failed = 0
-  const errors = []
+    if (source.status !== 'active') {
+      throw new Error(
+        `Cannot embed chunks for source "${sourceId}": source status is "${source.status}". Only "active" sources are eligible.`,
+      )
+    }
 
-  // 3. Process in batches
-  const batchSize = EMBEDDING_CONFIG.limits.maxBatchSize
-  for (let i = 0; i < chunksToProcess.length; i += batchSize) {
-    const batch = chunksToProcess.slice(i, i + batchSize)
-    const texts = batch.map((c) => `${c.content}\n\nGrounding: ${c.groundingPassage || ''}`)
+    if (!source.licence?.indexingPermitted || !source.licence?.storagePermitted) {
+      throw new Error(
+        `Cannot embed chunks for source "${sourceId}": licence prohibits indexing or storage.`,
+      )
+    }
 
-    try {
-      const vectors = await retryWithBackoff(async () => {
-        return await provider.embedBatch(texts)
-      })
+    const provider = getEmbeddingProvider(options.providerId)
 
-      // Update chunks in DB
-      for (let j = 0; j < batch.length; j++) {
-        const chunk = batch[j]
-        const vector = vectors[j]
+    // 3. Query chunks for this source
+    const allChunks = await ContentChunk.find({ sourceId })
 
-        const validation = provider.validateVector(vector)
-        if (!validation.valid) {
-          throw new Error(`Vector validation failed for chunk ${chunk.chunkId}: ${validation.reason}`)
+    const chunksToProcess = []
+    let skipped = 0
+
+    for (const chunk of allChunks) {
+      const isStaleHash = chunk.embedding?.contentHash !== chunk.contentHash
+      const isModelMismatch = chunk.embedding?.model !== provider.modelId || chunk.embedding?.dimensions !== provider.dimensions
+      const isPendingOrFailed =
+        !chunk.embedding ||
+        chunk.embedding.status === 'pending' ||
+        chunk.embedding.status === 'failed' ||
+        chunk.embedding.status === 'stale'
+      const needsEmbed = options.forceReembed || isStaleHash || isModelMismatch || isPendingOrFailed
+
+      if (needsEmbed) {
+        // Mark stale if content or model mismatched
+        if ((isStaleHash || isModelMismatch) && chunk.embedding?.status === 'active') {
+          await ContentChunk.updateOne({ chunkId: chunk.chunkId }, { $set: { 'embedding.status': 'stale' } })
+          chunk.embedding.status = 'stale'
         }
+        chunksToProcess.push(chunk)
+      } else {
+        skipped++
+      }
+    }
 
-        await ContentChunk.updateOne(
-          { chunkId: chunk.chunkId },
-          {
-            $set: {
-              'embedding.vector': vector,
-              'embedding.provider': provider.providerId,
-              'embedding.model': provider.modelId,
-              'embedding.modelVersion': provider.modelVersion,
-              'embedding.dimensions': provider.dimensions,
-              'embedding.contentHash': chunk.contentHash,
-              'embedding.createdAt': new Date(),
-              'embedding.status': 'active',
-              'embedding.lastError': '',
+    let succeeded = 0
+    let failed = 0
+    const errors = []
+
+    // 4. Process in batches with safe update isolation
+    const batchSize = EMBEDDING_CONFIG.limits.maxBatchSize
+    for (let i = 0; i < chunksToProcess.length; i += batchSize) {
+      const batch = chunksToProcess.slice(i, i + batchSize)
+      const texts = batch.map((c) => `${c.content}\n\nGrounding: ${c.groundingPassage || ''}`)
+
+      try {
+        const replacementVectors = await retryWithBackoff(async () => {
+          return await provider.embedBatch(texts)
+        })
+
+        // Validate each replacement vector BEFORE writing to MongoDB
+        for (let j = 0; j < batch.length; j++) {
+          const chunk = batch[j]
+          const repVector = replacementVectors[j]
+
+          const validation = provider.validateVector(repVector, provider.dimensions)
+          if (!validation.valid) {
+            throw new Error(`Vector validation failed for chunk ${chunk.chunkId}: ${validation.reason}`)
+          }
+
+          // Safe activation: only update DB after full validation succeeds
+          await ContentChunk.updateOne(
+            { chunkId: chunk.chunkId },
+            {
+              $set: {
+                'embedding.vector': repVector,
+                'embedding.provider': provider.providerId,
+                'embedding.model': provider.modelId,
+                'embedding.modelVersion': provider.modelVersion,
+                'embedding.dimensions': provider.dimensions,
+                'embedding.contentHash': chunk.contentHash,
+                'embedding.createdAt': new Date(),
+                'embedding.status': 'active',
+                'embedding.lastError': '',
+              },
             },
-          },
-        )
-        succeeded++
-      }
-    } catch (batchErr) {
-      // Record failure without erasing previous valid vectors if they existed
-      for (const chunk of batch) {
-        failed++
-        errors.push({ chunkId: chunk.chunkId, error: batchErr.message })
-
-        const updateFields = {
-          'embedding.lastError': batchErr.message,
+          )
+          succeeded++
         }
-        // Only set status to failed if there was no active vector
-        if (chunk.embedding?.status !== 'active') {
-          updateFields['embedding.status'] = 'failed'
-        }
+      } catch (batchErr) {
+        // Safe error isolation: if regeneration fails, DO NOT erase existing valid vectors
+        for (const chunk of batch) {
+          failed++
+          errors.push({ chunkId: chunk.chunkId, error: batchErr.message })
 
-        await ContentChunk.updateOne({ chunkId: chunk.chunkId }, { $set: updateFields })
+          const hasValidExistingVector =
+            Array.isArray(chunk.embedding?.vector) &&
+            chunk.embedding.vector.length === provider.dimensions
+
+          const updateFields = {
+            'embedding.lastError': batchErr.message,
+          }
+
+          // If chunk never had a valid vector, set status to failed.
+          // If it had a valid vector, keep the vector intact and flag error without destroying data!
+          if (!hasValidExistingVector) {
+            updateFields['embedding.status'] = 'failed'
+          }
+
+          await ContentChunk.updateOne({ chunkId: chunk.chunkId }, { $set: updateFields })
+        }
       }
     }
-  }
 
-  // 4. Invalidate retrieval in-memory vector cache so new embeddings take effect immediately
-  invalidateVectorIndex(sourceId)
+    // 5. Invalidate vector cache so fresh embeddings are indexed
+    invalidateVectorIndex(sourceId)
 
-  return {
-    sourceId,
-    totalEligible: chunksToProcess.length,
-    succeeded,
-    failed,
-    skipped,
-    errors,
+    return {
+      sourceId,
+      totalEligible: chunksToProcess.length,
+      succeeded,
+      failed,
+      skipped,
+      errors,
+    }
+  } finally {
+    activeEmbeddingJobs.delete(sourceId)
   }
 }
 
@@ -211,7 +238,7 @@ export async function getEmbeddingStatusSummary() {
         },
       },
     ]),
-    KnowledgeSource.find({}, 'sourceId name status licence.indexingPermitted'),
+    KnowledgeSource.find({}, 'sourceId name status licence.indexingPermitted licence.storagePermitted'),
   ])
 
   const breakdown = {
@@ -230,12 +257,15 @@ export async function getEmbeddingStatusSummary() {
   return {
     totalChunks,
     breakdown,
+    activeModel: getProviderConfig().modelId,
+    activeDimensions: getProviderConfig().dimensions,
     coveragePercentage: totalChunks > 0 ? Number(((breakdown.active / totalChunks) * 100).toFixed(1)) : 0,
     sources: sources.map((s) => ({
       sourceId: s.sourceId,
       name: s.name,
       status: s.status,
       indexingPermitted: s.licence?.indexingPermitted,
+      storagePermitted: s.licence?.storagePermitted,
     })),
   }
 }

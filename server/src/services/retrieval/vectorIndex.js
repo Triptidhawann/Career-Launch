@@ -1,20 +1,23 @@
 import { ContentChunk } from '../../models/ContentChunk.js'
 import { KnowledgeSource } from '../../models/KnowledgeSource.js'
+import { getProviderConfig } from '../embeddings/embeddingConfig.js'
 
 /**
  * In-Process Vector Index Cache for Bounded Pilot
  *
  * Stores active chunk vectors as compact Float32Array buffers to eliminate
  * the 8x memory overhead of generic JavaScript 64-bit Number arrays.
- * Provides microsecond-latency cosine similarity scanning for bounded corpora.
+ * Enforces strict vector space isolation to prevent mixing incompatible dimensions or models.
  */
 class InProcessVectorIndex {
   constructor() {
     /** @type {Map<string, { chunkId: string, docId: string, sourceId: string, roleTags: string[], topicTags: string[], difficultyTier: string, contentHash: string, vector: Float32Array, norm: number }>} */
     this.entries = new Map()
-    this.dimensions = 0
+    this.dimensions = getProviderConfig().dimensions
+    this.modelId = getProviderConfig().modelId
     this.lastRefreshedAt = null
     this.isDirty = true
+    this.lastLoadDurationMs = 0
   }
 
   /**
@@ -27,6 +30,7 @@ class InProcessVectorIndex {
   /**
    * Refreshes or populates the in-memory Float32Array index from MongoDB.
    * Only includes chunks with 'active' embedding status whose sources are 'active' and approved.
+   * Strictly enforces model and dimension compatibility.
    *
    * @param {boolean} [force=false]
    */
@@ -35,21 +39,29 @@ class InProcessVectorIndex {
       return
     }
 
+    const start = performance.now()
+    const activeConfig = getProviderConfig()
+    this.dimensions = activeConfig.dimensions
+    this.modelId = activeConfig.modelId
+
     // 1. Identify active, approved knowledge sources
     const activeSources = await KnowledgeSource.find(
       {
         status: 'active',
         'licence.commercialUsePermitted': true,
         'licence.indexingPermitted': true,
+        'licence.storagePermitted': true,
       },
       'sourceId',
     )
     const allowedSourceIds = new Set(activeSources.map((s) => s.sourceId))
 
-    // 2. Fetch all active chunks for eligible sources
+    // 2. Fetch all active chunks for eligible sources matching active model & dimension
     const chunks = await ContentChunk.find(
       {
         'embedding.status': 'active',
+        'embedding.model': this.modelId,
+        'embedding.dimensions': this.dimensions,
         'embedding.vector.0': { $exists: true },
         sourceId: { $in: Array.from(allowedSourceIds) },
       },
@@ -60,19 +72,16 @@ class InProcessVectorIndex {
 
     for (const chunk of chunks) {
       const rawVec = chunk.embedding?.vector
-      if (!Array.isArray(rawVec) || rawVec.length === 0) continue
+      if (!Array.isArray(rawVec) || rawVec.length !== this.dimensions) continue
 
-      // Verify content hash matches
+      // Verify content hash matches exactly (prevents stale embeddings)
       if (chunk.embedding.contentHash && chunk.embedding.contentHash !== chunk.contentHash) {
-        continue // Skip stale embeddings
+        continue
       }
 
-      const dim = rawVec.length
-      this.dimensions = dim
-
-      const floatArray = new Float32Array(dim)
+      const floatArray = new Float32Array(this.dimensions)
       let sumSq = 0
-      for (let i = 0; i < dim; i++) {
+      for (let i = 0; i < this.dimensions; i++) {
         const val = rawVec[i]
         floatArray[i] = val
         sumSq += val * val
@@ -96,6 +105,7 @@ class InProcessVectorIndex {
 
     this.isDirty = false
     this.lastRefreshedAt = new Date()
+    this.lastLoadDurationMs = Number((performance.now() - start).toFixed(2))
   }
 
   /**
@@ -144,8 +154,10 @@ class InProcessVectorIndex {
     }
 
     const qLen = queryVector.length
-    if (this.dimensions > 0 && qLen !== this.dimensions) {
-      throw new Error(`Query vector dimension (${qLen}) does not match index dimension (${this.dimensions}).`)
+    if (qLen !== this.dimensions) {
+      throw new Error(
+        `Query vector dimension mismatch: query vector has ${qLen} dimensions, but active model "${this.modelId}" expects ${this.dimensions}.`,
+      )
     }
 
     // Convert query vector to Float32Array
@@ -153,12 +165,15 @@ class InProcessVectorIndex {
     let qSumSq = 0
     for (let i = 0; i < qLen; i++) {
       const v = queryVector[i]
+      if (typeof v !== 'number' || !Number.isFinite(v)) {
+        throw new Error(`Invalid non-finite query vector value at index ${i}: ${v}`)
+      }
       qVec[i] = v
       qSumSq += v * v
     }
     const qNorm = Math.sqrt(qSumSq)
     if (qNorm === 0) {
-      return []
+      return [] // Zero-magnitude query vector returns no results safely
     }
 
     const matches = []
@@ -192,20 +207,37 @@ class InProcessVectorIndex {
   }
 
   /**
-   * Reports memory footprint and index metrics.
+   * Reports comprehensive memory profile, indexing overhead, and diagnostic metrics.
    *
-   * @returns {object} Memory and size profile
+   * @returns {object} Detailed memory and size profile
    */
   getMemoryProfile() {
     const vectorCount = this.entries.size
-    const vectorBytes = vectorCount * this.dimensions * 4 // 4 bytes per Float32
+    const rawVectorBytes = vectorCount * this.dimensions * 4 // 4 bytes per Float32
+    // Estimate Map wrapper & string metadata overhead (~250 bytes per entry in V8)
+    const estimatedEntryOverheadBytes = vectorCount * 256
+    const totalIndexBytes = rawVectorBytes + estimatedEntryOverheadBytes
+
+    const mem = process.memoryUsage()
+
     return {
       vectorCount,
       dimensions: this.dimensions,
-      vectorBufferBytes: vectorBytes,
-      vectorBufferKb: Number((vectorBytes / 1024).toFixed(2)),
+      modelId: this.modelId,
+      rawVectorBytes,
+      rawVectorKb: Number((rawVectorBytes / 1024).toFixed(2)),
+      estimatedIndexOverheadBytes: estimatedEntryOverheadBytes,
+      totalIndexBytes,
+      totalIndexKb: Number((totalIndexBytes / 1024).toFixed(2)),
+      lastLoadDurationMs: this.lastLoadDurationMs,
       lastRefreshedAt: this.lastRefreshedAt,
       isDirty: this.isDirty,
+      runtime: {
+        heapUsedMb: Number((mem.heapUsed / 1024 / 1024).toFixed(2)),
+        heapTotalMb: Number((mem.heapTotal / 1024 / 1024).toFixed(2)),
+        rssMb: Number((mem.rss / 1024 / 1024).toFixed(2)),
+        externalMb: Number((mem.external / 1024 / 1024).toFixed(2)),
+      },
     }
   }
 }

@@ -2,6 +2,7 @@ import http from 'node:http'
 import mongoose from 'mongoose'
 import express from 'express'
 import { ContentChunk } from '../models/ContentChunk.js'
+import { KnowledgeSource } from '../models/KnowledgeSource.js'
 import { StudentProfile } from '../models/StudentProfile.js'
 import { MockEmbeddingProvider, GeminiEmbeddingProvider, getEmbeddingProvider } from '../services/embeddings/embeddingProvider.js'
 import { embedChunksForSource } from '../services/embeddings/embeddingService.js'
@@ -65,7 +66,7 @@ async function runPhase2BTests() {
   assert(isIdentical, 'Test 1d: Mock embedding provider is strictly deterministic')
 
   // --------------------------------------------------------------------------
-  // TEST 2: Vector Validation & Dimension Checks
+  // TEST 2: Vector Validation & Dimension Safeguards
   // --------------------------------------------------------------------------
   console.log('\n--- 2. Testing Vector Validation & Dimension Safeguards ---')
 
@@ -137,11 +138,20 @@ async function runPhase2BTests() {
   assert(resolvedProvider instanceof MockEmbeddingProvider, 'Test 2b: getEmbeddingProvider resolves mock provider cleanly')
 
   // --------------------------------------------------------------------------
-  // TEST 5: Batch Embedding Generation for the 5 Pilot Topics
+  // TEST 5: Batch Embedding Generation & Concurrency Lock
   // --------------------------------------------------------------------------
-  console.log('\n--- 5. Generating Batch Embeddings for Pilot Topics ---')
+  console.log('\n--- 5. Generating Batch Embeddings & Concurrency Control ---')
 
-  const embedResult = await embedChunksForSource('nist-dads', { forceReembed: true })
+  // Concurrency lock test: trigger two simultaneous jobs on the same source
+  const job1Promise = embedChunksForSource('nist-dads', { forceReembed: true })
+  let concurrencyRejected = false
+  try {
+    await embedChunksForSource('nist-dads', { forceReembed: true })
+  } catch (concurrencyErr) {
+    concurrencyRejected = concurrencyErr.message.includes('already running')
+  }
+  const embedResult = await job1Promise
+  assert(concurrencyRejected, 'Test 15c: Duplicate concurrent embedding job safely rejected by lock')
   assert(embedResult.succeeded === 5, 'Test 15a: Batch embedding generated for all 5 pilot chunks')
   assert(embedResult.failed === 0, 'Test 15b: 0 failures during pilot embedding batch')
 
@@ -154,7 +164,7 @@ async function runPhase2BTests() {
   }
 
   // --------------------------------------------------------------------------
-  // TEST 6: In-Process Vector Index & Memory Benchmarks
+  // TEST 6: In-Process Vector Index & Detailed Memory Profiling
   // --------------------------------------------------------------------------
   console.log('\n--- 6. In-Process Vector Index & Memory Profile ---')
 
@@ -162,7 +172,9 @@ async function runPhase2BTests() {
   const memProfile = vectorIndex.getMemoryProfile()
   assert(memProfile.vectorCount === 5, 'Test 8a: Vector index cached 5 active vectors')
   assert(memProfile.dimensions === 384, 'Test 8b: Vector index dimensions = 384')
-  assert(memProfile.vectorBufferBytes === 5 * 384 * 4, `Test 8c: Float32Array memory footprint = ${memProfile.vectorBufferBytes} bytes (${memProfile.vectorBufferKb} KB)`)
+  assert(memProfile.rawVectorBytes === 5 * 384 * 4, `Test 8c: Raw Float32Array vector storage = ${memProfile.rawVectorBytes} bytes (${memProfile.rawVectorKb} KB)`)
+  assert(memProfile.totalIndexBytes > memProfile.rawVectorBytes, 'Test 8d: Total index bytes correctly includes JS wrapper & metadata overhead')
+  assert(memProfile.runtime && memProfile.runtime.heapUsedMb > 0, 'Test 8e: Actual Node.js heap and RSS memory reported')
 
   // --------------------------------------------------------------------------
   // TEST 7: Keyword-Only Search
@@ -231,8 +243,15 @@ async function runPhase2BTests() {
   assert(filteredDiff.results.length === 1, 'Test 9c: Difficulty tier filter restricted results')
   assert(filteredDiff.results[0].difficultyTier === 'advanced', 'Test 9d: Returned chunk is advanced tier')
 
+  // Empty result check: filter for non-existent topic
+  const emptyFilterResult = await retrieveKnowledge({
+    query: 'algorithms',
+    topicId: 'non-existent-topic-tag',
+  })
+  assert(emptyFilterResult.totalFound === 0 && emptyFilterResult.results.length === 0, 'Test 9e: Non-existent filter returns clean empty results without throwing')
+
   // --------------------------------------------------------------------------
-  // TEST 11: Inactive / Flagged Source Exclusion
+  // TEST 11: Inactive / Flagged / Unapproved Source Exclusion
   // --------------------------------------------------------------------------
   console.log('\n--- 11. Testing Inactive & Flagged Source Exclusion ---')
 
@@ -245,6 +264,12 @@ async function runPhase2BTests() {
     flaggedSearch.results.length === 0,
     'Test 10a: Flagged source (python-stdlib-ds) strictly excluded from retrieval',
   )
+
+  // Test temporarily paused source
+  await KnowledgeSource.updateOne({ sourceId: 'nist-dads' }, { $set: { status: 'paused' } })
+  const pausedSearch = await retrieveKnowledge({ query: 'binary search' })
+  assert(pausedSearch.results.length === 0, 'Test 10b: Paused source immediately excluded from retrieval')
+  await KnowledgeSource.updateOne({ sourceId: 'nist-dads' }, { $set: { status: 'active' } }) // restore
 
   // --------------------------------------------------------------------------
   // TEST 12: Provenance Preservation in Retrieval Output
@@ -267,9 +292,9 @@ async function runPhase2BTests() {
   assert(Boolean(r.groundingPassage), 'Test 12g: Grounding passage preserved')
 
   // --------------------------------------------------------------------------
-  // TEST 13: Stale Embedding Detection & Idempotency
+  // TEST 13: Stale Embedding Detection, Content Hash Changes & Vector Preservation
   // --------------------------------------------------------------------------
-  console.log('\n--- 13. Testing Stale Embeddings & Idempotency ---')
+  console.log('\n--- 13. Testing Stale Embeddings & Safe Vector Preservation ---')
 
   // Repeat embedding without force: should skip all 5 unchanged chunks
   const repeatEmbed = await embedChunksForSource('nist-dads', { forceReembed: false })
@@ -283,6 +308,15 @@ async function runPhase2BTests() {
   const staleCheckSummary = await embedChunksForSource('nist-dads', { forceReembed: false })
   assert(staleCheckSummary.succeeded === 1, 'Test 13a: Stale chunk detected by hash mismatch and re-embedded')
   assert(staleCheckSummary.skipped === 4, 'Test 13b: Remaining 4 non-stale chunks preserved')
+
+  // Model Version / Dimension Mismatch Isolation Test
+  // If an incompatible model tag is applied, the vector index must isolate/exclude it
+  await ContentChunk.updateOne({ chunkId: testChunk.chunkId }, { $set: { 'embedding.model': 'incompatible-model-v9', 'embedding.dimensions': 512 } })
+  await vectorIndex.ensureIndex(true)
+  assert(!vectorIndex.entries.has(testChunk.chunkId), 'Test 13c: Chunk with mismatched model/dimension excluded from vector index')
+  // Restore chunk
+  await embedChunksForSource('nist-dads', { forceReembed: true })
+  await vectorIndex.ensureIndex(true)
 
   // --------------------------------------------------------------------------
   // TEST 14: Rate Limiter Middleware
@@ -308,9 +342,20 @@ async function runPhase2BTests() {
   assert(Boolean(mockRes.headers['Retry-After']), 'Test 18c: Retry-After header included')
 
   // --------------------------------------------------------------------------
-  // TEST 15: Retrieval API Endpoints & Auth Security
+  // TEST 15: Exact Code Identifier Queries
   // --------------------------------------------------------------------------
-  console.log('\n--- 15. Testing Retrieval API & Security Controls ---')
+  console.log('\n--- 15. Testing Exact Technical & Code Identifier Queries ---')
+
+  const codeQuery1 = await retrieveKnowledge({ query: 'remove_duplicates nums slow fast', limit: 3 })
+  assert(codeQuery1.results.length > 0 && codeQuery1.results[0].topicTags.includes('swe-top-1'), 'Test 19a: Exact identifier remove_duplicates ranked #1')
+
+  const codeQuery2 = await retrieveKnowledge({ query: 'is_valid_bst min_val max_val', limit: 3 })
+  assert(codeQuery2.results.length > 0 && codeQuery2.results[0].topicTags.includes('swe-top-7'), 'Test 19b: Exact identifier is_valid_bst ranked #1')
+
+  // --------------------------------------------------------------------------
+  // TEST 16: Retrieval API Endpoints & Auth Security
+  // --------------------------------------------------------------------------
+  console.log('\n--- 16. Testing Retrieval API & Security Controls ---')
 
   const app = express()
   app.use(express.json())
@@ -321,7 +366,7 @@ async function runPhase2BTests() {
   const baseUrl = 'http://127.0.0.1:5098'
 
   try {
-    // 15a: Unauthenticated access to /api/admin/retrieval/search -> 401
+    // 16a: Unauthenticated access to /api/admin/retrieval/search -> 401
     const unauthRes = await fetch(`${baseUrl}/api/admin/retrieval/search`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -329,7 +374,7 @@ async function runPhase2BTests() {
     })
     assert(unauthRes.status === 401, 'Test 17a: Unauthenticated retrieval search rejected with 401 Unauthorized')
 
-    // 15b: Non-admin student access -> 403
+    // 16b: Non-admin student access -> 403
     const mockStudentUid = 'student_test_uid_88'
     await StudentProfile.findOneAndUpdate(
       { firebaseUid: mockStudentUid },
@@ -350,7 +395,7 @@ async function runPhase2BTests() {
     })
     assert(nonAdminRes.status === 403, 'Test 17b: Non-admin request rejected with 403 Forbidden')
 
-    // 15c: Admin access -> 200
+    // 16c: Admin access -> 200
     const mockAdminUid = 'admin_test_uid_88'
     await StudentProfile.findOneAndUpdate(
       { firebaseUid: mockAdminUid },
@@ -372,7 +417,7 @@ async function runPhase2BTests() {
     assert(adminSearchRes.status === 200 && adminSearchData.success, 'Test 17c: Verified admin granted access to retrieval search (HTTP 200)')
     assert(adminSearchData.data.results.length > 0, 'Test 17d: Search results successfully returned')
 
-    // 15d: Status endpoint -> 200
+    // 16d: Status endpoint -> 200
     const statusRes = await fetch(`${baseUrl}/api/admin/retrieval/embedding-status`, {
       headers: { Authorization: `Bearer ${aToken}` },
     })
@@ -387,9 +432,9 @@ async function runPhase2BTests() {
   }
 
   // --------------------------------------------------------------------------
-  // TEST 16: Preservation of Existing Student Profiles
+  // TEST 17: Preservation of Existing Student Profiles
   // --------------------------------------------------------------------------
-  console.log('\n--- 16. Verifying Student Records Preservation ---')
+  console.log('\n--- 17. Verifying Student Records Preservation ---')
 
   const finalStudentCount = await StudentProfile.countDocuments()
   assert(finalStudentCount === 2, 'Test 22b: Student profiles preserved at exactly 2')
