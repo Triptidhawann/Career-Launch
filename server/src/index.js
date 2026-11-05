@@ -4,6 +4,7 @@ import cors from 'cors'
 import mongoose from 'mongoose'
 import { connectDB } from './config/db.js'
 import profileRoutes from './routes/profileRoutes.js'
+import adminIngestRoutes from './routes/adminIngestRoutes.js'
 
 const app = express()
 const PORT = process.env.PORT || 5000
@@ -34,7 +35,7 @@ app.use(
   }),
 )
 
-app.use(express.json())
+app.use(express.json({ limit: '10mb' }))
 
 // Basic request logging
 app.use((req, res, next) => {
@@ -59,6 +60,7 @@ app.get('/api/health', (_req, res) => {
 
 // Mount API routes
 app.use('/api/profile', profileRoutes)
+app.use('/api/admin/ingest', adminIngestRoutes)
 
 // Fallback for unmatched API routes
 app.use('/api/*', (_req, res) => {
