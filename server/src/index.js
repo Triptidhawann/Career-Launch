@@ -6,6 +6,7 @@ import { connectDB } from './config/db.js'
 import profileRoutes from './routes/profileRoutes.js'
 import adminIngestRoutes from './routes/adminIngestRoutes.js'
 import adminRetrievalRoutes from './routes/adminRetrievalRoutes.js'
+import adminLessonRoutes from './routes/adminLessonRoutes.js'
 
 const app = express()
 const PORT = process.env.PORT || 5000
@@ -63,6 +64,7 @@ app.get('/api/health', (_req, res) => {
 app.use('/api/profile', profileRoutes)
 app.use('/api/admin/ingest', adminIngestRoutes)
 app.use('/api/admin/retrieval', adminRetrievalRoutes)
+app.use('/api/admin/lessons', adminLessonRoutes)
 
 // Fallback for unmatched API routes
 app.use('/api/*', (_req, res) => {
