@@ -101,7 +101,7 @@ const KnowledgeSourceSchema = new Schema(
     },
     status: {
       type: String,
-      enum: ['active', 'paused', 'deprecated', 'rejected'],
+      enum: ['active', 'paused', 'deprecated', 'rejected', 'flagged_for_review'],
       default: 'active',
       index: true,
     },

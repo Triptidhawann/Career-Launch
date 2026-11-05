@@ -212,6 +212,14 @@ export function chunkDocument({
         notes: codeExemplar.notes || '',
       },
       crossReferences,
+      embedding: {
+        vector: [],
+        provider: '',
+        model: '',
+        dimensions: 0,
+        contentHash: '',
+        status: 'pending',
+      },
     }
   })
 }

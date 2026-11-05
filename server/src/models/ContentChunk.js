@@ -96,6 +96,50 @@ const ContentChunkSchema = new Schema(
         relationship: { type: String, default: 'cross_reference' },
       },
     ],
+
+    // Phase 2B: Embedding Vector & Metadata
+    embedding: {
+      vector: {
+        type: [Number],
+        default: [],
+      },
+      provider: {
+        type: String,
+        default: '',
+        trim: true,
+      },
+      model: {
+        type: String,
+        default: '',
+        trim: true,
+      },
+      modelVersion: {
+        type: String,
+        default: '',
+        trim: true,
+      },
+      dimensions: {
+        type: Number,
+        default: 0,
+      },
+      contentHash: {
+        type: String,
+        default: '',
+        trim: true,
+      },
+      createdAt: {
+        type: Date,
+      },
+      status: {
+        type: String,
+        enum: ['pending', 'active', 'stale', 'failed'],
+        default: 'pending',
+      },
+      lastError: {
+        type: String,
+        default: '',
+      },
+    },
   },
   {
     timestamps: true,
@@ -106,6 +150,8 @@ const ContentChunkSchema = new Schema(
 ContentChunkSchema.index({ roleTags: 1 })
 ContentChunkSchema.index({ topicTags: 1 })
 ContentChunkSchema.index({ sourceId: 1, docId: 1 })
+ContentChunkSchema.index({ 'embedding.status': 1 })
+ContentChunkSchema.index({ 'embedding.contentHash': 1 })
 
 // Text index for keyword discovery
 ContentChunkSchema.index({ content: 'text', topicTags: 'text' })
