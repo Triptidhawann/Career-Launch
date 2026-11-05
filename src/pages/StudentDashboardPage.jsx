@@ -556,6 +556,9 @@ export function StudentDashboardPage() {
             <Link to="/dashboard" className="dashboard-nav__link active">
               <span>Dashboard</span>
             </Link>
+            <Link to="/interview-preparation" className="dashboard-nav__link">
+              <span>Interview Prep</span>
+            </Link>
             <Link to="/" className="dashboard-nav__link">
               <span>Platform Overview</span>
             </Link>
@@ -616,6 +619,13 @@ export function StudentDashboardPage() {
               onClick={() => setMobileMenuOpen(false)}
             >
               Dashboard
+            </Link>
+            <Link
+              to="/interview-preparation"
+              className="dashboard-nav__mobile-link"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Interview Prep
             </Link>
             <Link
               to="/"
@@ -1138,7 +1148,7 @@ export function StudentDashboardPage() {
                 </div>
                 <button
                   type="button"
-                  onClick={() => setToastMessage('Starting System Architecture Drill module...')}
+                  onClick={() => navigate('/interview-preparation')}
                   className="side-card__cta-btn"
                 >
                   <span>Start Practice Drill</span>

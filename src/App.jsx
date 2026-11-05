@@ -8,6 +8,7 @@ import { LoginPage } from '@/pages/LoginPage'
 import { OnboardingPage } from '@/pages/OnboardingPage'
 import { SignupPage } from '@/pages/SignupPage'
 import { StudentDashboardPage } from '@/pages/StudentDashboardPage'
+import { InterviewPreparationPage } from '@/pages/InterviewPreparationPage'
 import { VerifyEmailPage } from '@/pages/VerifyEmailPage'
 
 function ScrollToTop() {
@@ -49,6 +50,22 @@ export default function App() {
             element={
               <ProtectedRoute requireVerifiedEmail={true} requireOnboarding={false}>
                 <StudentDashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/interview-preparation"
+            element={
+              <ProtectedRoute requireVerifiedEmail={true} requireOnboarding={false}>
+                <InterviewPreparationPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/interview-preparation/:roleId"
+            element={
+              <ProtectedRoute requireVerifiedEmail={true} requireOnboarding={false}>
+                <InterviewPreparationPage />
               </ProtectedRoute>
             }
           />

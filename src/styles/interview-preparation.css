@@ -1,0 +1,688 @@
+/* ==========================================================================
+   CareerLaunch - Interview Preparation Module Styles (Stage 1 Foundation)
+   ========================================================================== */
+
+.prep-page {
+  min-height: 100vh;
+  background-color: var(--color-ivory);
+  color: var(--color-charcoal);
+  display: flex;
+  flex-direction: column;
+}
+
+.prep-main {
+  flex: 1;
+  padding: 36px 0 72px;
+}
+
+.prep-container {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+/* ==========================================================================
+   1. Hero & Introduction Section
+   ========================================================================== */
+
+.prep-hero {
+  margin-bottom: 36px;
+}
+
+.prep-hero__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-sans);
+  font-size: 0.775rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-terracotta);
+  background-color: rgba(198, 106, 74, 0.1);
+  border: 1px solid rgba(198, 106, 74, 0.25);
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  margin-bottom: 14px;
+}
+
+.prep-hero__title {
+  font-family: var(--font-serif);
+  font-size: 2.75rem;
+  font-weight: 600;
+  line-height: 1.18;
+  color: var(--color-charcoal);
+  margin: 0 0 12px;
+  letter-spacing: -0.02em;
+}
+
+.prep-hero__title em {
+  font-style: italic;
+  color: var(--color-terracotta);
+}
+
+.prep-hero__subtitle {
+  font-family: var(--font-serif);
+  font-size: 1.3rem;
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--color-forest);
+  margin: 0 0 12px;
+}
+
+.prep-hero__desc {
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--color-charcoal-muted);
+  max-width: 740px;
+  margin: 0 0 20px;
+}
+
+.prep-hero__features-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.prep-feature-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--color-charcoal);
+  background-color: #FFFFFF;
+  border: 1px solid var(--color-sand);
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  box-shadow: 0 1px 2px rgba(41, 42, 39, 0.03);
+}
+
+/* ==========================================================================
+   2. Personalisation Banner (Profile Target Indicator)
+   ========================================================================== */
+
+.prep-personalisation-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: rgba(36, 55, 47, 0.05);
+  border: 1px solid rgba(36, 55, 47, 0.15);
+  border-radius: 12px;
+  padding: 14px 20px;
+  margin-bottom: 36px;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--color-charcoal);
+}
+
+.prep-personalisation-banner__icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background-color: var(--color-forest);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.prep-personalisation-banner strong {
+  color: var(--color-forest);
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   3. Role Selection Section
+   ========================================================================== */
+
+.prep-roles-section {
+  margin-top: 8px;
+}
+
+.prep-section-header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 24px;
+}
+
+.prep-section-title {
+  font-family: var(--font-serif);
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--color-charcoal);
+  margin: 0;
+  letter-spacing: -0.015em;
+}
+
+.prep-section-subtitle {
+  font-size: 0.9rem;
+  color: var(--color-charcoal-muted);
+  margin: 0;
+}
+
+/* 8-Card Responsive Grid */
+.prep-roles-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+@media (max-width: 1180px) {
+  .prep-roles-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 880px) {
+  .prep-roles-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .prep-roles-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Role Card */
+.prep-role-card {
+  background-color: #FFFFFF;
+  border: 1px solid var(--color-sand);
+  border-radius: 14px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 1px 3px rgba(41, 42, 39, 0.04);
+  transition: transform var(--transition-fast),
+              box-shadow var(--transition-fast),
+              border-color var(--transition-fast);
+  position: relative;
+  overflow: hidden;
+}
+
+.prep-role-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(36, 55, 47, 0.08);
+  border-color: var(--color-forest);
+}
+
+.prep-role-card.is-recommended {
+  border-color: var(--color-terracotta);
+  background: linear-gradient(180deg, rgba(198, 106, 74, 0.03) 0%, #FFFFFF 30%);
+}
+
+.prep-role-card.is-active-target {
+  border-color: var(--color-forest);
+  border-width: 2px;
+}
+
+/* Recommendation Tag */
+.prep-role-card__rec-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-terracotta);
+  background-color: rgba(198, 106, 74, 0.1);
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  margin-bottom: 14px;
+  align-self: flex-start;
+}
+
+.prep-role-card__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.prep-role-card__icon-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background-color: var(--color-ivory);
+  border: 1px solid var(--color-sand);
+  color: var(--color-forest);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all var(--transition-fast);
+}
+
+.prep-role-card:hover .prep-role-card__icon-wrap {
+  background-color: var(--color-forest);
+  border-color: var(--color-forest);
+  color: #FFFFFF;
+}
+
+.prep-role-card.is-recommended .prep-role-card__icon-wrap {
+  color: var(--color-terracotta);
+  background-color: rgba(198, 106, 74, 0.08);
+  border-color: rgba(198, 106, 74, 0.2);
+}
+
+.prep-role-card.is-recommended:hover .prep-role-card__icon-wrap {
+  background-color: var(--color-terracotta);
+  border-color: var(--color-terracotta);
+  color: #FFFFFF;
+}
+
+.prep-role-card__title-group {
+  flex: 1;
+  min-width: 0;
+}
+
+.prep-role-card__title {
+  font-family: var(--font-sans);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-charcoal);
+  margin: 0;
+  line-height: 1.3;
+}
+
+.prep-role-card__subtitle {
+  font-size: 0.75rem;
+  color: var(--color-charcoal-muted);
+  margin-top: 2px;
+  display: block;
+}
+
+.prep-role-card__desc {
+  font-size: 0.825rem;
+  line-height: 1.55;
+  color: var(--color-charcoal-muted);
+  margin: 0 0 16px;
+  flex-grow: 1;
+}
+
+.prep-role-card__domains {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 18px;
+}
+
+.prep-role-domain-pill {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--color-charcoal-muted);
+  background-color: var(--color-sand-light);
+  border: 1px solid var(--color-sand);
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.prep-role-card__action {
+  padding-top: 14px;
+  border-top: 1px solid var(--color-sand-light);
+}
+
+.prep-role-select-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 14px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-ivory);
+  border: 1px solid var(--color-sand);
+  color: var(--color-charcoal);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.prep-role-card:hover .prep-role-select-btn {
+  background-color: var(--color-forest);
+  border-color: var(--color-forest);
+  color: #FFFFFF;
+}
+
+.prep-role-card.is-recommended:hover .prep-role-select-btn {
+  background-color: var(--color-terracotta);
+  border-color: var(--color-terracotta);
+  color: #FFFFFF;
+}
+
+.prep-role-select-btn__icon {
+  transition: transform var(--transition-fast);
+}
+
+.prep-role-select-btn:hover .prep-role-select-btn__icon {
+  transform: translateX(3px);
+}
+
+/* ==========================================================================
+   4. Next-Stage Placeholder / Role Overview View
+   ========================================================================== */
+
+.prep-overview {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.prep-overview__back-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.prep-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-charcoal-muted);
+  background: none;
+  border: 1px solid var(--color-sand);
+  padding: 7px 16px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  background-color: #FFFFFF;
+  transition: all var(--transition-fast);
+}
+
+.prep-back-btn:hover {
+  color: var(--color-forest);
+  border-color: var(--color-forest);
+  background-color: var(--color-sand-light);
+}
+
+.prep-overview__card {
+  background-color: #FFFFFF;
+  border: 1px solid var(--color-sand);
+  border-radius: 16px;
+  padding: 36px 40px;
+  box-shadow: 0 2px 8px rgba(41, 42, 39, 0.04);
+}
+
+.prep-overview__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--color-sand-light);
+  margin-bottom: 28px;
+}
+
+.prep-overview__header-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+}
+
+.prep-overview__icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background-color: var(--color-forest);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.prep-overview__title {
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--color-charcoal);
+  margin: 0 0 6px;
+  letter-spacing: -0.015em;
+}
+
+.prep-overview__subtitle {
+  font-size: 0.95rem;
+  color: var(--color-charcoal-muted);
+  margin: 0;
+}
+
+.prep-overview__badges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.prep-active-target-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-forest);
+  background-color: rgba(36, 55, 47, 0.08);
+  border: 1px solid rgba(36, 55, 47, 0.2);
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+}
+
+/* Overview Content Grid */
+.prep-overview__grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 32px;
+}
+
+@media (max-width: 900px) {
+  .prep-overview__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.prep-overview__section-title {
+  font-family: var(--font-sans);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-charcoal);
+  margin: 0 0 14px;
+}
+
+.prep-overview__desc {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--color-charcoal-muted);
+  margin: 0 0 24px;
+}
+
+.prep-domains-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+@media (max-width: 600px) {
+  .prep-domains-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+.prep-domain-card {
+  background-color: var(--color-ivory);
+  border: 1px solid var(--color-sand);
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-charcoal);
+}
+
+/* Stage 1 Foundation Notice Box */
+.prep-foundation-notice {
+  background-color: rgba(135, 148, 119, 0.12);
+  border: 1px solid rgba(135, 148, 119, 0.3);
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-top: 12px;
+}
+
+.prep-foundation-notice__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-forest);
+  margin-bottom: 8px;
+}
+
+.prep-foundation-notice__text {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--color-charcoal);
+  margin: 0;
+}
+
+/* Overview Side Card */
+.prep-overview__side {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.prep-side-widget {
+  background-color: var(--color-ivory);
+  border: 1px solid var(--color-sand);
+  border-radius: 12px;
+  padding: 22px;
+}
+
+.prep-side-widget__title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-charcoal);
+  margin: 0 0 12px;
+}
+
+.prep-side-widget__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--color-sand);
+  font-size: 0.825rem;
+}
+
+.prep-side-widget__row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.prep-side-widget__label {
+  color: var(--color-charcoal-muted);
+}
+
+.prep-side-widget__val {
+  font-weight: 600;
+  color: var(--color-charcoal);
+}
+
+.prep-actions-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.prep-btn-primary {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 18px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-forest);
+  color: #FFFFFF;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.prep-btn-primary:hover {
+  background-color: var(--color-forest-dark);
+  transform: translateY(-1px);
+}
+
+.prep-btn-secondary {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 18px;
+  border-radius: var(--radius-full);
+  background-color: #FFFFFF;
+  border: 1px solid var(--color-sand);
+  color: var(--color-charcoal);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.prep-btn-secondary:hover {
+  background-color: var(--color-sand-light);
+  border-color: var(--color-sand-dark);
+}
+
+/* ==========================================================================
+   Responsive Adaptations
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .prep-main {
+    padding: 20px 0 48px;
+  }
+
+  .prep-container {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .prep-hero__title {
+    font-size: 2.1rem;
+  }
+
+  .prep-hero__subtitle {
+    font-size: 1.15rem;
+  }
+
+  .prep-overview__card {
+    padding: 24px 20px;
+  }
+
+  .prep-overview__header {
+    flex-direction: column;
+  }
+
+  .prep-overview__title {
+    font-size: 1.65rem;
+  }
+}

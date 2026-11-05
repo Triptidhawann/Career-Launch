@@ -235,7 +235,7 @@ export function InterviewPrep() {
 
             {/* Bottom CTA Action */}
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>
-              <Link to={isAuthenticated ? '/dashboard' : '/signup'} className="btn btn-terracotta">
+              <Link to={isAuthenticated ? '/interview-preparation' : '/signup'} className="btn btn-terracotta">
                 <span>Go to Preparation Dashboard</span>
                 <ArrowRight size={16} />
               </Link>
