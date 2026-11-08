@@ -8,7 +8,10 @@
     "build": "vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "server": "npm --prefix server run dev"
+    "server": "npm --prefix server run dev",
+    "start:careerlaunch": "powershell -ExecutionPolicy Bypass -File ./scripts/start-careerlaunch.ps1",
+    "check:careerlaunch": "powershell -ExecutionPolicy Bypass -File ./scripts/check-careerlaunch.ps1",
+    "stop:careerlaunch": "powershell -ExecutionPolicy Bypass -File ./scripts/stop-careerlaunch.ps1"
   },
   "dependencies": {
     "firebase": "^13.1.0",

@@ -25,3 +25,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# CareerLaunch local process state
+scripts/.careerlaunch-pids.json

@@ -7,7 +7,9 @@
   "scripts": {
     "dev": "node --watch src/index.js",
     "start": "node src/index.js",
-    "db:start": "mongod --config C:\\data\\careerlaunch\\mongod.cfg"
+    "db:start": "mongod --config C:\\data\\careerlaunch\\mongod.cfg",
+    "check": "powershell -ExecutionPolicy Bypass -File ../scripts/check-careerlaunch.ps1",
+    "stop": "powershell -ExecutionPolicy Bypass -File ../scripts/stop-careerlaunch.ps1"
   },
   "dependencies": {
     "cors": "^2.8.5",
