@@ -1,7 +1,7 @@
-# CAREERLAUNCH — PHASE 5.0.2: FINAL KNOWLEDGE AUDIT & SOURCE COVERAGE VALIDATION
+# CAREERLAUNCH — PHASE 5.0.3: FINAL SOURCE LICENCE AND COVERAGE CORRECTION
 
 **Audit Date**: `2026-11-08`  
-**Revision**: `Phase 5.0.2 (Authoritative Topic Mapping, Source Coverage & Grounding Rules)`  
+**Revision**: `Phase 5.0.3 (Granular Linux Man-Pages Licence Audit, NIST DADS Scope Boundaries & Sourcing Realignment)`  
 **Status**: `RESEARCH & AUDIT ONLY — STRICTLY ZERO IMPLEMENTATION / ZERO INGESTION`  
 **Governing Standard**: Production Knowledge Ingestion, Verification, and Commercial Licensing Compliance Standard  
 
@@ -9,16 +9,24 @@
 
 ## 1. Executive Summary
 
-This final audit completes Phase 5.0.2 by establishing the authoritative identity mapping, rigorous source coverage validation, and strict grounding/citation rules for CareerLaunch prior to Phase 5.1 generation. CareerLaunch maintains eight technical role roadmaps comprising 56 modules and 118 learning topics. 
+This audit completes Phase 5.0.3 by enforcing rigorous source license audits, removing invalid or unverified references, correcting NIST DADS coverage boundaries, and assigning specific, commercially viable sources across all 18 Software Engineer topics.
 
-To date, exactly five pilot topics in the **Software Engineer** roadmap have been generated using the Groq API (`openai/gpt-oss-120b`), verified through a three-level evidence-grounding validator, and rendered on student-facing pages. All five pilot lessons are strictly grounded in public domain U.S. Government works from the **National Institute of Standards and Technology (NIST) Dictionary of Algorithms and Data Structures (DADS)**.
-
-### Key Deliverables in Phase 5.0.2
-1. **Authoritative 18-Topic Mapping Table**: One unified, definitive mapping table covering all 18 Software Engineer topics across 7 modules. Explicitly documents Roadmap Topic ID, Exact Topic Title, Canonical Topic ID, Existing Lesson ID in MongoDB, Availability Status, and Duplicate/Collision risk assessment.
-2. **Unambiguous Lesson ID Convention for 13 Remaining Topics**: Standardizes future lesson IDs as `lesson_software-engineer_${roadmapTopicId}_${difficulty}`. Confirms 100% collision-free uniqueness with existing pilot lessons (`se-top-4` vs `swe-top-4` and `se-top-13` vs `swe-top-13` are completely distinct strings).
-3. **Deep Source Coverage & Gap Validation for the 13 Remaining Topics**: Rigorous concept-by-concept analysis of approved sources across all 13 pending topics. Explicitly details concepts directly supported, concepts unaddressed, additional required sources, and required CareerLaunch-authored components (especially for Memory Architecture, Big-O, Concurrency, Networking, Design Patterns, and System Design).
-4. **Formal Grounding and Citation Verification Rules**: Establishes 5 binding rules: strict separation of external claims from platform prose, prohibition of false code attribution (100% original code attributed to CareerLaunch Engineering), zero tolerance for hallucinated citations, explicit labeling of ungrounded pedagogical points, and continued exclusion of conditional CC BY-SA sources.
-5. **Phase 5.1 Software Engineer Phased Batches**: Confirmed 3-batch sequence (Batch 1: 4 topics; Batch 2: 4 topics; Batch 3: 5 topics) focusing exclusively on completing the Software Engineer track.
+### Key Corrections in Phase 5.0.3
+1. **Granular Linux Man-Pages Licence Audit**: Discontinued the blanket classification of Linux man-pages as uniformly permissive BSD/MIT. Conducted a file-by-file copyright and license inspection for all 13 proposed manual pages in the upstream `man-pages.git` repository:
+   - **Approved (1 page)**: `socket(2)` is under permissive **BSD-3-Clause / BSD-4-Clause (UC Regents)**.
+   - **Conditional (10 pages)**: `malloc(3)`, `mmap(2)`, `pthreads(7)`, `sem_overview(7)`, `mprotect(2)`, `getpagesize(2)`, `posix_fadvise(2)`, `tcp(7)`, `ip(7)`, and `epoll(7)` carry the **`Linux-man-pages-copyleft`** (verbatim/modified copyleft notice). Because copyleft requires derived works to be licensed under identical terms, these pages are classified as **CONDITIONAL** and blocked from production ingestion pending formal legal review.
+   - **Excluded (2 pages)**: `brk(2)` (licensed under **GNU GPLv2+**) and `clone(2)` (licensed under **GNU GPL**) are strictly **EXCLUDED** from ingestion to prevent GPL contamination of CareerLaunch's proprietary lesson payloads.
+2. **NIST DADS Strict Scope Boundaries & URL Correction**:
+   - Re-affirmed that NIST DADS is strictly a dictionary of algorithms and data structures. It is **PROHIBITED** as an evidence source for operating system internals, concurrency, networking, distributed systems, or system design.
+   - Completely **removed fictitious reference `designPattern.html`**, which does not exist in NIST DADS.
+   - Verified and corrected every NIST DADS URL across the document against upstream canonical endpoints (e.g., `bigOnotation.html`, `omegaCapital.html`, `circularlist.html`, `priorityque.html`, `completeBinaryTree.html`, `binaryheap.html`, `topologicalOrder.html`, `dijkstraalgo.html`, `bellmanford.html`, `recursive.html`, `breadthfirst.html`, `depthfirst.html`).
+3. **Replaced Unsupported Source Assignments with Commercially Usable Alternatives**:
+   - **Object-Oriented Design Patterns & SOLID (`se-top-16`)**: Python Official Docs (`abc`, Data Model — PSF License, Approved) for language primitives; **100% CareerLaunch-Authored Content (`[Author: CareerLaunch Engineering]`)** for the GoF catalog and SOLID principles.
+   - **Networking Protocols (`se-top-15`)**: **IETF RFC Standards** (RFC 9293 TCP, RFC 9110 HTTP Semantics, RFC 9112 HTTP/1.1, RFC 768 UDP — Approved) + `socket(2)` (BSD-3-Clause, Approved) + Python `socket` module docs (PSF License, Approved).
+   - **Memory Architecture (`se-top-1`)**: Python C-API Memory Management & GC Docs (PSF License, Approved) + **CareerLaunch-Authored** virtual address space layout, stack frames, and pointer mechanics.
+   - **Concurrency & Synchronization (`se-top-13`)**: Python Docs (`threading`, `queue`, `multiprocessing` — PSF License, Approved) + **CareerLaunch-Authored** Coffman deadlock conditions, race conditions, and Bounded Queue implementations.
+   - **High-Level System Design & Scalability (`se-top-17`)**: PostgreSQL High-Availability Documentation (PostgreSQL License, Approved) + W3C HTTP Caching Specifications (W3C License, Approved) + **CareerLaunch-Authored** distributed systems case studies (TinyURL, capacity estimations, Token Bucket).
+4. **Preserved Core Curriculum Decisions**: Preserved all 18 topic mappings, the 5 existing Groq-generated pilot lessons in MongoDB (`swe-top-1`, `swe-top-4`, `swe-top-7`, `swe-top-9`, `swe-top-13`), the 3-batch expansion sequence, and the block on CC BY-SA sources (MDN, Docker, OWASP). Zero collision risk.
 
 ---
 
@@ -28,26 +36,26 @@ The Software Engineer curriculum defined in [`src/data/interviewRoadmaps.js`](fi
 
 ### 2.1 Complete 18-Topic Software Engineer Inventory
 
-| # | Module ID | Topic ID | Exact Topic Title | Canonical Pilot Mapping | Availability Status | Pilot Status | Primary Approved Source |
+| # | Module ID | Topic ID | Exact Topic Title | Canonical Pilot Mapping | Availability Status | Pilot Status | Primary Approved Source / Grounding Assignment |
 | :-: | :--- | :--- | :--- | :--- | :---: | :---: | :--- |
-| **1** | `se-mod-1` | `se-top-1` | Memory Architecture: Stack, Heap & Pointers | *None* | `Unavailable` | Remaining (Batch 2) | Linux Man-Pages (`malloc.3`, `mmap.2`) |
-| **2** | `se-mod-1` | `se-top-2` | Asymptotic Analysis & Big-O Notation | *None* | `Unavailable` | Remaining (Batch 1) | NIST DADS (`bigO.html`) |
-| **3** | `se-mod-2` | `se-top-3` | Arrays, Strings & Two-Pointer Strategies | `swe-top-1` | **`Available`** | **Pilot Lesson 1** | NIST DADS (`array.html`) |
-| **4** | `se-mod-2` | `swe-top-4` | Binary Search Mechanics and Interval Bisection | `swe-top-4` | **`Available`** | **Pilot Lesson 2** | NIST DADS (`binarySearch.html`) |
-| **5** | `se-mod-2` | `se-top-4` | Linked Lists: Singly, Doubly & Circular | *None* | `Unavailable` | Remaining (Batch 1) | NIST DADS (`linkedList.html`) |
-| **6** | `se-mod-2` | `se-top-5` | Stacks, Queues & Monotonic Variants | *None* | `Unavailable` | Remaining (Batch 1) | NIST DADS (`stack.html`, `queue.html`) |
-| **7** | `se-mod-3` | `se-top-6` | Binary Trees & Traversal Algorithms | *None* | `Unavailable` | Remaining (Batch 1) | NIST DADS (`binaryTree.html`) |
-| **8** | `se-mod-3` | `se-top-7` | Binary Search Trees & Balanced Trees | `swe-top-7` | **`Available`** | **Pilot Lesson 3** | NIST DADS (`binarySearchTree.html`) |
-| **9** | `se-mod-3` | `se-top-8` | Heaps & Priority Queues | *None* | `Unavailable` | Remaining (Batch 2) | NIST DADS (`heap.html`) |
-| **10**| `se-mod-4` | `se-top-9` | Graph Representations, BFS & DFS | `swe-top-9` | **`Available`** | **Pilot Lesson 4** | NIST DADS (`cycle.html`) |
-| **11**| `se-mod-4` | `se-top-10`| Topological Sort & Shortest Paths | *None* | `Unavailable` | Remaining (Batch 2) | NIST DADS (`topologicalSort.html`) |
-| **12**| `se-mod-5` | `se-top-11`| Recursion & Backtracking Strategies | *None* | `Unavailable` | Remaining (Batch 2) | NIST DADS (`backtracking.html`) |
-| **13**| `se-mod-5` | `se-top-12`| Dynamic Programming: 1D & 2D Tabulation | `swe-top-13` | **`Available`** | **Pilot Lesson 5** | NIST DADS (`dynamicProgramming.html`) |
-| **14**| `se-mod-6` | `se-top-13`| Processes, Threads & Synchronization | *None* | `Unavailable` | Remaining (Batch 3) | Linux Man-Pages (`pthreads.7`, `clone.2`) |
-| **15**| `se-mod-6` | `se-top-14`| Virtual Memory, Paging & Storage | *None* | `Unavailable` | Remaining (Batch 3) | Linux Man-Pages (`mmap.2`, `mprotect.2`) |
-| **16**| `se-mod-6` | `se-top-15`| Computer Networking: OSI, TCP/IP & HTTP | *None* | `Unavailable` | Remaining (Batch 3) | Linux Man-Pages (`tcp.7`, `socket.2`) |
-| **17**| `se-mod-7` | `se-top-16`| Object-Oriented Design Patterns (GoF) | *None* | `Unavailable` | Remaining (Batch 3) | Python Docs / W3C Standards |
-| **18**| `se-mod-7` | `se-top-17`| High-Level System Design & Scalability | *None* | `Unavailable` | Remaining (Batch 3) | PostgreSQL HA / Linux Docs |
+| **1** | `se-mod-1` | `se-top-1` | Memory Architecture: Stack, Heap & Pointers | *None* | `Unavailable` | Remaining (Batch 2) | Python C-API Memory Docs (`c-api/memory.html`) + **CareerLaunch-Authored** Virtual Memory Architecture |
+| **2** | `se-mod-1` | `se-top-2` | Asymptotic Analysis & Big-O Notation | *None* | `Unavailable` | Remaining (Batch 1) | NIST DADS (`bigOnotation.html`, `omegaCapital.html`) + Python Docs + **CareerLaunch-Authored** Amortized Analysis |
+| **3** | `se-mod-2` | `se-top-3` | Arrays, Strings & Two-Pointer Strategies | `swe-top-1` | **`Available`** | **Pilot Lesson 1** | NIST DADS (`array.html` — Stored Document Verified) |
+| **4** | `se-mod-2` | `swe-top-4` | Binary Search Mechanics and Interval Bisection | `swe-top-4` | **`Available`** | **Pilot Lesson 2** | NIST DADS (`binarySearch.html` — Stored Document Verified) |
+| **5** | `se-mod-2` | `se-top-4` | Linked Lists: Singly, Doubly & Circular | *None* | `Unavailable` | Remaining (Batch 1) | NIST DADS (`doublyLinkedList.html`, `circularlist.html`, `link.html`) + **CareerLaunch-Authored** In-Place Reversal |
+| **6** | `se-mod-2` | `se-top-5` | Stacks, Queues & Monotonic Variants | *None* | `Unavailable` | Remaining (Batch 1) | NIST DADS (`queue.html`, `priorityque.html`, `boundedstack.html`) + **CareerLaunch-Authored** Monotonic Patterns |
+| **7** | `se-mod-3` | `se-top-6` | Binary Trees & Traversal Algorithms | *None* | `Unavailable` | Remaining (Batch 1) | NIST DADS (`completeBinaryTree.html`, `treeTraversal.html`, `breadthfirst.html`) + **CareerLaunch-Authored** Iterative DFS & LCA |
+| **8** | `se-mod-3` | `se-top-7` | Binary Search Trees & Balanced Trees | `swe-top-7` | **`Available`** | **Pilot Lesson 3** | NIST DADS (`binarySearchTree.html` — Stored Document Verified) |
+| **9** | `se-mod-3` | `se-top-8` | Heaps & Priority Queues | *None* | `Unavailable` | Remaining (Batch 2) | NIST DADS (`binaryheap.html`) + Python Docs (`heapq`) + **CareerLaunch-Authored** Median Tracker |
+| **10**| `se-mod-4` | `se-top-9` | Graph Representations, BFS & DFS | `swe-top-9` | **`Available`** | **Pilot Lesson 4** | NIST DADS (`cycle.html` — Stored Document Verified) |
+| **11**| `se-mod-4` | `se-top-10`| Topological Sort & Shortest Paths | *None* | `Unavailable` | Remaining (Batch 2) | NIST DADS (`topologicalOrder.html`, `dijkstraalgo.html`, `bellmanford.html`) + **CareerLaunch-Authored** Kahn's Algorithm |
+| **12**| `se-mod-5` | `se-top-11`| Recursion & Backtracking Strategies | *None* | `Unavailable` | Remaining (Batch 2) | NIST DADS (`recursive.html`, `recursionTree.html`, `tailRecursion.html`) + **CareerLaunch-Authored** State-Space Backtracking |
+| **13**| `se-mod-5` | `se-top-12`| Dynamic Programming: 1D & 2D Tabulation | `swe-top-13` | **`Available`** | **Pilot Lesson 5** | NIST DADS (`dynamicProgramming.html` — Stored Document Verified) |
+| **14**| `se-mod-6` | `se-top-13`| Processes, Threads & Synchronization | *None* | `Unavailable` | Remaining (Batch 3) | Python Docs (`threading.html`, `queue.html`) + **CareerLaunch-Authored** Deadlock (Coffman) & Bounded Queue |
+| **15**| `se-mod-6` | `se-top-14`| Virtual Memory, Paging & Storage | *None* | `Unavailable` | Remaining (Batch 3) | **CareerLaunch-Authored** Paging Mathematics, TLB Mechanics & Cache Locality Benchmarks |
+| **16**| `se-mod-6` | `se-top-15`| Computer Networking: OSI, TCP/IP & HTTP | *None* | `Unavailable` | Remaining (Batch 3) | IETF RFCs (RFC 9293 TCP, RFC 9110 HTTP, RFC 768 UDP) + `socket(2)` (BSD) + **CareerLaunch-Authored** Handshake Trace |
+| **17**| `se-mod-7` | `se-top-16`| Object-Oriented Design Patterns (GoF) | *None* | `Unavailable` | Remaining (Batch 3) | Python Docs (`abc.html`, Data Model) + **100% CareerLaunch-Authored** GoF Patterns & SOLID Principles |
+| **18**| `se-mod-7` | `se-top-17`| High-Level System Design & Scalability | *None* | `Unavailable` | Remaining (Batch 3) | PostgreSQL HA Docs + W3C Caching + **100% CareerLaunch-Authored** Distributed System Case Studies (TinyURL) |
 
 ---
 
@@ -204,64 +212,73 @@ The 13 topics were prioritized using a weighted index across five criteria:
 
 1. **`se-top-2`: Asymptotic Analysis & Big-O Notation** (`se-mod-1`)
    - *Interview Relevance*: Universal. Asked in every technical interview to evaluate time/space trade-offs.
-   - *Source*: NIST DADS (`bigO.html`, `bigOmega.html`, `bigTheta.html`) — Public Domain.
-   - *Ingestion Effort*: Low. Formal mathematical definitions and complexity classifications.
+   - *Primary Source*: NIST DADS (`bigOnotation.html`, `omegaCapital.html`) — Public Domain.
+   - *Secondary Source*: Python Official Documentation (list implementation overview in `Objects/listobject.c`) — PSF License.
+   - *CareerLaunch Component*: Amortized array accounting table & string concatenation benchmark ($O(N)$ vs $O(N^2)$).
 2. **`se-top-4`: Linked Lists: Singly, Doubly & Circular** (`se-mod-2`)
    - *Interview Relevance*: Extremely high. Pointer manipulation, cycle detection (Floyd's algorithm), and list reversals.
-   - *Source*: NIST DADS (`linkedList.html`, `doublyLinkedList.html`, `circularList.html`) — Public Domain.
-   - *Ingestion Effort*: Low. Structural invariants and operations.
+   - *Primary Source*: NIST DADS (`doublyLinkedList.html`, `circularlist.html`, `link.html`) — Public Domain.
+   - *Secondary Source*: NIST DADS (`cycle.html` — verified pilot source) for cycle detection principles.
+   - *CareerLaunch Component*: In-place iterative 3-pointer reversal, Floyd's mathematical cycle entrance proof, dummy head pattern.
 3. **`se-top-5`: Stacks, Queues & Monotonic Variants** (`se-mod-2`)
    - *Interview Relevance*: High. Parentheses validation, monotonic stack for next greater element, queue breadth tracking.
-   - *Source*: NIST DADS (`stack.html`, `queue.html`, `priorityQueue.html`) — Public Domain.
-   - *Ingestion Effort*: Low. LIFO/FIFO definitions and invariant checks.
+   - *Primary Source*: NIST DADS (`queue.html`, `priorityque.html`, `boundedstack.html`) — Public Domain.
+   - *Secondary Source*: Python Documentation (`collections.deque` mechanics) — PSF License.
+   - *CareerLaunch Component*: Monotonic stack pattern (Next Greater Element) and ring buffer array queue with modulo arithmetic.
 4. **`se-top-6`: Binary Trees & Traversal Algorithms** (`se-mod-3`)
    - *Interview Relevance*: Extremely high. Pre-order, in-order, post-order, and level-order traversals. Directly leads into existing pilot lesson `swe-top-7` (BSTs).
-   - *Source*: NIST DADS (`binaryTree.html`, `treeTraversal.html`) — Public Domain.
-   - *Ingestion Effort*: Low. Standard tree hierarchy and traversal definitions.
+   - *Primary Source*: NIST DADS (`completeBinaryTree.html`, `treeTraversal.html`, `preorderTraversal.html`, `breadthfirst.html`, `depthfirst.html`) — Public Domain.
+   - *CareerLaunch Component*: Iterative DFS with explicit stack, BFS level-order tracking (`len(q)`), and Lowest Common Ancestor (LCA).
 
 #### Batch 2: Advanced Algorithms, Graphs & Memory (Intermediate Priority — 4 Topics)
 *Goal: Expand non-linear data structures, backtracking, graph paths, and low-level memory allocation.*
 
 5. **`se-top-8`: Heaps & Priority Queues** (`se-mod-3`)
    - *Interview Relevance*: High. Top-K elements, k-way stream merging, median tracking.
-   - *Source*: NIST DADS (`heap.html`, `binaryHeap.html`) — Public Domain.
-   - *Ingestion Effort*: Low. Sift-up/sift-down and complete binary tree invariants.
+   - *Primary Source*: NIST DADS (`binaryheap.html`) — Public Domain.
+   - *Secondary Source*: Python Documentation (`heapq` module source overview) — PSF License.
+   - *CareerLaunch Component*: Top-K elements pattern ($O(N \log K)$), Dual-Heap Continuous Median Stream Tracker, $O(N)$ heapify proof.
 6. **`se-top-10`: Topological Sort & Shortest Paths** (`se-mod-4`)
    - *Interview Relevance*: High. Dependency resolution (Kahn's algorithm, Course Schedule) and Dijkstra's algorithm. Follows pilot lesson `swe-top-9` (Cycles).
-   - *Source*: NIST DADS (`topologicalSort.html`, `dijkstra.html`) — Public Domain.
-   - *Ingestion Effort*: Medium. Invariants and edge relaxation rules.
+   - *Primary Source*: NIST DADS (`topologicalOrder.html`, `dijkstraalgo.html`, `bellmanford.html`) — Public Domain.
+   - *CareerLaunch Component*: Kahn's algorithm implementation (in-degree array + queue) and Dijkstra negative-weight failure trace.
 7. **`se-top-11`: Recursion & Backtracking Strategies** (`se-mod-5`)
    - *Interview Relevance*: High. Combinatorial search, N-Queens, subset generation, and state-space tree pruning. Followed by pilot lesson `swe-top-13` (DP).
-   - *Source*: NIST DADS (`backtracking.html`, `recursion.html`) + Python Docs — Public Domain / PSF.
-   - *Ingestion Effort*: Medium. Recursion depth limits and state rollback patterns.
+   - *Primary Source*: NIST DADS (`recursive.html`, `recursionTree.html`, `tailRecursion.html`) — Public Domain.
+   - *Secondary Source*: Python Documentation (`sys.getrecursionlimit()`) — PSF License.
+   - *CareerLaunch Component*: Canonical `backtrack()` state-space template, N-Queens coordinate hashing solver ($O(1)$ diagonal lookups).
 8. **`se-top-1`: Memory Architecture: Stack, Heap & Pointers** (`se-mod-1`)
-   - *Interview Relevance*: Medium-High. Critical for systems engineering, C/C++/Rust roles, understanding memory leaks, and stack vs heap allocation.
-   - *Source*: Linux Man-Pages (`malloc.3`, `brk.2`, `mmap.2`) — Permissive.
-   - *Ingestion Effort*: Medium. Memory segment layouts and pointer semantics.
+   - *Interview Relevance*: Medium-High. Critical for systems engineering, understanding memory leaks, and stack vs heap allocation.
+   - *Primary Source*: Python Documentation: C API Memory Management & GC (`docs.python.org/3/c-api/memory.html`, `docs.python.org/3/library/gc.html`) — PSF License (Approved).
+   - *Conditional Reference*: Linux Man-Pages (`malloc.3`, `mmap.2` — Conditional copyleft; `brk.2` excluded as GPLv2+).
+   - *CareerLaunch Component*: Cross-sectional virtual address space layout (Text, Data, BSS, Heap, Stack), stack frame lifecycles, and pointer semantics.
 
 #### Batch 3: Operating Systems, Networking & Systems Design (Advanced Priority — 5 Topics)
 *Goal: Complete Level 3 advanced systems architecture, concurrency, networking, and design patterns.*
 
 9. **`se-top-13`: Processes, Threads & Synchronization** (`se-mod-6`)
    - *Interview Relevance*: Standard for systems and backend SWE roles. Mutex, semaphores, race conditions, deadlock conditions.
-   - *Source*: Linux Man-Pages (`pthreads.7`, `clone.2`, `sem_overview.7`) — Permissive.
-   - *Ingestion Effort*: Medium. POSIX thread lifecycle and synchronization primitives.
+   - *Primary Source*: Python Documentation: `threading`, `queue`, `multiprocessing` (`docs.python.org/3/library/threading.html`) — PSF License (Approved).
+   - *Conditional Reference*: Linux Man-Pages (`pthreads.7`, `sem_overview.7` — Conditional copyleft; `clone.2` excluded as GPL).
+   - *CareerLaunch Component*: Coffman deadlock conditions, resource hierarchy prevention protocol, thread-safe Bounded Queue using Condition variables.
 10. **`se-top-14`: Virtual Memory, Paging & Storage** (`se-mod-6`)
     - *Interview Relevance*: Core OS questions: page tables, TLB, page faults, swapping, thrashing.
-    - *Source*: Linux Man-Pages (`mmap.2`, `mprotect.2`, `getpagesize.2`) — Permissive.
-    - *Ingestion Effort*: Medium. Virtual address translation and protection flags.
+    - *Conditional Reference*: Linux Man-Pages (`mmap.2`, `mprotect.2`, `getpagesize.2` — Conditional copyleft).
+    - *CareerLaunch Component*: Multi-level page tables, TLB hit/miss translation mathematics, LRU page replacement cache implementation, row-major vs column-major cache locality benchmark.
 11. **`se-top-15`: Computer Networking: OSI, TCP/IP & HTTP** (`se-mod-6`)
     - *Interview Relevance*: High screening frequency. TCP three-way handshake, TCP vs UDP, DNS lifecycle, HTTP/1.1 vs HTTP/2 vs HTTP/3.
-    - *Source*: Linux Man-Pages (`tcp.7`, `socket.2`, `ip.7`) + IETF RFC standards — Public Domain.
-    - *Ingestion Effort*: Medium. Protocol headers and state transitions.
+    - *Primary Sources*: IETF RFC Standards (RFC 9293 TCP, RFC 9110 HTTP Semantics, RFC 9112 HTTP/1.1, RFC 768 UDP) — IETF Trust (Approved); Linux Man-Pages (`socket.2`) — BSD-3-Clause (Approved); Python `socket` Documentation — PSF License (Approved).
+    - *Conditional Reference*: Linux Man-Pages (`tcp.7`, `ip.7` — Conditional copyleft).
+    - *CareerLaunch Component*: Sequence diagrams for TCP 3-way handshake and 4-way termination with sequence/ACK number arithmetic, Python client-server socket implementation.
 12. **`se-top-16`: Object-Oriented Design Patterns (GoF)** (`se-mod-7`)
     - *Interview Relevance*: Low-Level Design (LLD) interviews. Creational (Factory, Singleton), Structural (Adapter, Decorator), Behavioral (Strategy, Observer).
-    - *Source*: Python Object Model Documentation (`docs.python.org`) + NIST specifications — PSF / Public Domain.
-    - *Ingestion Effort*: Medium. Interface abstraction and compositional patterns.
+    - *Foundational Source*: Python Object Model Documentation (`docs.python.org/3/reference/datamodel.html`, `abc.html`) — PSF License (Approved) for class and abstraction primitives. NIST DADS `designPattern.html` removed as unverified/non-existent.
+    - *CareerLaunch Component*: **100% CareerLaunch-Authored Content (`[Author: CareerLaunch Engineering]`)**. Complete GoF design pattern implementations (Factory, Singleton, Adapter, Decorator, Strategy, Observer) and SOLID principles refactoring case studies.
 13. **`se-top-17`: High-Level System Design & Scalability** (`se-mod-7`)
     - *Interview Relevance*: Mid-to-senior SWE interview requirement. Load balancing, database sharding, caching strategies, CAP theorem.
-    - *Source*: PostgreSQL High-Availability Documentation + Linux Man-Pages — PostgreSQL License / Permissive.
-    - *Ingestion Effort*: High. Distributed architecture trade-offs.
+    - *Primary Sources*: PostgreSQL High-Availability & Replication Documentation — PostgreSQL License (Approved); W3C HTTP Caching Specifications — W3C License (Approved).
+    - *Conditional Reference*: Linux Man-Pages (`epoll.7` — Conditional copyleft).
+    - *CareerLaunch Component*: **100% CareerLaunch-Authored Content (`[Author: CareerLaunch Engineering]`)**. End-to-end System Design Case Study (Distributed URL Shortener / TinyURL), capacity estimation framework (QPS, cache sizing, storage over 5 years), and Token Bucket rate limiting algorithm.
 
 ---
 
@@ -273,24 +290,24 @@ A source cannot be treated as comprehensive merely because it is technically rel
 
 | Topic ID | Topic Title | Primary Approved Source & Canonical URL | Concepts Directly Supported | Key Concepts NOT Covered (Gaps) | Additional Approved Sources Required | CareerLaunch-Authored Content Required |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **`se-top-2`** | Asymptotic Analysis & Big-O Notation | NIST DADS (`bigO.html`, `bigOmega.html`, `bigTheta.html`) | Formal math definitions: $O, \Omega, \Theta$; complexity hierarchies ($O(1)$ to $O(2^n)$) | Amortized array doubling, auxiliary vs input space, recursive call stack space, benchmarking | Python Docs (`sys.getsizeof`, list resizing overview) | Amortized dynamic array accounting trace, string concatenation benchmark ($O(N)$ vs $O(N^2)$) |
-| **`se-top-4`** | Linked Lists: Singly, Doubly & Circular | NIST DADS (`linkedList.html`, `doublyLinkedList.html`, `circularList.html`) | Pointer node topologies, head/tail insertion and deletion complexities | In-place 3-pointer reversal, Floyd's cycle detection proof ($2k-k=nC$), dummy heads, cache miss penalty | NIST DADS (`cycle.html`) | Full Python `ListNode` implementation, iterative list reversal, Floyd's cycle entrance derivation |
-| **`se-top-5`** | Stacks, Queues & Monotonic Variants | NIST DADS (`stack.html`, `queue.html`, `priorityQueue.html`) | LIFO and FIFO abstract definitions, push/pop and enqueue/dequeue operations | Monotonic stack pattern (Next Greater Element), monotonic deque (sliding window max), ring buffer array queues | Python Docs (`collections.deque` mechanics) | Monotonic stack Python implementation, circular buffer queue with modulo wrap-around |
-| **`se-top-6`** | Binary Trees & Traversal Algorithms | NIST DADS (`binaryTree.html`, `treeTraversal.html`) | Tree structural hierarchy, pre/in/post-order recursive definitions | Iterative traversals with explicit stack, BFS level-order queue (`len(q)`), LCA, tree diameter, Morris traversal | NIST DADS (`breadthFirstSearch.html`) | Iterative DFS and BFS level-order Python code, recursive Lowest Common Ancestor (LCA) implementation |
-| **`se-top-8`** | Heaps & Priority Queues | NIST DADS (`heap.html`, `binaryHeap.html`) | Complete binary tree shape, heap-order property, array indexing ($2i+1$), $O(N)$ `heapify` build | Top-K elements ($O(N \log K)$), dual balancing heaps (median finder), k-way sorted stream merge | Python Docs (`heapq` module source overview) | Top-K frequent elements implementation, Dual-Heap Continuous Median Stream Tracker, $O(N)$ heapify proof |
-| **`se-top-10`** | Topological Sort & Shortest Paths | NIST DADS (`topologicalSort.html`, `dijkstra.html`) | DAG topological ordering definition, Dijkstra single-source greedy relaxation and queue complexity | Kahn's algorithm (in-degree array + queue), cycle detection in DAGs, Bellman-Ford negative edge handling | NIST DADS (`bellmanFord.html`) | Kahn's algorithm Python implementation, Dijkstra's algorithm with `heapq`, negative-edge failure trace |
-| **`se-top-11`** | Recursion & Backtracking Strategies | NIST DADS (`backtracking.html`, `recursion.html`) | Backtracking virtual tree search definition, base case recursion, pruning conditions | State-space tree visualization, `choose-explore-unchoose` template, subsets/permutations with duplicates, N-Queens | Python Docs (`sys.getrecursionlimit()`) | Canonical `backtrack()` template in Python, N-Queens coordinate hashing solver ($O(1)$ diagonal check) |
-| **`se-top-1`** | Memory Architecture: Stack, Heap & Pointers | Linux Man-Pages (`malloc.3`, `mmap.2`, `brk.2`) | OS system calls (`brk`, `mmap`), C library `malloc`/`free`, memory alignment, fragmentation | Stack frame lifecycle, instruction pointer, GC algorithms (tracing vs reference counting), Python object model | Python Docs (`memory.html`, `gc.html`) | Virtual address space layout diagram (Text/Data/BSS/Heap/Stack), pointer dereference and leak walkthrough |
-| **`se-top-13`** | Processes, Threads & Synchronization | Linux Man-Pages (`pthreads.7`, `clone.2`, `sem_overview.7`) | OS process vs thread address space isolation, POSIX `pthread_mutex`, counting semaphores | Coffman deadlock conditions, Producer-Consumer bounded buffer, Readers-Writers locks, Python GIL | Python Docs (`threading.html`, `multiprocessing.html`) | Thread-safe Bounded Queue using Condition variables, Coffman deadlock conditions analysis & lock hierarchy |
-| **`se-top-14`** | Virtual Memory, Paging & Storage | Linux Man-Pages (`mmap.2`, `mprotect.2`, `getpagesize.2`) | Anonymous/file memory mapping, page protection flags (`PROT_READ`), system page size (4KB) | Multi-level page tables, TLB hit/miss ratio, LRU/Clock page replacement, Belady's anomaly, cache locality | Linux Man-Pages (`posix_fadvise.2`) | Virtual-to-physical address translation diagram, LRU page replacement cache implementation, row vs column cache benchmark |
-| **`se-top-15`** | Computer Networking: OSI, TCP/IP & HTTP | Linux Man-Pages (`tcp.7`, `socket.2`, `ip.7`) + RFC 9110 | TCP socket lifecycle (`LISTEN`, `SYN_SENT`, `ESTABLISHED`), Berkeley sockets API, HTTP methods/codes | OSI 7-Layer vs TCP/IP 4-Layer, 3-way handshake sequence, TCP vs UDP streaming trade-offs, DNS hierarchy, HTTP/2/3 | IETF RFC 9112 (HTTP/1.1), RFC 9000 (QUIC) | Complete TCP 3-way handshake & teardown sequence diagram, Python client/server socket implementation |
-| **`se-top-16`** | Object-Oriented Design Patterns (GoF) | Python Docs (Data Model) + W3C Standards | Object primitives: classes, inheritance, composition, abstract base classes (`abc`), dunder methods | Gang of Four catalog structure (Creational, Structural, Behavioral), SOLID principles, pattern anti-patterns | NIST DADS (`designPattern.html`) | 100% of GoF pattern implementations in Python (Factory, Singleton, Adapter, Decorator, Strategy, Observer) |
-| **`se-top-17`** | High-Level System Design & Scalability | PostgreSQL HA Docs + Linux Man-Pages (`epoll.7`) | Database replication (primary-standby), synchronous/async failover, I/O multiplexing (`epoll`) | Horizontal scaling, load balancing algorithms, Consistent Hashing, CAP/PACELC theorem, Cache-Aside, Sharding | W3C HTTP Caching Specs | End-to-end System Design Case Study (Distributed URL Shortener), capacity estimation worksheet, Token Bucket code |
+| **`se-top-2`** | Asymptotic Analysis & Big-O Notation | NIST DADS (`bigOnotation.html`, `omegaCapital.html`) | Formal math definitions: $O, \Omega, \Theta$; complexity hierarchies ($O(1)$ to $O(2^n)$) | Amortized array doubling, auxiliary vs input space, recursive call stack space, benchmarking | Python Docs (`sys.getsizeof`, list resizing overview) | Amortized dynamic array accounting trace, string concatenation benchmark ($O(N)$ vs $O(N^2)$) |
+| **`se-top-4`** | Linked Lists: Singly, Doubly & Circular | NIST DADS (`doublyLinkedList.html`, `circularlist.html`, `link.html`) | Pointer node topologies, head/tail insertion and deletion complexities | In-place 3-pointer reversal, Floyd's cycle detection proof ($2k-k=nC$), dummy heads, cache miss penalty | NIST DADS (`cycle.html` — verified pilot source) | Full Python `ListNode` implementation, iterative list reversal, Floyd's cycle entrance derivation |
+| **`se-top-5`** | Stacks, Queues & Monotonic Variants | NIST DADS (`queue.html`, `priorityque.html`, `boundedstack.html`) | LIFO and FIFO abstract definitions, push/pop and enqueue/dequeue operations | Monotonic stack pattern (Next Greater Element), monotonic deque (sliding window max), ring buffer array queues | Python Docs (`collections.deque` mechanics) | Monotonic stack Python implementation, circular buffer queue with modulo wrap-around |
+| **`se-top-6`** | Binary Trees & Traversal Algorithms | NIST DADS (`completeBinaryTree.html`, `treeTraversal.html`, `preorderTraversal.html`, `breadthfirst.html`, `depthfirst.html`) | Tree structural hierarchy, pre/in/post-order recursive definitions, BFS/DFS traversal mechanics | Iterative traversals with explicit stack, BFS level-order queue (`len(q)`), LCA, tree diameter, Morris traversal | Python Docs (Recursion depth) | Iterative DFS and BFS level-order Python code, recursive Lowest Common Ancestor (LCA) implementation |
+| **`se-top-8`** | Heaps & Priority Queues | NIST DADS (`binaryheap.html`) | Complete binary tree shape, heap-order property, array indexing ($2i+1$), $O(N)$ `heapify` build | Top-K elements ($O(N \log K)$), dual balancing heaps (median finder), k-way sorted stream merge | Python Docs (`heapq` module source overview) | Top-K frequent elements implementation, Dual-Heap Continuous Median Stream Tracker, $O(N)$ heapify proof |
+| **`se-top-10`** | Topological Sort & Shortest Paths | NIST DADS (`topologicalOrder.html`, `dijkstraalgo.html`, `bellmanford.html`) | DAG topological ordering definition, Dijkstra single-source greedy relaxation and queue complexity, Bellman-Ford negative edge cycle handling | Kahn's algorithm (in-degree array + queue), cycle detection in DAGs, build dependency DAG resolution | Python Docs (`collections.defaultdict`) | Kahn's algorithm Python implementation, Dijkstra's algorithm with `heapq`, negative-edge failure trace |
+| **`se-top-11`** | Recursion & Backtracking Strategies | NIST DADS (`recursive.html`, `recursionTree.html`, `tailRecursion.html`) | Recursive decomposition, recursion tree complexity, tail-call optimization definitions | State-space tree visualization, `choose-explore-unchoose` template, subsets/permutations with duplicates, N-Queens | Python Docs (`sys.getrecursionlimit()`) | Canonical `backtrack()` template in Python, N-Queens coordinate hashing solver ($O(1)$ diagonal check) |
+| **`se-top-1`** | Memory Architecture: Stack, Heap & Pointers | Python C-API Memory Management Docs (`docs.python.org/3/c-api/memory.html`, `gc.html`) — Approved PSF License | Raw vs object memory allocators, reference counting (`ob_refcnt`), cyclic garbage collection | Stack frame lifecycle, instruction pointer, base pointer, stack overflow, low-level pointer dereferencing | Linux Man-Pages (`malloc.3`, `mmap.2` — Conditional copyleft; `brk.2` excluded) | Virtual address space layout diagram (Text/Data/BSS/Heap/Stack), pointer dereference and leak walkthrough |
+| **`se-top-13`** | Processes, Threads & Synchronization | Python Documentation: `threading`, `queue`, `multiprocessing` (`docs.python.org/3/library/threading.html`) — Approved PSF License | Thread synchronization primitives (`Lock`, `RLock`, `Condition`, `Semaphore`), thread-safe bounded FIFO queues, process isolation | Coffman deadlock conditions, Producer-Consumer bounded buffer, Readers-Writers locks, Python GIL | Linux Man-Pages (`pthreads.7`, `sem_overview.7` — Conditional copyleft; `clone.2` excluded) | Thread-safe Bounded Queue using Condition variables, Coffman deadlock conditions analysis & lock hierarchy |
+| **`se-top-14`** | Virtual Memory, Paging & Storage | **CareerLaunch-Authored Content (`[Author: CareerLaunch Engineering]`)** | Multi-level page tables, virtual address translation, TLB mechanics, page faults, LRU page replacement, cache locality | System call implementations (`mmap`, `mprotect`) | Linux Man-Pages (`mmap.2`, `mprotect.2`, `getpagesize.2` — Conditional copyleft) | Virtual-to-physical address translation diagram, LRU page replacement cache implementation, row vs column cache benchmark |
+| **`se-top-15`** | Computer Networking: OSI, TCP/IP & HTTP | IETF RFC Standards (RFC 9293 TCP, RFC 9110 HTTP, RFC 9112 HTTP/1.1, RFC 768 UDP) + `socket(2)` (BSD-3-Clause) — Approved | TCP connection lifecycle, 3-way handshake, state transitions (`LISTEN`, `ESTABLISHED`), Berkeley sockets API, HTTP methods/status codes | OSI 7-Layer vs TCP/IP 4-Layer theoretical mapping, sequence/ACK number arithmetic diagrams, DNS hierarchy | Python `socket` Docs — Approved PSF License; Linux Man-Pages (`tcp.7`, `ip.7` — Conditional copyleft) | Complete TCP 3-way handshake & teardown sequence diagram, Python client/server socket implementation |
+| **`se-top-16`** | Object-Oriented Design Patterns (GoF) | Python Documentation: Data Model & `abc` module (`docs.python.org/3/reference/datamodel.html`, `abc.html`) — Approved PSF License | Object primitives: classes, inheritance, composition, abstract base classes (`abc`), dunder methods | Gang of Four catalog structure (Creational, Structural, Behavioral), SOLID principles, pattern anti-patterns | **None** (NIST DADS `designPattern.html` removed as fictitious) | **100% CareerLaunch-Authored Content (`[Author: CareerLaunch Engineering]`)**. Complete Python implementations for all GoF patterns & SOLID refactoring case study |
+| **`se-top-17`** | High-Level System Design & Scalability | PostgreSQL High-Availability Documentation + W3C HTTP Caching Specifications — Approved | Database replication (primary-standby streaming), synchronous/async failover, HTTP caching headers (`Cache-Control`, `ETag`) | Horizontal scaling, load balancing algorithms, Consistent Hashing, CAP/PACELC theorem, Cache-Aside, Sharding, Rate Limiting | Linux Man-Pages (`epoll.7` — Conditional copyleft) | **100% CareerLaunch-Authored Content (`[Author: CareerLaunch Engineering]`)**. End-to-end System Design Case Study (Distributed URL Shortener), capacity estimation worksheet, Token Bucket code |
 
 ---
 
 #### 4.3.1 Detailed Technical Analysis: Big-O & Complexity Analysis (`se-top-2`)
-- **Primary Source**: NIST DADS (`bigO.html`, `bigOmega.html`, `bigTheta.html`) — Public Domain.
+- **Primary Source**: NIST DADS (`bigOnotation.html`, `omegaCapital.html`) — Public Domain.
 - **Concepts Directly Supported**:
   - Asymptotic upper bound $f(n) = O(g(n)) \iff \exists c > 0, n_0 > 0 : 0 \le f(n) \le c \cdot g(n) \; \forall n \ge n_0$.
   - Asymptotic lower bound $\Omega(g(n))$ and tight bound $\Theta(g(n))$.
@@ -305,82 +322,83 @@ A source cannot be treated as comprehensive merely because it is technically rel
   - Practical code benchmark in Python demonstrating why string accumulation via `+=` exhibits $O(N^2)$ behavior due to reallocation while `''.join()` exhibits $O(N)$.
 
 #### 4.3.2 Detailed Technical Analysis: Memory Architecture & Pointers (`se-top-1`)
-- **Primary Source**: Linux Programmer's Manual (`malloc.3`, `mmap.2`, `brk.2`) — Permissive.
+- **Primary Source**: Python Documentation: C API Memory Management & GC (`docs.python.org/3/c-api/memory.html`, `docs.python.org/3/library/gc.html`) — PSF License (Approved).
+- **Conditional / Audited References**: Linux Programmer's Manual (`malloc.3`, `mmap.2` — `Linux-man-pages-copyleft`, Conditional; `brk.2` — GPLv2+, Excluded).
 - **Concepts Directly Supported**:
-  - Virtual address space system calls: `brk`/`sbrk` for programmatic heap boundary movement, `mmap` for anonymous virtual memory mapping.
-  - C standard library memory functions: `malloc`, `calloc`, `realloc`, and `free` mechanics and return value contracts.
-  - Alignment constraints (8-byte / 16-byte boundaries) and external memory fragmentation.
-- **Concepts NOT Covered (Gaps)**:
+  - Python memory domains: raw memory (`PyMem_RawMalloc`), object memory (`PyObject_Malloc`), reference counting (`ob_refcnt`), cyclic garbage collector tracking.
+- **Concepts NOT Covered by External Approved Sources (Gaps)**:
   - *Call Stack Architecture*: Stack frame construction (activation records), stack pointer (`ESP`/`RSP`), frame pointer (`EBP`/`RBP`), local variable scoping, and stack overflow conditions.
-  - *Language Memory Models*: Python reference counting (`PyObject.ob_refcnt`), cycle detection gc, Java JVM heap generations (Eden, Survivor, Tenured), vs C/C++ manual memory.
+  - *Process Address Space*: Physical RAM vs Virtual Memory segments (Text, Data, BSS, Heap, Stack).
   - *Pass-by-Value vs Pass-by-Reference*: Memory evaluation semantics across parameter boundaries.
-- **Additional Approved Sources**: Python Documentation: C API Memory Management & GC (`docs.python.org/3/c-api/memory.html`, `docs.python.org/3/library/gc.html`) — PSF License.
-- **CareerLaunch-Authored Content**:
+- **CareerLaunch-Authored Content (`[Author: CareerLaunch Engineering]`)**:
   - Detailed cross-sectional diagram of process virtual address space: Text, Initialized Data, BSS, Heap (growing upward), Memory Mapping Segment, Stack (growing downward).
   - Memory leak and dangling pointer code demonstrations with step-by-step memory inspection.
 
 #### 4.3.3 Detailed Technical Analysis: Processes, Threads & Concurrency (`se-top-13`)
-- **Primary Source**: Linux Programmer's Manual (`pthreads.7`, `clone.2`, `sem_overview.7`) — Permissive.
+- **Primary Source**: Python Documentation: `threading`, `queue`, `multiprocessing` modules (`docs.python.org/3/library/threading.html`) — PSF License (Approved).
+- **Conditional / Audited References**: Linux Programmer's Manual (`pthreads.7`, `sem_overview.7` — `Linux-man-pages-copyleft`, Conditional; `clone.2` — GNU GPL, Excluded).
 - **Concepts Directly Supported**:
-  - Process creation (`fork`, `clone`) and address space isolation.
-  - POSIX thread primitives (`pthread_create`, `pthread_join`, `pthread_mutex_init`, `pthread_mutex_lock`).
-  - POSIX semaphores: named and unnamed counting semaphores (`sem_wait`, `sem_post`).
-- **Concepts NOT Covered (Gaps)**:
+  - Thread synchronization primitives: `Lock`, `RLock`, `Semaphore`, `BoundedSemaphore`, `Condition`, `Event`, `Barrier`.
+  - Thread-safe queues (`queue.Queue`, `queue.LifoQueue`, `queue.PriorityQueue`).
+- **Concepts NOT Covered by External Approved Sources (Gaps)**:
   - *Coffman Deadlock Conditions*: Mutual Exclusion, Hold and Wait, No Preemption, Circular Wait.
   - *High-Level Synchronization Idioms*: Bounded-buffer Producer-Consumer pattern, Readers-Writers problem, Dining Philosophers.
   - *Language Runtimes & Locks*: Python Global Interpreter Lock (GIL) and its effect on CPU-bound vs I/O-bound threads; async event loops (`asyncio`) vs OS threads.
   - *Race Conditions*: Critical section definition, data races, atomic operations, Compare-And-Swap (CAS).
-- **Additional Approved Sources**: Python Documentation: `threading` and `multiprocessing` modules — PSF License.
-- **CareerLaunch-Authored Content**:
+- **CareerLaunch-Authored Content (`[Author: CareerLaunch Engineering]`)**:
   - Complete Python implementation of a thread-safe Bounded Queue utilizing `threading.Condition` with `wait()` and `notify()`.
   - Architectural breakdown of Coffman conditions with lock ordering protocol for deadlock prevention.
 
 #### 4.3.4 Detailed Technical Analysis: Computer Networking & Protocols (`se-top-15`)
-- **Primary Source**: Linux Programmer's Manual (`tcp.7`, `socket.2`, `ip.7`) + IETF RFC 9110 — Public Domain / Permissive / IETF Trust.
+- **Primary Sources**: 
+  - IETF RFC Standards: RFC 9293 (TCP Specification), RFC 9110 (HTTP Semantics), RFC 9112 (HTTP/1.1), RFC 768 (UDP) — IETF Trust (Approved).
+  - Linux Programmer's Manual: `socket(2)` — BSD-3-Clause (Approved).
+  - Python Documentation: `socket` module (`docs.python.org/3/library/socket.html`) — PSF License (Approved).
+- **Conditional References**: Linux Programmer's Manual (`tcp.7`, `ip.7` — `Linux-man-pages-copyleft`, Conditional).
 - **Concepts Directly Supported**:
-  - TCP socket lifecycle and state transitions: `LISTEN`, `SYN_SENT`, `SYN_RECV`, `ESTABLISHED`, `FIN_WAIT_1`, `TIME_WAIT`.
+  - TCP protocol specification: state machine transitions (`LISTEN`, `SYN_SENT`, `SYN_RECV`, `ESTABLISHED`, `FIN_WAIT`, `TIME_WAIT`), segment headers, sequence/ACK numbering.
   - Berkeley sockets API: `socket()`, `bind()`, `listen()`, `accept()`, `connect()`, `send()`, `recv()`.
   - HTTP semantics: request methods (Idempotent vs Safe), status code families (1xx to 5xx), standard header fields.
 - **Concepts NOT Covered (Gaps)**:
   - *Layered Architectural Models*: Theoretical OSI 7-Layer Model (Physical to Application) mapped to practical TCP/IP 4-Layer Model (Link, Internet, Transport, Application).
-  - *TCP Connection Handshake & Teardown*: Sequence and Acknowledgment number increment mechanics during SYN, SYN-ACK, ACK and FIN, ACK handshakes.
-  - *TCP vs UDP*: Reliability, ordering, flow control (sliding window), congestion control (AIMD) vs lightweight low-latency UDP datagrams.
   - *DNS & Web Life Cycle*: Recursive vs authoritative DNS resolution, browser connection lifecycle ("What happens when you navigate to a URL?").
   - *HTTP Protocol Evolution*: HTTP/1.1 persistent connections vs HTTP/2 binary framing and stream multiplexing vs HTTP/3 QUIC over UDP.
-- **Additional Approved Sources**: IETF RFC 9112 (HTTP/1.1) and RFC 9000 (QUIC) — IETF Trust.
-- **CareerLaunch-Authored Content**:
+- **CareerLaunch-Authored Content (`[Author: CareerLaunch Engineering]`)**:
   - Sequence diagram detailing the complete TCP 3-way handshake and 4-way termination with sequence/ACK number arithmetic.
   - Python client-server socket implementation handling framing and partial reads.
 
-#### 4.3.5 Detailed Technical Analysis: Object-Oriented Design Patterns (`se-top-16`)
-- **Primary Source**: Python Documentation (Data Model & ABCs) + W3C Architecture — PSF License / W3C License.
-- **Concepts Directly Supported**:
+#### 4.3.5 Detailed Technical Analysis: Object-Oriented Design Patterns & SOLID (`se-top-16`)
+- **Foundational Source**: Python Documentation: Data Model & Abstract Base Classes (`docs.python.org/3/reference/datamodel.html`, `docs.python.org/3/library/abc.html`) — PSF License (Approved).
+- **Audit Finding**: NIST DADS does NOT cover design patterns (`designPattern.html` removed as fictitious). No comprehensive permissive open-source documentation exists for the Gang of Four catalog or SOLID principles.
+- **Concepts Directly Supported by Python Docs**:
   - Class definitions, multiple inheritance, Method Resolution Order (C3 MRO), abstract base classes (`abc.ABCMeta`, `@abstractmethod`), composition primitives.
-- **Concepts NOT Covered (Gaps)**:
-  - *Gang of Four (GoF) Structural Catalog*:
+- **Concepts Requiring Platform-Authored Pedagogy (Gaps)**:
+  - *Gang of Four (GoF) Catalog*:
     - Creational: Factory Method, Abstract Factory, Builder, Singleton (with thread-safe double-checked locking).
     - Structural: Adapter, Decorator, Facade, Composite, Proxy.
     - Behavioral: Observer, Strategy, Command, State, Template Method.
   - *SOLID Design Principles*: Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, Dependency Inversion.
   - *Anti-Patterns*: God Object, Singleton abuse for global state, tight coupling.
-- **Additional Approved Sources**: NIST DADS (`designPattern.html`) — Public Domain.
-- **CareerLaunch-Authored Content**:
-  - 100% of the code exemplars across all GoF patterns must be original CareerLaunch-authored Python code under internal copyright.
+- **CareerLaunch-Authored Content (`[Author: CareerLaunch Engineering]`)**:
+  - **100% of code exemplars and architectural pattern analyses are authored directly by CareerLaunch Engineering under proprietary platform copyright**.
   - Refactoring case study: Transforming hard-coded pricing calculation with conditionals into an extensible Strategy Pattern obeying the Open/Closed Principle.
 
-#### 4.3.6 Detailed Technical Analysis: System Design & Scalability (`se-top-17`)
-- **Primary Source**: PostgreSQL High-Availability Documentation + Linux Man-Pages (`epoll.7`) — PostgreSQL License / Permissive.
+#### 4.3.6 Detailed Technical Analysis: High-Level System Design & Scalability (`se-top-17`)
+- **Primary Sources**:
+  - PostgreSQL High-Availability Documentation (`postgresql.org/docs/current/high-availability.html`) — PostgreSQL License (Approved).
+  - W3C Technical Architecture & HTTP Caching Specifications (`w3.org/TR/`) — W3C License (Approved).
+- **Conditional References**: Linux Programmer's Manual (`epoll.7` — `Linux-man-pages-copyleft`, Conditional).
 - **Concepts Directly Supported**:
   - Relational database replication architectures: Primary-Standby streaming replication, synchronous vs asynchronous commit modes, failover mechanics.
-  - High-concurrency I/O event multiplexing (`epoll`) for handling scalable network connections.
-- **Concepts NOT Covered (Gaps)**:
+  - HTTP client and proxy caching headers: `Cache-Control`, `ETag`, conditional revalidation.
+- **Concepts Requiring Platform-Authored Pedagogy (Gaps)**:
   - *Horizontal Scaling & Load Balancing*: Layer 4 vs Layer 7 load balancers, DNS round-robin, least connections, sticky sessions.
   - *Distributed Caching & Consistent Hashing*: Cache-Aside, Write-Through, Write-Behind; Cache Stampede and Thundering Herd mitigation; Consistent Hashing ring with virtual nodes.
   - *Distributed Storage & Sharding*: Horizontal partition keys, cross-shard joins, distributed 2PC vs Sagas.
   - *Theoretical Theorems*: CAP Theorem (Consistency vs Availability under Partition), PACELC theorem.
   - *Rate Limiting*: Token Bucket, Leaky Bucket, and Sliding Window Counter algorithms.
-- **Additional Approved Sources**: W3C HTTP Caching Specifications (`https://www.w3.org/TR/`) — W3C License.
-- **CareerLaunch-Authored Content**:
+- **CareerLaunch-Authored Content (`[Author: CareerLaunch Engineering]`)**:
+  - **100% of distributed systems interview case studies and capacity worksheets are authored directly by CareerLaunch Engineering**.
   - End-to-end Architectural Case Study: Designing a Distributed URL Shortener (TinyURL) handling 100M daily active users.
   - Systematic Capacity Estimation Framework: Traffic QPS calculation, memory cache sizing (80/20 Pareto principle), storage projection over 5 years.
   - Python implementation of the Token Bucket rate-limiting algorithm.
@@ -394,9 +412,10 @@ A source cannot be treated as comprehensive merely because it is technically rel
 | Source Name | Official URL | Publisher | Relevant Roles | Exact Licence | Commercial Use | Storage & Indexing | Decision | Evidence URL |
 | :--- | :--- | :--- | :--- | :--- | :---: | :---: | :---: | :--- |
 | **NIST DADS** | `https://xlinux.nist.gov/dads/` | NIST (U.S. Govt) | `software-engineer` | U.S. Govt Work (17 U.S.C. § 105) | **Allowed** | **Allowed** | **APPROVED** | [NIST Licensing](https://www.nist.gov/director/licensing) |
-| **Linux Man-Pages** | `https://man7.org/linux/man-pages/` | Linux Foundation | `software-engineer`, `devops`, `backend` | Permissive (BSD / MIT / Public Domain) | **Allowed** | **Allowed** | **APPROVED** | [Linux Man-Pages](https://man7.org/linux/man-pages/man7/man-pages.7.html) |
+| **IETF RFC Standards** | `https://www.rfc-editor.org/` | IETF Trust | `software-engineer`, `backend`, `devops` | IETF Trust Legal Provisions (TLP 5.0) | **Allowed** | **Allowed** | **APPROVED** | [IETF Trust](https://trustee.ietf.org/documents/trust-legal-provisions/) |
 | **Python Official Docs** | `https://docs.python.org/3/` | PSF | `software-engineer`, `backend`, `data-analyst`, `data-scientist` | PSF License Agreement v2 / 0BSD | **Allowed** | **Allowed** | **APPROVED** | [Python License](https://docs.python.org/3/license.html) |
 | **PostgreSQL Docs** | `https://www.postgresql.org/docs/` | PostgreSQL GDG | `backend`, `data-analyst`, `fullstack`, `software-engineer` | PostgreSQL Licence (Liberal MIT/BSD style) | **Allowed** | **Allowed** | **APPROVED** | [PostgreSQL Licence](https://www.postgresql.org/about/licence/) |
+| **Linux Man-Pages (Audited)** | `https://git.kernel.org/pub/scm/docs/man-pages/` | Linux Foundation / Authors | `software-engineer`, `devops`, `backend` | Heterogeneous (`copyleft`, `GPL`, `BSD`) | **Page Dependent** | **Page Dependent** | **SEE SEC. 5.3** | [Linux Man-Pages](https://man7.org/linux/man-pages/man7/man-pages.7.html) |
 | **W3C Specifications** | `https://www.w3.org/TR/` | W3C | `frontend`, `fullstack` | W3C Document License (Permissive) | **Allowed** | **Allowed** | **APPROVED** | [W3C Document License](https://www.w3.org/Consortium/Legal/2015/copyright-software-and-document) |
 | **React Official Docs** | `https://react.dev/` | Meta Platforms | `frontend`, `fullstack` | Text: CC-BY 4.0; Code: MIT | **Allowed** | **Allowed** | **APPROVED** | [React License](https://github.com/reactjs/react.dev/blob/main/LICENSE.md) |
 | **Node.js API Docs** | `https://nodejs.org/api/` | OpenJS Foundation | `backend`, `fullstack` | Text: CC-BY 4.0; Code: MIT | **Allowed** | **Allowed** | **APPROVED** | [Node.js License](https://github.com/nodejs/node/blob/main/LICENSE) |
@@ -437,6 +456,37 @@ In compliance with Phase 5.0.1 requirements, sources carrying **Creative Commons
    - If affirmative, CareerLaunch **would be legally compelled to license the entire generated lesson to students under CC-BY-SA**, preventing CareerLaunch from claiming proprietary rights over its synthesized educational text.
 2. **Severability of Code Exemplars**: While MDN code snippets are CC0 (Public Domain, exempt from ShareAlike), textual explanations are CC-BY-SA. If text and code are combined into one monolithic lesson document, the ShareAlike clause may attach to the entire composite lesson.
 3. **Verdict**: **Strict Legal Review Required**. Until legal counsel formally confirms that CareerLaunch's retrieval-grounding synthesis constitutes fair educational citation rather than an "Adapted Material", **MDN, Docker, and OWASP remain CONDITIONAL and cannot be ingested into the production knowledge base.**
+
+---
+
+### 5.3 Granular Linux Man-Pages Licensing Audit
+
+The Linux man-pages project (`man-pages.git`) is not licensed under a uniform blanket license. Each individual manual page contains its own historical copyright and license notice embedded in roff comment headers.
+
+In compliance with Phase 5.0.3 requirements, every manual page referenced across the 13 Software Engineer topics has been individually inspected directly from the upstream `git.kernel.org/pub/scm/docs/man-pages/man-pages.git` repository:
+
+| Manual Page | Exact Upstream Path & URL | Copyright Holders | Precise License & Version | Redistribution & Copyleft Requirements | Commercial Ruling |
+| :--- | :--- | :--- | :--- | :--- | :---: |
+| **`socket(2)`** | `man2/socket.2` ([Upstream](https://git.kernel.org/pub/scm/docs/man-pages/man-pages.git/tree/man2/socket.2)) | (c) 1983, 1991, 1993 UC Regents | **BSD-3-Clause / BSD-4-Clause** | Permissive. Redistribution in source or binary permitted with preservation of notice and disclaimer. Zero copyleft restriction on derived works. | **APPROVED** |
+| **`malloc(3)`** | `man3/malloc.3` ([Upstream](https://git.kernel.org/pub/scm/docs/man-pages/man-pages.git/tree/man3/malloc.3)) | (c) 1993 Thomas Koenig; Michael Kerrisk | **`Linux-man-pages-copyleft`** (`VERBATIM`) | Verbatim distribution permitted. Derived/modified works must be distributed under identical permission notice. Author attribution required. | **CONDITIONAL** |
+| **`mmap(2)`** | `man2/mmap.2` ([Upstream](https://git.kernel.org/pub/scm/docs/man-pages/man-pages.git/tree/man2/mmap.2)) | (C) 1996 Andries Brouwer; (C) 2006-2007 Michael Kerrisk | **`Linux-man-pages-copyleft`** (`VERBATIM`) | Derived works must be distributed under identical permission notice. Copyleft condition attached. | **CONDITIONAL** |
+| **`brk(2)`** | `man2/brk.2` ([Upstream](https://git.kernel.org/pub/scm/docs/man-pages/man-pages.git/tree/man2/brk.2)) | (c) 1993 Michael Haardt | **GNU General Public License v2+** (`GPLv2+_DOC_FULL`) | Strong copyleft. Any redistribution or modified version must be licensed under GNU GPLv2 or later. Output of document formatting explicitly covered. | **EXCLUDED** |
+| **`pthreads(7)`** | `man7/pthreads.7` ([Upstream](https://git.kernel.org/pub/scm/docs/man-pages/man-pages.git/tree/man7/pthreads.7)) | (c) 2005 Michael Kerrisk | **`Linux-man-pages-copyleft`** (`VERBATIM`) | Derived works must carry identical permission notice. Author attribution required. | **CONDITIONAL** |
+| **`clone(2)`** | `man2/clone.2` ([Upstream](https://git.kernel.org/pub/scm/docs/man-pages/man-pages.git/tree/man2/clone.2)) | (c) 1996 FSF; (c) 2001-2013 Michael Kerrisk | **GNU General Public License** (`GPL_NOVERSION_ONELINE`) | Strong copyleft. "May be distributed under the GNU General Public License." | **EXCLUDED** |
+| **`sem_overview(7)`** | `man7/sem_overview.7` ([Upstream](https://git.kernel.org/pub/scm/docs/man-pages/man-pages.git/tree/man7/sem_overview.7)) | (C) 2006 Michael Kerrisk | **`Linux-man-pages-copyleft`** (`VERBATIM`) | Derived works must carry identical permission notice. | **CONDITIONAL** |
+| **`mprotect(2)`** | `man2/mprotect.2` ([Upstream](https://git.kernel.org/pub/scm/docs/man-pages/man-pages.git/tree/man2/mprotect.2)) | (c) 1995 Michael Shields; (c) 2007 Michael Kerrisk | **`Linux-man-pages-copyleft`** (`VERBATIM`) | Derived works must carry identical permission notice. | **CONDITIONAL** |
+| **`getpagesize(2)`** | `man2/getpagesize.2` ([Upstream](https://git.kernel.org/pub/scm/docs/man-pages/man-pages.git/tree/man2/getpagesize.2)) | (C) 2001 Andries Brouwer | **`Linux-man-pages-copyleft`** (`VERBATIM`) | Derived works must carry identical permission notice. | **CONDITIONAL** |
+| **`posix_fadvise(2)`** | `man2/posix_fadvise.2` ([Upstream](https://git.kernel.org/pub/scm/docs/man-pages/man-pages.git/tree/man2/posix_fadvise.2)) | (C) 2003 Abhijit Menon-Sen; (C) 2010-2017 Michael Kerrisk | **`Linux-man-pages-copyleft`** (`VERBATIM`) | Derived works must carry identical permission notice. | **CONDITIONAL** |
+| **`tcp(7)`** | `man7/tcp.7` ([Upstream](https://git.kernel.org/pub/scm/docs/man-pages/man-pages.git/tree/man7/tcp.7)) | (c) 1999 Andi Kleen; Michael Kerrisk | **`Linux-man-pages-copyleft`** (`VERBATIM`) | Derived works must carry identical permission notice. | **CONDITIONAL** |
+| **`ip(7)`** | `man7/ip.7` ([Upstream](https://git.kernel.org/pub/scm/docs/man-pages/man-pages.git/tree/man7/ip.7)) | (C) 1992-1999 Rickard E. Faith, David A. Wheeler | **`Linux-man-pages-copyleft`** (`VERBATIM`) | Derived works must carry identical permission notice. | **CONDITIONAL** |
+| **`epoll(7)`** | `man7/epoll.7` ([Upstream](https://git.kernel.org/pub/scm/docs/man-pages/man-pages.git/tree/man7/epoll.7)) | (C) 2005 Davide Libenzi, Michael Kerrisk | **`Linux-man-pages-copyleft`** (`VERBATIM`) | Derived works must carry identical permission notice. | **CONDITIONAL** |
+
+#### Operational Sourcing Protocol for Linux Man-Pages
+1. **APPROVED Source**: `socket(2)` is approved for direct ingestion and vector retrieval.
+2. **CONDITIONAL Sources**: The 10 `Linux-man-pages-copyleft` pages are **BLOCKED from automated ingestion** until legal counsel evaluates whether AI synthesis creates a derived work under the copyleft clause. Topics originally referencing these pages are grounded via approved Python documentation, verified IETF RFCs, or CareerLaunch-authored pedagogy.
+3. **EXCLUDED Sources**: `brk(2)` and `clone(2)` are strictly **EXCLUDED** due to GPL copyleft restrictions.
+
+---
 
 ---
 
@@ -586,7 +636,8 @@ To maintain strict academic integrity, commercial licensing compliance, and peda
 | Organization / Project | Resource Name | Canonical Documentation URL | Verified Licensing URL | Verified License Type |
 | :--- | :--- | :--- | :--- | :--- |
 | **U.S. NIST** | Dictionary of Algorithms and Data Structures | `https://xlinux.nist.gov/dads/` | `https://www.nist.gov/director/licensing` | U.S. Government Work / Public Domain |
-| **Linux Foundation** | Linux Programmer's Manual (Man-Pages) | `https://man7.org/linux/man-pages/` | `https://man7.org/linux/man-pages/man7/man-pages.7.html` | BSD / MIT / Permissive |
+| **IETF Trust** | IETF RFC Standards (RFC 9293, 9110, 9112, 768) | `https://www.rfc-editor.org/` | `https://trustee.ietf.org/documents/trust-legal-provisions/` | IETF Trust Legal Provisions (TLP 5.0) |
+| **Linux Foundation** | Linux Programmer's Manual (Man-Pages) | `https://git.kernel.org/pub/scm/docs/man-pages/` | `https://man7.org/linux/man-pages/man7/man-pages.7.html` | Heterogeneous (`copyleft`, `GPL`, `BSD`) — Page-by-Page |
 | **Python Software Fdn** | Python Documentation | `https://docs.python.org/3/` | `https://docs.python.org/3/license.html` | PSF License Agreement v2 / 0BSD |
 | **PostgreSQL GDG** | PostgreSQL Documentation | `https://www.postgresql.org/docs/` | `https://www.postgresql.org/about/licence/` | PostgreSQL Licence (Liberal Open Source) |
 | **W3C** | World Wide Web Consortium Technical Reports | `https://www.w3.org/TR/` | `https://www.w3.org/Consortium/Legal/2015/copyright-software-and-document` | W3C Document License |
@@ -613,16 +664,18 @@ To maintain strict academic integrity, commercial licensing compliance, and peda
 The following questions are submitted for legal counsel and product leadership review prior to initiating Phase 5.1 generation:
 
 1. **CC BY-SA Copyleft on AI-Generated Text**: When Groq retrieves an MDN or Docker text chunk as grounding evidence and synthesizes a structured lesson, does the resulting output constitute an "Adapted Material" under Section 1(a) of CC BY-SA 4.0? If yes, is CareerLaunch willing to publish the resulting lessons under CC BY-SA 4.0, or should CareerLaunch restrict all production grounding strictly to permissive CC-BY, BSD, MIT, and Public Domain sources?
-2. **Batch 1 SWE Generation Approval**: Does product leadership approve the proposed 4-topic Batch 1 (`se-top-2` Big-O, `se-top-4` Linked Lists, `se-top-5` Stacks/Queues, `se-top-6` Binary Trees) for Phase 5.1 execution using NIST DADS as the sole canonical source?
-3. **MongoDB Pedagogical Strategy**: Confirm approval to ground MongoDB topics (`be-top-6`) using the Apache 2.0 licensed Node.js MongoDB driver specification and CareerLaunch-authored exemplars rather than seeking an enterprise licensing contract with MongoDB Inc.
-4. **Mobile iOS Boundary**: Confirm that the Mobile track will use Swift.org (Apache 2.0) and AOSP (CC-BY 4.0) as its open grounding foundations, with iOS-specific UIKit/SwiftUI syntax provided exclusively through internal CareerLaunch-authored code exemplars.
+2. **`Linux-man-pages-copyleft` Derived Work Evaluation**: Does RAG chunk retrieval and synthesis from `malloc(3)`, `mmap(2)`, and `pthreads(7)` trigger the copyleft condition requiring the entire resulting lesson to be distributed under the identical verbatim/modified copyleft notice? If so, CareerLaunch should permanently ground systems concepts via approved Python documentation, BSD sockets, and CareerLaunch-authored pedagogy.
+3. **Batch 1 SWE Generation Approval**: Does product leadership approve the proposed 4-topic Batch 1 (`se-top-2` Big-O, `se-top-4` Linked Lists, `se-top-5` Stacks/Queues, `se-top-6` Binary Trees) for Phase 5.1 execution using NIST DADS as the sole canonical source?
+4. **MongoDB Pedagogical Strategy**: Confirm approval to ground MongoDB topics (`be-top-6`) using the Apache 2.0 licensed Node.js MongoDB driver specification and CareerLaunch-authored exemplars rather than seeking an enterprise licensing contract with MongoDB Inc.
+5. **Mobile iOS Boundary**: Confirm that the Mobile track will use Swift.org (Apache 2.0) and AOSP (CC-BY 4.0) as its open grounding foundations, with iOS-specific UIKit/SwiftUI syntax provided exclusively through internal CareerLaunch-authored code exemplars.
 
 ---
 
 ## STOP CONDITION
 
-Phase 5.0.2 (Final Topic Mapping, Source Coverage & Grounding Rules) is complete.  
+Phase 5.0.3 (Final Source Licence and Coverage Correction) is complete.  
 - Strictly READ-ONLY audit: Zero application code changes, zero database writes, zero document ingestion, zero embeddings computed, zero AI lesson generation.  
 - All 5 canonical pilot lessons (`swe-top-1`, `swe-top-4`, `swe-top-7`, `swe-top-9`, `swe-top-13`) and 2 student records remain 100% intact and verified in MongoDB.  
 - All environment configurations, ports (27018, 5000, 5173), and system variables are preserved unmodified.  
+- All Linux man-pages audited page-by-page; unverified/fictitious references (e.g. NIST `designPattern.html`) removed; unsupported source assignments replaced with verified IETF RFCs, Python PSF docs, and CareerLaunch-authored components.  
 - Awaiting explicit user approval before initiating Phase 5.1 (Ingestion & Generation for Batch 1).
