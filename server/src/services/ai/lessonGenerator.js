@@ -73,7 +73,28 @@ export const SUPPORTED_PILOT_TOPICS = {
     defaultDifficulty: 'intermediate',
     roleId: 'software-engineer',
   },
-}
+  // Phase 5.1 Batch 3 Topics
+  'se-top-13': {
+    title: 'Processes, Threads & Synchronization',
+    defaultDifficulty: 'advanced',
+    roleId: 'software-engineer',
+  },
+  'se-top-15': {
+    title: 'Computer Networking: OSI, TCP/IP & HTTP',
+    defaultDifficulty: 'advanced',
+    roleId: 'software-engineer',
+  },
+  'se-top-16': {
+    title: 'Object-Oriented Design Patterns (GoF)',
+    defaultDifficulty: 'advanced',
+    roleId: 'software-engineer',
+  },
+  'se-top-17': {
+    title: 'High-Level System Design & Scalability',
+    defaultDifficulty: 'advanced',
+    roleId: 'software-engineer',
+  },
+};
 
 /**
  * Builds a bounded evidence package text from Phase 2B hybrid retrieval results.

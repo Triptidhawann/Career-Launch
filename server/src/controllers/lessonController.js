@@ -19,6 +19,11 @@ const ROADMAP_TO_CANONICAL_PILOT_MAP = {
   'se-top-8': 'se-top-8',
   'se-top-10': 'se-top-10',
   'se-top-11': 'se-top-11',
+  // Phase 5.1 Batch 3 direct mappings
+  'se-top-13': 'se-top-13',
+  'se-top-15': 'se-top-15',
+  'se-top-16': 'se-top-16',
+  'se-top-17': 'se-top-17',
 }
 
 /**
