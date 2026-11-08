@@ -2256,6 +2256,11 @@ export const ROADMAP_TO_CANONICAL_PILOT_MAP = {
   'se-top-15': 'se-top-15',
   'se-top-16': 'se-top-16',
   'se-top-17': 'se-top-17',
+  // Phase 6.1 Frontend Developer Batch 1 mappings
+  'fe-top-1': 'fe-top-1',
+  'fe-top-2': 'fe-top-2',
+  'fe-top-3': 'fe-top-3',
+  'fe-top-4': 'fe-top-4',
 }
 
 /**

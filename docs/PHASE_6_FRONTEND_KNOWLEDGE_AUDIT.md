@@ -525,3 +525,102 @@ To prevent Groq context saturation and strictly respect free-tier rate limits (8
 ---
 
 *Phase 6.0.1 audit report prepared and validated for CareerLaunch.*
+
+
+---
+
+## 9. Phase 6.1 Batch 1 Implementation & Generation Results
+
+**Execution Status**: COMPLETED & VERIFIED  
+**Generation Provider**: Groq Cloud (`groqProvider.js`)  
+**AI Model**: `openai/gpt-oss-120b` (Temperature: 0.2, JSON Mode)  
+**Sequential Rate-Limiting Delay**: 22 seconds between generation calls  
+
+### 9.1 Registered Knowledge Sources & Ingested Corpus
+
+Three new standards-compliant knowledge sources were registered and 4 canonical documents with grounding chunks were ingested into MongoDB:
+
+| Source ID | Name | Canonical Base URL | Domain Allowlist | Document Licence | Ingested Chunks |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `whatwg-standards` | WHATWG HTML & DOM Living Standards | `https://spec.whatwg.org/` | `spec.whatwg.org`, `html.spec.whatwg.org`, `dom.spec.whatwg.org` | CC BY 4.0 | 1 chunk (391 tokens) |
+| `w3c-standards` | W3C Web Standards & Recommendations | `https://www.w3.org/TR/` | `w3.org`, `www.w3.org` | W3C Document License (20150513) | 2 chunks (674 tokens) |
+| `ecma-standards` | Ecma International TC39 Standards | `https://tc39.es/ecma262/` | `tc39.es`, `ecma-international.org` | Ecma Permissive Document License | 1 chunk (399 tokens) |
+
+#### Batch 1 Ingested Chunks Details:
+1. **`fe-top-1`**:
+   - Doc ID: `doc_whatwg-standards_cc732611edae`
+   - Chunk ID: `doc_whatwg-standards_cc732611edae_chk_001`
+   - Canonical URL: `https://html.spec.whatwg.org/multipage/sections.html`
+   - Tokens: 391
+2. **`fe-top-2`**:
+   - Doc ID: `doc_w3c-standards_3e3b960b30fb`
+   - Chunk ID: `doc_w3c-standards_3e3b960b30fb_chk_001`
+   - Canonical URL: `https://www.w3.org/TR/css-box-3/`
+   - Tokens: 363
+3. **`fe-top-3`**:
+   - Doc ID: `doc_w3c-standards_6999b7095969`
+   - Chunk ID: `doc_w3c-standards_6999b7095969_chk_001`
+   - Canonical URL: `https://www.w3.org/TR/css-values-4/`
+   - Tokens: 311
+4. **`fe-top-4`**:
+   - Doc ID: `doc_ecma-standards_80655998e01e`
+   - Chunk ID: `doc_ecma-standards_80655998e01e_chk_001`
+   - Canonical URL: `https://tc39.es/ecma262/`
+   - Tokens: 399
+
+---
+
+### 9.2 Generated Lessons Telemetry & Validation Metrics
+
+All four Batch 1 lessons were generated sequentially via Groq `openai/gpt-oss-120b`. Every lesson passed full structural schema validation, Level 1 citation checks, Level 2 authorship attribution checks (`CareerLaunch Engineering`), and Level 3 technical constraints.
+
+| Topic ID | Canonical Lesson ID | Difficulty | Duration | Prompt Tokens | Compl Tokens | Total Tokens | Objectives | Concepts | Steps | Examples | Citation Reference |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| `fe-top-1` | `lesson_frontend-developer_fe-top-1_beginner` | beginner | 6,030 ms | 1,439 | 2,487 | 3,926 | 2 | 7 | 5 | 1 | `doc_whatwg-standards_cc732611edae_chk_001` |
+| `fe-top-2` | `lesson_frontend-developer_fe-top-2_beginner` | beginner | 6,921 ms | 1,462 | 2,223 | 3,685 | 2 | 5 | 6 | 1 | `doc_w3c-standards_3e3b960b30fb_chk_001` |
+| `fe-top-3` | `lesson_frontend-developer_fe-top-3_beginner` | beginner | 5,652 ms | 1,450 | 2,296 | 3,746 | 3 | 4 | 5 | 1 | `doc_w3c-standards_6999b7095969_chk_001` |
+| `fe-top-4` | `lesson_frontend-developer_fe-top-4_beginner` | beginner | 4,602 ms | 1,414 | 1,968 | 3,382 | 2 | 3 | 5 | 1 | `doc_ecma-standards_80655998e01e_chk_001` |
+| **Total** | — | — | **23,205 ms** | **5,765** | **8,974** | **14,739** | — | — | — | — | — |
+
+---
+
+### 9.3 Database & System Baseline Verification
+
+Post-generation automated database audit confirmed:
+- **Total Generated Lessons**: Exactly 20 (16 Software Engineer lessons + 4 Frontend Developer lessons).
+- **Software Engineer Lessons**: 16/16 verified 100% UNTOUCHED (same `_id`, identical timestamps, unchanged content).
+- **Deferred SWE Topics**: `se-top-1` and `se-top-14` strictly preserved in `available: false` state.
+- **Student Profiles**: Exactly 2 verified 100% UNTOUCHED.
+- **Knowledge Sources**: Exactly 7 active sources.
+- **Ingested Documents**: Exactly 20 documents.
+- **Content Chunks**: Exactly 28 chunks.
+
+---
+
+### 9.4 Verification & Test Results
+
+1. **Integration Test Suite (`server/src/scripts/testPhase6Batch1.js`)**:
+   - **101 tests executed, 101 PASSED, 0 FAILED**.
+   - Verified HTTP 200 responses, `available: true`, student payload sanitization, 9 structured sections, and verified citations for all 4 Batch 1 topics.
+   - Verified HTTP 404 responses and `available: false` for Batch 2 topic (`fe-top-5`) and deferred topics (`se-top-1`, `se-top-14`).
+   - Verified regression tests for SWE pilot and expansion lessons (`swe-top-1`, `se-top-2`, `se-top-8`, `se-top-13`).
+2. **Phase 4 Integration Suite (`server/src/scripts/testPhase4.js`)**:
+   - **43 tests executed, 43 PASSED, 0 FAILED**.
+3. **Frontend Code Quality**:
+   - `oxlint`: 0 errors, 0 warnings across 99 files.
+   - `vite build`: 0 errors, bundle compiled in 1.99s.
+4. **Visual UI Verification (Headless Edge Screenshots)**:
+   - `phase6_1_frontend_roadmap_with_badges.png`: Frontend Developer Roadmap showing blue "AI Lesson" badges on `fe-top-1` through `fe-top-4`.
+   - `phase6_1_lesson_fe_top_1.png`: Complete 9-section rendered lesson for Semantic Markup & Accessibility Outlines.
+   - `phase6_1_lesson_fe_top_2.png`: Complete 9-section rendered lesson for CSS Box Model, Flexbox & Grid Systems.
+   - `phase6_1_lesson_fe_top_3.png`: Complete 9-section rendered lesson for Responsive Design & Fluid Typography.
+   - `phase6_1_lesson_fe_top_4.png`: Complete 9-section rendered lesson for Execution Context, Scopes & Closures.
+   - `phase6_1_lesson_fe_top_5_unavailable.png`: "Lesson Under Development" card for non-generated Batch 2 topic.
+
+---
+
+### 9.5 Strict Boundary Adherence
+
+As instructed:
+- Only Batch 1 topics (`fe-top-1`, `fe-top-2`, `fe-top-3`, `fe-top-4`) have been implemented.
+- Batches 2–5 remain queued and will not be generated until explicitly requested.

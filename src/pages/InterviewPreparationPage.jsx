@@ -861,7 +861,7 @@ export function InterviewPreparationPage() {
                                         <div className="topic-card-header">
                                           <h4 className="topic-card-title">{topic.title}</h4>
                                           <div className="topic-card-header-meta">
-                                            {currentRoleId === 'software-engineer' && ROADMAP_TO_CANONICAL_PILOT_MAP[topic.id] && (
+                                            {Boolean(ROADMAP_TO_CANONICAL_PILOT_MAP[topic.id]) && (
                                               <span className="topic-ai-pilot-badge" title="AI Interactive Lesson Ready">
                                                 <Sparkles size={11} />
                                                 <span>AI Lesson</span>

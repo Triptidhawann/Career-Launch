@@ -94,6 +94,27 @@ export const SUPPORTED_PILOT_TOPICS = {
     defaultDifficulty: 'advanced',
     roleId: 'software-engineer',
   },
+  // Phase 6.1 Frontend Developer Batch 1 Topics
+  'fe-top-1': {
+    title: 'Semantic Markup & Accessibility Outlines',
+    defaultDifficulty: 'beginner',
+    roleId: 'frontend-developer',
+  },
+  'fe-top-2': {
+    title: 'CSS Box Model, Flexbox & Grid Systems',
+    defaultDifficulty: 'beginner',
+    roleId: 'frontend-developer',
+  },
+  'fe-top-3': {
+    title: 'Responsive Design & Fluid Typography',
+    defaultDifficulty: 'beginner',
+    roleId: 'frontend-developer',
+  },
+  'fe-top-4': {
+    title: 'Execution Context, Scopes & Closures',
+    defaultDifficulty: 'beginner',
+    roleId: 'frontend-developer',
+  },
 };
 
 /**
@@ -217,7 +238,8 @@ RETRIEVED CANONICAL SOURCE EVIDENCE:
 ${evidenceText}
 
 Ensure every factual definition, algorithmic property, and complexity claim is grounded in the above evidence.
-Attribute code exemplars to "CareerLaunch Engineering". Never attribute CareerLaunch code to NIST.
+Attribute code exemplars to "CareerLaunch Engineering". Never attribute CareerLaunch code to external sources or standards bodies (NIST, WHATWG, W3C, ECMA).
+For frontend engineering lessons, use JavaScript, HTML, or CSS for practical code exemplars as appropriate for the topic.
 Cite the exact chunk IDs in the "references" array.`
 
     // 6. Invoke AI Provider (Groq / MockGroq)
