@@ -57,6 +57,22 @@ export const SUPPORTED_PILOT_TOPICS = {
     defaultDifficulty: 'intermediate',
     roleId: 'software-engineer',
   },
+  // Phase 5.1 Batch 2A Topics
+  'se-top-8': {
+    title: 'Heaps & Priority Queues',
+    defaultDifficulty: 'intermediate',
+    roleId: 'software-engineer',
+  },
+  'se-top-10': {
+    title: 'Topological Sort & Shortest Paths',
+    defaultDifficulty: 'intermediate',
+    roleId: 'software-engineer',
+  },
+  'se-top-11': {
+    title: 'Recursion & Backtracking Strategies',
+    defaultDifficulty: 'intermediate',
+    roleId: 'software-engineer',
+  },
 }
 
 /**

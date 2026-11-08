@@ -2247,6 +2247,10 @@ export const ROADMAP_TO_CANONICAL_PILOT_MAP = {
   'se-top-4': 'se-top-4',
   'se-top-5': 'se-top-5',
   'se-top-6': 'se-top-6',
+  // Phase 5.1 Batch 2A direct mappings
+  'se-top-8': 'se-top-8',
+  'se-top-10': 'se-top-10',
+  'se-top-11': 'se-top-11',
 }
 
 /**
