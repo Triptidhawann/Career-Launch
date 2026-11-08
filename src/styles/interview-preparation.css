@@ -825,6 +825,28 @@
   line-height: 1.35;
 }
 
+.topic-card-header-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.topic-ai-pilot-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(198, 106, 74, 0.12);
+  color: var(--color-terracotta);
+  border: 1px solid rgba(198, 106, 74, 0.25);
+  padding: 2px 7px;
+  border-radius: var(--radius-full);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
 .topic-card-time {
   font-size: 0.72rem;
   font-weight: 600;

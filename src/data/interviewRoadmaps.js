@@ -891,6 +891,17 @@ export const INTERVIEW_ROADMAPS = {
                 estimatedHours: '8 Hours',
               },
               {
+                id: 'swe-top-4',
+                title: 'Binary Search Mechanics and Interval Bisection',
+                description: 'Logarithmic search mechanics, midpoint calculation invariants, search range bisection, and boundary conditions.',
+                keyConcepts: ['Interval Bisection', 'Midpoint Calculation', 'Sorted Array Invariants', 'Logarithmic Complexity'],
+                objectives: [
+                  'Implement binary search over monotonic sequences without integer overflow.',
+                  'Analyze discrete interval bisection across continuous and integer spaces.',
+                ],
+                estimatedHours: '6 Hours',
+              },
+              {
                 id: 'se-top-4',
                 title: 'Linked Lists: Singly, Doubly & Circular',
                 description: 'Pointer manipulation, reversal algorithms, cycle detection (Floyd\'s algorithm), and dummy heads.',
@@ -2223,9 +2234,14 @@ export const CANONICAL_PILOT_TOPIC_SPECS = {
 
 export const ROADMAP_TO_CANONICAL_PILOT_MAP = {
   'se-top-3': 'swe-top-1',
+  'swe-top-1': 'swe-top-1',
+  'swe-top-4': 'swe-top-4',
   'se-top-7': 'swe-top-7',
+  'swe-top-7': 'swe-top-7',
   'se-top-9': 'swe-top-9',
+  'swe-top-9': 'swe-top-9',
   'se-top-12': 'swe-top-13',
+  'swe-top-13': 'swe-top-13',
 }
 
 /**

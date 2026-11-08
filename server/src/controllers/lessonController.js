@@ -2,9 +2,14 @@ import { GeneratedLesson } from '../models/GeneratedLesson.js'
 
 const ROADMAP_TO_CANONICAL_PILOT_MAP = {
   'se-top-3': 'swe-top-1',
+  'swe-top-1': 'swe-top-1',
+  'swe-top-4': 'swe-top-4',
   'se-top-7': 'swe-top-7',
+  'swe-top-7': 'swe-top-7',
   'se-top-9': 'swe-top-9',
+  'swe-top-9': 'swe-top-9',
   'se-top-12': 'swe-top-13',
+  'swe-top-13': 'swe-top-13',
 }
 
 /**

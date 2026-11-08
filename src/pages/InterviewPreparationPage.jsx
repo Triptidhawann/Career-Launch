@@ -19,7 +19,7 @@ import {
   X,
 } from 'lucide-react'
 import { INTERVIEW_ROLES } from '@/data/interviewRoles'
-import { getRoadmapByRoleId, getTopicById } from '@/data/interviewRoadmaps'
+import { getRoadmapByRoleId, getTopicById, ROADMAP_TO_CANONICAL_PILOT_MAP } from '@/data/interviewRoadmaps'
 import { useAuth } from '@/hooks/useAuth'
 import { fetchProfile, fetchTopicLesson } from '@/lib/api'
 import {
@@ -860,7 +860,15 @@ export function InterviewPreparationPage() {
                                       >
                                         <div className="topic-card-header">
                                           <h4 className="topic-card-title">{topic.title}</h4>
-                                          <span className="topic-card-time">{topic.estimatedHours}</span>
+                                          <div className="topic-card-header-meta">
+                                            {currentRoleId === 'software-engineer' && ROADMAP_TO_CANONICAL_PILOT_MAP[topic.id] && (
+                                              <span className="topic-ai-pilot-badge" title="AI Interactive Lesson Ready">
+                                                <Sparkles size={11} />
+                                                <span>AI Lesson</span>
+                                              </span>
+                                            )}
+                                            <span className="topic-card-time">{topic.estimatedHours}</span>
+                                          </div>
                                         </div>
 
                                         <p className="topic-card-desc">{topic.description}</p>
