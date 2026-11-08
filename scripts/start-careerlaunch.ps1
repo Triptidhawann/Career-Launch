@@ -217,9 +217,21 @@ if (Test-PortListening -Port $frontendPort) {
             Write-Host "      [OK] Frontend Vite server is already running and responding." -ForegroundColor Green
             $frontendIsHealthy = $true
         } else {
-            $conn5173 = Get-NetTCPConnection -LocalPort $frontendPort -ErrorAction SilentlyContinue | Select-Object -First 1
+            $conn5173 = Get-NetTCPConnection -LocalPort $frontendPort -State Listen -ErrorAction SilentlyContinue | Select-Object -First 1
             $conflictingPid = if ($conn5173) { $conn5173.OwningProcess } else { "Unknown" }
-            Write-Host "Port $frontendPort is active but not returning HTTP 200 (PID: $conflictingPid)." -ForegroundColor Yellow
+            Write-Host ""
+            Write-Host "=================================================================" -ForegroundColor Red
+            Write-Host "              PORT CONFLICT DETECTED ON PORT $frontendPort              " -ForegroundColor Red
+            Write-Host "=================================================================" -ForegroundColor Red
+            Write-Host "Process PID $conflictingPid is listening on port $frontendPort, but is NOT responding as the CareerLaunch Vite frontend." -ForegroundColor Yellow
+            Write-Host ""
+            Write-Host "Recommended Actions:" -ForegroundColor Cyan
+            Write-Host "  1. If this is an orphaned Vite process, run:" -ForegroundColor White
+            Write-Host "     npm run stop:careerlaunch" -ForegroundColor Green
+            Write-Host "  2. Or terminate PID $conflictingPid manually:" -ForegroundColor White
+            Write-Host "     Stop-Process -Id $conflictingPid -Force" -ForegroundColor Green
+            Write-Host ""
+            exit 1
         }
     } catch {
         Write-Warning "Failed probing active port ${frontendPort}: $_"
