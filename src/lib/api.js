@@ -146,6 +146,13 @@ export async function fetchTopicLesson(topicId, roleId = 'software-engineer') {
 
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({}))
+    if (res.status === 502 || res.status === 503) {
+      throw new Error(
+        errorData.error ||
+          errorData.message ||
+          `Backend service is temporarily unavailable (HTTP ${res.status}). Please verify that the API server is active on port 5000.`
+      )
+    }
     throw new Error(errorData.error || errorData.message || `Failed to fetch lesson (HTTP ${res.status})`)
   }
 
