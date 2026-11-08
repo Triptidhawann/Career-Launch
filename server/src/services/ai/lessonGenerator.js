@@ -36,6 +36,27 @@ export const SUPPORTED_PILOT_TOPICS = {
     defaultDifficulty: 'advanced',
     roleId: 'software-engineer',
   },
+  // Phase 5.1 Batch 1 Topics
+  'se-top-2': {
+    title: 'Asymptotic Analysis & Big-O Notation',
+    defaultDifficulty: 'beginner',
+    roleId: 'software-engineer',
+  },
+  'se-top-4': {
+    title: 'Linked Lists: Singly, Doubly & Circular',
+    defaultDifficulty: 'beginner',
+    roleId: 'software-engineer',
+  },
+  'se-top-5': {
+    title: 'Stacks, Queues & Monotonic Variants',
+    defaultDifficulty: 'beginner',
+    roleId: 'software-engineer',
+  },
+  'se-top-6': {
+    title: 'Binary Trees & Traversal Algorithms',
+    defaultDifficulty: 'intermediate',
+    roleId: 'software-engineer',
+  },
 }
 
 /**

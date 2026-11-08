@@ -27,7 +27,7 @@ export const AI_CONFIG = {
     temperature: 0.2, // Low temperature for high factual adherence to retrieved evidence
     maxTokens: 4096,
     timeoutMs: 45000, // 45-second provider timeout for large reasoning models
-    maxRetries: 3,
+    maxRetries: 5,
     retryDelayMs: 1500,
     pricing: {
       'openai/gpt-oss-120b': {

@@ -91,7 +91,7 @@ async function runPhase3Tests() {
   console.log('\n--- 2. Validating Stored Canonical Lessons for All 5 Pilot Topics ---')
 
   const pilotTopicIds = Object.keys(SUPPORTED_PILOT_TOPICS)
-  assert(pilotTopicIds.length === 5, 'Test 2a: Exactly 5 pilot topics registered')
+  assert(pilotTopicIds.length >= 5, 'Test 2a: At least 5 pilot/expansion topics registered')
 
   for (const topicId of pilotTopicIds) {
     const genRes = await generateCanonicalLesson({
@@ -342,7 +342,7 @@ async function runPhase3Tests() {
   })
   const adminData = await adminRes.json()
   assert(adminRes.status === 200, 'Test 19c: Admin granted access to list lessons (HTTP 200)')
-  assert(adminData.lessons?.length === 5, 'Test 19d: All 5 pilot lessons listed in administrative registry')
+  assert(adminData.lessons?.length >= 5, 'Test 19d: All pilot and expansion lessons listed in administrative registry')
 
   // Clean up mock users
   await StudentProfile.deleteOne({ firebaseUid: mockStudentUid })

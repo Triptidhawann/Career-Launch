@@ -80,9 +80,21 @@ export class GroqProvider extends BaseAIProvider {
         if (!response.ok) {
           const errBody = await response.text()
           if (response.status === 429) {
-            console.warn(`[GroqProvider] Rate limit (429) encountered on attempt ${attempt}. Retrying...`)
+            let waitMs = AI_CONFIG.groq.retryDelayMs * Math.pow(2, attempt)
+            const headerRetry = response.headers.get('retry-after')
+            if (headerRetry) {
+              const sec = parseFloat(headerRetry)
+              if (!isNaN(sec)) waitMs = Math.ceil(sec * 1000) + 1500
+            } else {
+              const match = errBody.match(/try again in ([\d.]+)s/i)
+              if (match) {
+                const sec = parseFloat(match[1])
+                if (!isNaN(sec)) waitMs = Math.ceil(sec * 1000) + 2000
+              }
+            }
+            console.warn(`[GroqProvider] Rate limit (429) on attempt ${attempt}. Waiting ${Math.ceil(waitMs / 1000)}s before retry...`)
             lastError = new Error(`Groq Rate Limit Exceeded (429): ${errBody}`)
-            await new Promise((r) => setTimeout(r, AI_CONFIG.groq.retryDelayMs * Math.pow(2, attempt)))
+            await new Promise((r) => setTimeout(r, waitMs))
             continue
           }
           throw new Error(`Groq API Error (${response.status}): ${errBody}`)
