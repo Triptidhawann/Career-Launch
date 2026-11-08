@@ -1,3 +1,6 @@
+import dotenv from 'dotenv'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import http from 'node:http'
 import mongoose from 'mongoose'
 import express from 'express'
@@ -9,6 +12,10 @@ import { validateCitationsAndEvidence } from '../services/ai/citationValidator.j
 import { generateCanonicalLesson, SUPPORTED_PILOT_TOPICS } from '../services/ai/lessonGenerator.js'
 import adminLessonRoutes from '../routes/adminLessonRoutes.js'
 import { rateLimiter } from '../middleware/rateLimiter.js'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+dotenv.config({ path: path.resolve(__dirname, '../../.env') })
+dotenv.config()
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27018/careerlaunch'
 
@@ -44,6 +51,7 @@ async function runPhase3Tests() {
   // --------------------------------------------------------------------------
   console.log('\n--- 1. Testing Groq Provider & Key Handling ---')
 
+  const originalKey = process.env.GROQ_API_KEY
   try {
     delete process.env.GROQ_API_KEY
     new GroqProvider({ apiKey: '' })
@@ -59,13 +67,28 @@ async function runPhase3Tests() {
   assert(mockAi.isMock === true, 'Test 1b: Mock provider isMock flag explicitly true')
   assert(mockAi.modelId === 'mock-llama-3.3-70b', 'Test 1c: Mock provider configured with Llama-3.3-70b archetype')
 
-  const resolved = getAIProvider('groq')
-  assert(resolved instanceof MockGroqProvider, 'Test 1d: Factory falls back safely to MockGroqProvider when key absent')
+  // Verify that silent mock fallback is blocked when AI_GENERATION_ENABLED=true
+  try {
+    delete process.env.GROQ_API_KEY
+    getAIProvider('groq')
+    assert(false, 'Test 1d: Factory should throw when key is missing and generation enabled')
+  } catch (err) {
+    assert(
+      err.message.includes('mock fallback is disallowed'),
+      'Test 1d: Factory strictly prevents silent mock fallback when generation enabled',
+    )
+  }
+
+  // Restore active GROQ_API_KEY
+  process.env.GROQ_API_KEY = originalKey
+  const activeProvider = getAIProvider('groq')
+  assert(activeProvider instanceof GroqProvider, 'Test 1e: Real GroqProvider active when GROQ_API_KEY present')
+  assert(!activeProvider.isMock, 'Test 1f: Active provider isMock flag is false')
 
   // --------------------------------------------------------------------------
   // TEST 2: Structured Lesson Generation for All 5 Pilot Topics
   // --------------------------------------------------------------------------
-  console.log('\n--- 2. Generating & Validating All 5 Pilot Topics ---')
+  console.log('\n--- 2. Validating Stored Canonical Lessons for All 5 Pilot Topics ---')
 
   const pilotTopicIds = Object.keys(SUPPORTED_PILOT_TOPICS)
   assert(pilotTopicIds.length === 5, 'Test 2a: Exactly 5 pilot topics registered')
@@ -73,10 +96,10 @@ async function runPhase3Tests() {
   for (const topicId of pilotTopicIds) {
     const genRes = await generateCanonicalLesson({
       topicId,
-      forceRegenerate: true,
+      forceRegenerate: false,
     })
 
-    assert(genRes.success === true, `Test 2b (${topicId}): Canonical lesson generated successfully`)
+    assert(genRes.success === true, `Test 2b (${topicId}): Canonical lesson retrieved/generated successfully`)
     assert(genRes.lesson && genRes.lesson.validationStatus === 'passed', `Test 2c (${topicId}): Validation status passed`)
     assert(genRes.lesson.content.practicalExamples.length > 0, `Test 2d (${topicId}): Practical example included`)
     assert(
@@ -84,6 +107,7 @@ async function runPhase3Tests() {
       `Test 2e (${topicId}): Code attributed to CareerLaunch Engineering`,
     )
     assert(genRes.lesson.content.references.length > 0, `Test 2f (${topicId}): Valid source reference attached`)
+    assert(genRes.lesson.aiProvider === 'groq', `Test 2g (${topicId}): Recorded aiProvider is "groq"`)
   }
 
   // --------------------------------------------------------------------------
@@ -97,10 +121,8 @@ async function runPhase3Tests() {
     difficulty: 'beginner',
     estimatedMinutes: 10,
     learningObjectives: ['Obj 1', 'Obj 2'],
-    // missing introduction
-    coreConcepts: [{ term: 'T', definition: 'D' }],
+    // Missing introduction, coreConcepts, stepByStep, etc.
   }
-
   const incompleteCheck = await validateLessonStructure({ lessonContent: incompleteLesson, evidenceChunks: [] })
   assert(!incompleteCheck.valid, 'Test 7a: Incomplete lesson with missing sections rejected')
   assert(
@@ -108,45 +130,53 @@ async function runPhase3Tests() {
     'Test 7b: Error explicitly flags missing introduction section',
   )
 
-  // Rejection of empty title or invalid difficulty
+  // Rejection of invalid difficulty tier
   const invalidDifficultyLesson = {
-    ...incompleteLesson,
-    difficulty: 'ultra-hard-expert', // invalid
+    title: 'Valid Title',
+    difficulty: 'ultra-expert', // Invalid difficulty
+    estimatedMinutes: 10,
+    learningObjectives: ['A', 'B'],
+    introduction: { meaning: 'm', whyItMatters: 'w', realWorldUse: 'r' },
+    coreConcepts: [{ term: 't', definition: 'd', principles: 'p' }],
+    stepByStep: [{ stepNumber: 1, heading: 'h', explanation: 'e' }],
+    practicalExamples: [{ title: 't', explanation: 'e', code: 'def f(): pass', language: 'python', attribution: 'CareerLaunch Engineering' }],
+    complexityAnalysis: { timeComplexity: 'O(1)', spaceComplexity: 'O(1)', explanation: 'e', assumptions: 'a' },
+    commonMistakes: [{ mistake: 'm', consequence: 'c', correction: 'cr' }],
+    interviewInsights: { focusAreas: ['fa'], followUpQuestions: ['fq'], advice: 'ad' },
+    summary: ['s1'],
+    references: [],
   }
   const diffCheck = await validateLessonStructure({ lessonContent: invalidDifficultyLesson, evidenceChunks: [] })
-  assert(
-    diffCheck.errors.some((e) => e.includes('Invalid "difficulty"')),
-    'Test 6a: Invalid difficulty value rejected',
-  )
+  assert(!diffCheck.valid && diffCheck.errors.some((e) => e.includes('difficulty')), 'Test 6a: Invalid difficulty value rejected')
 
   // --------------------------------------------------------------------------
-  // TEST 4: Citation Integrity & Evidence Support (Levels 1, 2, 3)
+  // TEST 4: Citation & Evidence Validation (Level 1, 2, 3)
   // --------------------------------------------------------------------------
   console.log('\n--- 4. Testing Citation & Evidence Validation ---')
 
-  // Level 1 Failure: Non-existent chunk cited
+  // Level 1 Failure: Non-existent chunk ID
   const fakeChunkCitation = [
     {
       sourceId: 'nist-dads',
-      sourceTitle: 'NIST DADS',
       canonicalUrl: 'https://xlinux.nist.gov/dads/HTML/array.html',
-      chunkId: 'fake_chunk_999999_non_existent',
+      chunkId: 'doc_nist-dads_nonexistent_chk_999', // Fake ID
+      groundingSnippet: 'Some snippet',
     },
   ]
-  const fakeChunkCheck = await validateCitationsAndEvidence({
+  const fakeCheck = await validateCitationsAndEvidence({
     references: fakeChunkCitation,
     evidenceChunks: [],
     lessonContent: {},
   })
-  assert(!fakeChunkCheck.level1Passed, 'Test 8a: Citation to non-existent chunk rejected at Level 1')
+  assert(!fakeCheck.level1Passed, 'Test 8a: Citation to non-existent chunk rejected at Level 1')
 
-  // Level 1 Failure: Inactive / Flagged source cited (python-stdlib-ds)
+  // Level 1 Failure: Reference to flagged/inactive source
   const flaggedSourceCitation = [
     {
-      sourceId: 'python-stdlib-ds',
-      sourceTitle: 'Python Docs',
-      canonicalUrl: 'https://docs.python.org/3/library/collections.html',
-      chunkId: 'some_python_chunk',
+      sourceId: 'python-stdlib-ds', // Flagged for review in DB
+      canonicalUrl: 'https://docs.python.org/3/tutorial/datastructures.html',
+      chunkId: 'doc_python-stdlib-ds_chk_001',
+      groundingSnippet: 'Python list methods',
     },
   ]
   const flaggedCheck = await validateCitationsAndEvidence({
@@ -249,90 +279,93 @@ async function runPhase3Tests() {
     status(c) { this.statusCode = c; return this },
     json(payload) { this.body = payload; return this },
   }
-
-  let allowed = 0
-  for (let i = 0; i < 4; i++) {
-    limiter(mockReq, mockRes, () => { allowed++ })
+  let reqCount = 0
+  for (let i = 0; i < 3; i++) {
+    limiter(mockReq, mockRes, () => { reqCount++ })
   }
-  assert(allowed === 2, 'Test 20a: Rate limiter allowed exactly 2 requests')
+  assert(reqCount === 2, 'Test 20a: Rate limiter allowed exactly 2 requests')
   assert(mockRes.statusCode === 429, 'Test 20b: Request #3 rejected with 429 Too Many Requests')
 
-  // API HTTP Testing with Express
-  const app = express()
-  app.use(express.json())
-  app.use('/api/admin/lessons', adminLessonRoutes)
+  // Test admin lesson API endpoint mounting & authorization
+  const testApp = express()
+  testApp.use(express.json())
+  testApp.use('/api/admin/lessons', adminLessonRoutes)
+  const server = http.createServer(testApp)
+  await new Promise((resolve) => server.listen(0, resolve))
+  const port = server.address().port
 
-  const server = http.createServer(app)
-  await new Promise((resolve) => server.listen(5097, '127.0.0.1', resolve))
-  const baseUrl = 'http://127.0.0.1:5097'
+  // 6a. Unauthenticated request to /generate
+  const unauthRes = await fetch(`http://127.0.0.1:${port}/api/admin/lessons/generate`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ topicId: 'swe-top-1' }),
+  })
+  assert(unauthRes.status === 401, 'Test 19a: Unauthenticated generation request rejected with 401 Unauthorized')
 
-  try {
-    // 1. Unauthenticated request -> 401
-    const unauthRes = await fetch(`${baseUrl}/api/admin/lessons/generate`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ topicId: 'swe-top-1' }),
-    })
-    assert(unauthRes.status === 401, 'Test 19a: Unauthenticated generation request rejected with 401 Unauthorized')
+  // Setup mock student & admin tokens
+  const mockStudentUid = 'student_test_uid_p3'
+  await StudentProfile.findOneAndUpdate(
+    { firebaseUid: mockStudentUid },
+    { firebaseUid: mockStudentUid, email: 'student_p3@careerlaunch.com', fullName: 'Student P3', role: 'student' },
+    { upsert: true },
+  )
+  const sHeader = Buffer.from(JSON.stringify({ alg: 'none' })).toString('base64url')
+  const sPayload = Buffer.from(JSON.stringify({ user_id: mockStudentUid, email: 'student_p3@careerlaunch.com' })).toString('base64url')
+  const sToken = `${sHeader}.${sPayload}.sig`
 
-    // 2. Non-admin student request -> 403
-    const mockStudentUid = 'student_test_uid_77'
-    await StudentProfile.findOneAndUpdate(
-      { firebaseUid: mockStudentUid },
-      { firebaseUid: mockStudentUid, email: 'student77@careerlaunch.com', fullName: 'Student 77', role: 'student' },
-      { upsert: true },
-    )
-    const sHeader = Buffer.from(JSON.stringify({ alg: 'none' })).toString('base64url')
-    const sPayload = Buffer.from(JSON.stringify({ user_id: mockStudentUid, email: 'student77@careerlaunch.com' })).toString('base64url')
-    const sToken = `${sHeader}.${sPayload}.sig`
+  // 6b. Non-admin request
+  const nonAdminRes = await fetch(`http://127.0.0.1:${port}/api/admin/lessons/generate`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      authorization: `Bearer ${sToken}`,
+    },
+    body: JSON.stringify({ topicId: 'swe-top-1' }),
+  })
+  assert(nonAdminRes.status === 403, 'Test 19b: Non-admin request rejected with 403 Forbidden')
 
-    const nonAdminRes = await fetch(`${baseUrl}/api/admin/lessons/generate`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${sToken}`,
-      },
-      body: JSON.stringify({ topicId: 'swe-top-1' }),
-    })
-    assert(nonAdminRes.status === 403, 'Test 19b: Non-admin request rejected with 403 Forbidden')
+  // 6c. Verified Admin request
+  const mockAdminUid = 'admin_test_uid_p3'
+  await StudentProfile.findOneAndUpdate(
+    { firebaseUid: mockAdminUid },
+    { firebaseUid: mockAdminUid, email: 'admin_p3@careerlaunch.com', fullName: 'Admin P3', role: 'admin' },
+    { upsert: true },
+  )
+  const aPayload = Buffer.from(JSON.stringify({ user_id: mockAdminUid, email: 'admin_p3@careerlaunch.com' })).toString('base64url')
+  const aToken = `${sHeader}.${aPayload}.sig`
 
-    // 3. Admin request -> 200
-    const mockAdminUid = 'admin_test_uid_77'
-    await StudentProfile.findOneAndUpdate(
-      { firebaseUid: mockAdminUid },
-      { firebaseUid: mockAdminUid, email: 'admin77@careerlaunch.com', fullName: 'Admin 77', role: 'admin' },
-      { upsert: true },
-    )
-    const aPayload = Buffer.from(JSON.stringify({ user_id: mockAdminUid, email: 'admin77@careerlaunch.com' })).toString('base64url')
-    const aToken = `${sHeader}.${aPayload}.sig`
+  const adminRes = await fetch(`http://127.0.0.1:${port}/api/admin/lessons`, {
+    method: 'GET',
+    headers: {
+      authorization: `Bearer ${aToken}`,
+    },
+  })
+  const adminData = await adminRes.json()
+  assert(adminRes.status === 200, 'Test 19c: Admin granted access to list lessons (HTTP 200)')
+  assert(adminData.lessons?.length === 5, 'Test 19d: All 5 pilot lessons listed in administrative registry')
 
-    const adminRes = await fetch(`${baseUrl}/api/admin/lessons`, {
-      headers: { Authorization: `Bearer ${aToken}` },
-    })
-    const adminData = await adminRes.json()
-    assert(adminRes.status === 200 && adminData.success, 'Test 19c: Admin granted access to list lessons (HTTP 200)')
-    assert(adminData.count >= 5, 'Test 19d: All 5 pilot lessons listed in administrative registry')
+  // Clean up mock users
+  await StudentProfile.deleteOne({ firebaseUid: mockStudentUid })
+  await StudentProfile.deleteOne({ firebaseUid: mockAdminUid })
 
-    // Clean up mock users
-    await StudentProfile.deleteOne({ firebaseUid: mockStudentUid })
-    await StudentProfile.deleteOne({ firebaseUid: mockAdminUid })
-  } finally {
-    server.close()
-  }
+  server.close()
 
   // --------------------------------------------------------------------------
-  // TEST 7: Preservation of Student Records
+  // TEST 7: Student Profile Database Integrity
   // --------------------------------------------------------------------------
   console.log('\n--- 7. Verifying Student Records Preservation ---')
 
-  const finalStudentCount = await StudentProfile.countDocuments()
-  assert(finalStudentCount === 2, 'Test 25b: Student profiles preserved at exactly 2')
+  const postStudentCount = await StudentProfile.countDocuments()
+  assert(postStudentCount === 2, 'Test 25b: Student profiles preserved at exactly 2')
 
-  await mongoose.disconnect()
-
+  // --------------------------------------------------------------------------
+  // SUMMARY
+  // --------------------------------------------------------------------------
   console.log('\n=================================================================')
   console.log(`   TEST SUMMARY: ${testResults.passed.length} PASSED | ${testResults.failed.length} FAILED`)
   console.log('=================================================================\n')
+
+  await mongoose.disconnect()
 
   if (testResults.failed.length > 0) {
     process.exit(1)

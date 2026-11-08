@@ -23,6 +23,18 @@ async function getAuthHeader() {
     }
   }
 
+  // Development/preview fallback from localStorage if not signed into Firebase in browser
+  if (!headers['Authorization'] && typeof window !== 'undefined' && window.localStorage) {
+    try {
+      const previewToken = window.localStorage.getItem('careerlaunch_preview_token')
+      if (previewToken) {
+        headers['Authorization'] = `Bearer ${previewToken}`
+      }
+    } catch {
+      // Ignore in non-browser context
+    }
+  }
+
   return headers
 }
 
@@ -103,6 +115,38 @@ export async function updateProfile(data) {
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({}))
     throw new Error(errorData.error || errorData.details || `HTTP error ${res.status}`)
+  }
+
+  return res.json()
+}
+
+
+/**
+ * Fetches the AI-generated technical lesson for a topic and role.
+ *
+ * @param {string} topicId - The unique ID of the technical topic (e.g. "swe-top-1")
+ * @param {string} [roleId='software-engineer'] - The specialization track ID
+ * @returns {Promise<{ success: boolean, available: boolean, lesson: object | null, message?: string }>}
+ */
+export async function fetchTopicLesson(topicId, roleId = 'software-engineer') {
+  const headers = await getAuthHeader()
+  const res = await fetch(`${API_BASE}/lessons/${encodeURIComponent(topicId)}?roleId=${encodeURIComponent(roleId)}`, {
+    headers,
+  })
+
+  if (res.status === 404) {
+    const errorData = await res.json().catch(() => ({}))
+    return {
+      success: false,
+      available: false,
+      lesson: null,
+      message: errorData.message || 'Learning content for this topic is not available yet.',
+    }
+  }
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}))
+    throw new Error(errorData.error || errorData.message || `Failed to fetch lesson (HTTP ${res.status})`)
   }
 
   return res.json()

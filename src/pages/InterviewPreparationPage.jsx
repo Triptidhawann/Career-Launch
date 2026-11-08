@@ -21,7 +21,13 @@ import {
 import { INTERVIEW_ROLES } from '@/data/interviewRoles'
 import { getRoadmapByRoleId, getTopicById } from '@/data/interviewRoadmaps'
 import { useAuth } from '@/hooks/useAuth'
-import { fetchProfile } from '@/lib/api'
+import { fetchProfile, fetchTopicLesson } from '@/lib/api'
+import {
+  LessonContentView,
+  LessonLoadingSkeleton,
+  LessonUnavailableState,
+  LessonErrorState,
+} from '@/components/interview/LessonContentView'
 import '@/styles/interview-preparation.css'
 
 export function InterviewPreparationPage() {
@@ -41,6 +47,63 @@ export function InterviewPreparationPage() {
   // URL route parameters
   const currentRoleId = params.roleId || null
   const currentTopicId = params.topicId || null
+
+  // AI-generated lesson state for current topic
+  const [lessonData, setLessonData] = useState(null)
+  const [lessonError, setLessonError] = useState(null)
+  const [lessonCheckedTopic, setLessonCheckedTopic] = useState(null)
+  const [manualLoading, setManualLoading] = useState(false)
+
+  const isLessonLoading = manualLoading || (Boolean(currentTopicId) && lessonCheckedTopic !== currentTopicId && !lessonError)
+
+  const handleRetryLesson = () => {
+    if (!currentTopicId) return
+    setManualLoading(true)
+    setLessonError(null)
+    fetchTopicLesson(currentTopicId, currentRoleId || 'software-engineer')
+      .then((res) => {
+        setLessonCheckedTopic(currentTopicId)
+        if (res && res.available && res.lesson) {
+          setLessonData(res.lesson)
+        } else {
+          setLessonData(null)
+        }
+      })
+      .catch((err) => {
+        setLessonError(err.message || 'Failed to load lesson')
+      })
+      .finally(() => {
+        setManualLoading(false)
+      })
+  }
+
+  useEffect(() => {
+    let isMounted = true
+
+    if (!currentTopicId) {
+      return
+    }
+
+    fetchTopicLesson(currentTopicId, currentRoleId || 'software-engineer')
+      .then((res) => {
+        if (!isMounted) return
+        setLessonCheckedTopic(currentTopicId)
+        if (res && res.available && res.lesson) {
+          setLessonData(res.lesson)
+        } else {
+          setLessonData(null)
+        }
+      })
+      .catch((err) => {
+        if (!isMounted) return
+        console.warn('Error loading lesson for topic:', err)
+        setLessonError(err.message || 'Failed to load lesson')
+      })
+
+    return () => {
+      isMounted = false
+    }
+  }, [currentTopicId, currentRoleId])
 
   // Fetch student profile for personalisation
   useEffect(() => {
@@ -557,20 +620,26 @@ export function InterviewPreparationPage() {
                     </section>
                   )}
 
-                  {/* Stage 2 Architecture Notice */}
-                  <div className="stage2-architecture-notice">
-                    <div className="stage2-notice-icon">
-                      <GraduationCap size={22} />
-                    </div>
-                    <div className="stage2-notice-content">
-                      <h4>Stage 2 Architecture: Milestone Specification Established</h4>
-                      <p>
-                        This topic is registered as a verified preparation milestone for the{' '}
-                        <strong>{roadmapData.roleTitle}</strong> curriculum. In Stage 3, in-depth interactive study modules,
-                        conceptual drill sets, and calibrated interview questions will be connected to this topic.
-                      </p>
-                    </div>
-                  </div>
+                  {/* Phase 4: Dynamic AI-Generated Lesson Section */}
+                  {isLessonLoading ? (
+                    <LessonLoadingSkeleton />
+                  ) : lessonError ? (
+                    <LessonErrorState
+                      error={lessonError}
+                      onRetry={handleRetryLesson}
+                    />
+                  ) : lessonData ? (
+                    <LessonContentView
+                      lesson={lessonData}
+                      roleTitle={roadmapData.roleTitle}
+                    />
+                  ) : (
+                    <LessonUnavailableState
+                      topicTitle={topicData.topic.title}
+                      roleTitle={roadmapData.roleTitle}
+                      onBack={() => navigate(`/interview-preparation/${currentRoleId}`)}
+                    />
+                  )}
 
                   {/* Action Buttons */}
                   <div className="topic-actions-row">

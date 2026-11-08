@@ -652,6 +652,11 @@ export function getAIProvider(providerId) {
   const targetId = providerId || AI_CONFIG.defaultProvider
   if (targetId === 'groq') {
     if (!process.env.GROQ_API_KEY) {
+      if (process.env.AI_GENERATION_ENABLED === 'true' || AI_CONFIG.generationEnabled) {
+        throw new Error(
+          'AI generation is enabled with provider "groq", but GROQ_API_KEY is missing from environment. Real generation cannot proceed and mock fallback is disallowed.',
+        )
+      }
       console.warn('[AIProvider] GROQ_API_KEY not configured. Falling back to MockGroqProvider for offline verification.')
       return new MockGroqProvider()
     }

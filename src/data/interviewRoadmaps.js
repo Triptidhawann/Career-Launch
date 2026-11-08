@@ -2152,10 +2152,115 @@ export function getRoadmapByRoleId(roleId) {
  * @param {string} topicId
  * @returns {{ role: object, level: object, module: object, topic: object } | null}
  */
+// Canonical Pilot Topic Definitions & Mappings for Software Engineer track
+export const CANONICAL_PILOT_TOPIC_SPECS = {
+  'swe-top-1': {
+    id: 'swe-top-1',
+    title: 'Arrays and Two-Pointer Scanning Mechanics',
+    description: 'In-place array manipulations, two-pointer scanning, convergent pointers, and sliding window mechanics.',
+    keyConcepts: ['Two-Pointer Traversal', 'In-Place Partitioning', 'Sliding Window', 'Prefix Sums'],
+    objectives: [
+      'Master two-pointer convergent scanning on linear contiguous arrays.',
+      'Implement in-place array partitioning with optimal O(1) auxiliary space.',
+    ],
+    estimatedHours: '6 Hours',
+    levelId: 'beginner',
+    moduleId: 'se-mod-2',
+  },
+  'swe-top-4': {
+    id: 'swe-top-4',
+    title: 'Binary Search Mechanics and Interval Bisection',
+    description: 'Logarithmic search mechanics, midpoint calculation invariants, search range bisection, and boundary conditions.',
+    keyConcepts: ['Interval Bisection', 'Midpoint Calculation', 'Sorted Array Invariants', 'Logarithmic Complexity'],
+    objectives: [
+      'Implement binary search over monotonic sequences without integer overflow.',
+      'Analyze discrete interval bisection across continuous and integer spaces.',
+    ],
+    estimatedHours: '6 Hours',
+    levelId: 'beginner',
+    moduleId: 'se-mod-2',
+  },
+  'swe-top-7': {
+    id: 'swe-top-7',
+    title: 'Binary Search Trees, Invariants and Balancing',
+    description: 'Binary search tree ordering invariants, search, insertion, node deletion, and tree balancing fundamentals.',
+    keyConcepts: ['BST Invariants', 'Inorder Successor Deletion', 'Tree Balancing', 'Traversal Mechanics'],
+    objectives: [
+      'Verify binary search tree invariants across arbitrary node structures.',
+      'Perform three-case node deletion while preserving invariant subtree ordering.',
+    ],
+    estimatedHours: '8 Hours',
+    levelId: 'intermediate',
+    moduleId: 'se-mod-3',
+  },
+  'swe-top-9': {
+    id: 'swe-top-9',
+    title: 'Graph Traversals: BFS, DFS and Cycle Detection',
+    description: 'Breadth-first search, depth-first search, graph representations, and cycle detection in directed/undirected graphs.',
+    keyConcepts: ['Adjacency Lists', 'BFS Queue Mechanics', 'DFS Recursion/Stack', 'Three-Color Cycle Detection'],
+    objectives: [
+      'Execute BFS and DFS traversals across connected and disconnected graphs.',
+      'Detect cycles in directed and undirected graphs with optimal time complexity.',
+    ],
+    estimatedHours: '8 Hours',
+    levelId: 'intermediate',
+    moduleId: 'se-mod-4',
+  },
+  'swe-top-13': {
+    id: 'swe-top-13',
+    title: 'Dynamic Programming: Optimal Substructure and Memoization',
+    description: 'Optimal substructure, overlapping subproblems, memoization vs tabulation, and state transition formulation.',
+    keyConcepts: ['Optimal Substructure', 'Overlapping Subproblems', 'Memoization (Top-Down)', 'Tabulation (Bottom-Up)'],
+    objectives: [
+      'Formulate recurrence relations and identify state dimensions for dynamic programs.',
+      'Transform exponential brute-force recursions into polynomial time solutions.',
+    ],
+    estimatedHours: '8 Hours',
+    levelId: 'intermediate',
+    moduleId: 'se-mod-5',
+  },
+}
+
+export const ROADMAP_TO_CANONICAL_PILOT_MAP = {
+  'se-top-3': 'swe-top-1',
+  'se-top-7': 'swe-top-7',
+  'se-top-9': 'swe-top-9',
+  'se-top-12': 'swe-top-13',
+}
+
+/**
+ * Retrieves a specific topic by role ID and topic ID.
+ * Supports canonical pilot topic IDs (swe-top-*) as well as roadmap topic IDs (se-top-*).
+ *
+ * @param {string} roleId
+ * @param {string} topicId
+ * @returns {{ role: object, level: object, module: object, topic: object } | null}
+ */
 export function getTopicById(roleId, topicId) {
   const roadmap = getRoadmapByRoleId(roleId)
   if (!roadmap || !topicId) return null
 
+  // 1. Direct match in canonical pilot topics specification
+  if (roleId === 'software-engineer' && CANONICAL_PILOT_TOPIC_SPECS[topicId]) {
+    const spec = CANONICAL_PILOT_TOPIC_SPECS[topicId]
+    const level = roadmap.levels.find((l) => l.id === spec.levelId) || roadmap.levels[0]
+    const module = level.modules.find((m) => m.id === spec.moduleId) || level.modules[0]
+    return {
+      role: roadmap,
+      level,
+      module,
+      topic: {
+        id: spec.id,
+        title: spec.title,
+        description: spec.description,
+        keyConcepts: spec.keyConcepts,
+        objectives: spec.objectives,
+        estimatedHours: spec.estimatedHours,
+      },
+    }
+  }
+
+  // 2. Direct match across roadmap structure
   for (const level of roadmap.levels) {
     for (const mod of level.modules) {
       const topic = mod.topics.find((t) => t.id === topicId)

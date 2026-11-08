@@ -1,15 +1,18 @@
+import dotenv from 'dotenv'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+dotenv.config({ path: path.resolve(__dirname, '../../../.env') })
+dotenv.config()
+
 /**
  * AI Service Configuration & Model Registry (Phase 3: Groq)
  *
  * Groq Official Specifications (Verified 2026):
- * - Production Model: llama-3.3-70b-versatile
- * - Parameters: 70B
- * - Context Window: 131,072 tokens (128k)
- * - Max Completion: 32,768 tokens
- * - Speed: ~280 tokens/sec
- * - Pricing: ~$0.59 / 1M input tokens, ~$0.79 / 1M output tokens
- * - Structured Output: Native JSON Object Mode & JSON Schema enforcement
- * - Alternate Instant Model: llama-3.1-8b-instant (~$0.05 / 1M input, ~$0.08 / 1M output)
+ * - Primary Available Reasoning Model: openai/gpt-oss-120b (128k context, JSON Object Mode)
+ * - Primary Available Fast Model: openai/gpt-oss-20b (128k context, JSON Object Mode)
+ * - Configured Default Model: process.env.GROQ_MODEL
  */
 
 export const AI_CONFIG = {
@@ -19,14 +22,18 @@ export const AI_CONFIG = {
 
   groq: {
     baseUrl: 'https://api.groq.com/openai/v1/chat/completions',
-    defaultModel: process.env.GROQ_MODEL || 'llama-3.3-70b-versatile',
-    fallbackModel: 'llama-3.1-8b-instant',
+    defaultModel: process.env.GROQ_MODEL || 'openai/gpt-oss-120b',
+    fallbackModel: 'openai/gpt-oss-20b',
     temperature: 0.2, // Low temperature for high factual adherence to retrieved evidence
     maxTokens: 4096,
-    timeoutMs: 30000, // 30-second provider timeout
+    timeoutMs: 45000, // 45-second provider timeout for large reasoning models
     maxRetries: 3,
-    retryDelayMs: 1000,
+    retryDelayMs: 1500,
     pricing: {
+      'openai/gpt-oss-120b': {
+        inputPerMillion: 0.59,
+        outputPerMillion: 0.79,
+      },
       'llama-3.3-70b-versatile': {
         inputPerMillion: 0.59,
         outputPerMillion: 0.79,
@@ -76,7 +83,62 @@ CRITICAL INSTRUCTIONS & GROUNDING RULES:
    - If evidence is insufficient for any specific point, state the limitation transparently. Do not fabricate facts.
 
 OUTPUT FORMAT:
-You MUST respond with a single valid JSON object strictly adhering to the specified schema. Do NOT wrap with markdown fences or include commentary outside the JSON.`
+You MUST respond with a single valid JSON object strictly containing all 13 of the following keys:
+{
+  "title": string,
+  "difficulty": "beginner" | "intermediate" | "advanced",
+  "estimatedMinutes": number,
+  "learningObjectives": string[] (at least 2 items),
+  "introduction": {
+    "meaning": string,
+    "whyItMatters": string,
+    "realWorldUse": string
+  },
+  "coreConcepts": [
+    { "term": string, "definition": string, "principles": string }
+  ],
+  "stepByStep": [
+    { "stepNumber": number, "heading": string, "explanation": string }
+  ],
+  "practicalExamples": [
+    {
+      "title": string,
+      "explanation": string,
+      "input": string,
+      "output": string,
+      "code": string,
+      "language": "python",
+      "attribution": "CareerLaunch Engineering"
+    }
+  ],
+  "complexityAnalysis": {
+    "timeComplexity": string,
+    "spaceComplexity": string,
+    "explanation": string,
+    "assumptions": string
+  },
+  "commonMistakes": [
+    { "mistake": string, "consequence": string, "correction": string }
+  ],
+  "interviewInsights": {
+    "focusAreas": string[],
+    "followUpQuestions": string[],
+    "advice": string
+  },
+  "summary": string[],
+  "references": [
+    {
+      "sourceId": string,
+      "sourceTitle": string,
+      "canonicalUrl": string,
+      "section": string,
+      "chunkId": string,
+      "groundingSnippet": string
+    }
+  ]
+}
+
+Do NOT wrap with markdown fences or include commentary outside the JSON.`
 
 /**
  * JSON Schema definition for validated CareerLaunch lessons.
