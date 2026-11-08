@@ -1,7 +1,7 @@
-# CAREERLAUNCH — PHASE 5.0.1: TRUSTED KNOWLEDGE FOUNDATION & SOFTWARE ENGINEER EXPANSION PLAN
+# CAREERLAUNCH — PHASE 5.0.2: FINAL KNOWLEDGE AUDIT & SOURCE COVERAGE VALIDATION
 
 **Audit Date**: `2026-11-08`  
-**Revision**: `Phase 5.0.1 (Refined Audit & Phased SWE Expansion Specification)`  
+**Revision**: `Phase 5.0.2 (Authoritative Topic Mapping, Source Coverage & Grounding Rules)`  
 **Status**: `RESEARCH & AUDIT ONLY — STRICTLY ZERO IMPLEMENTATION / ZERO INGESTION`  
 **Governing Standard**: Production Knowledge Ingestion, Verification, and Commercial Licensing Compliance Standard  
 
@@ -9,20 +9,16 @@
 
 ## 1. Executive Summary
 
-This refined audit establishes the formal knowledge foundation, commercial licensing governance, and Software Engineer expansion roadmap for CareerLaunch. CareerLaunch currently maintains eight technical role roadmaps comprising 56 modules and 118 learning topics. 
+This final audit completes Phase 5.0.2 by establishing the authoritative identity mapping, rigorous source coverage validation, and strict grounding/citation rules for CareerLaunch prior to Phase 5.1 generation. CareerLaunch maintains eight technical role roadmaps comprising 56 modules and 118 learning topics. 
 
 To date, exactly five pilot topics in the **Software Engineer** roadmap have been generated using the Groq API (`openai/gpt-oss-120b`), verified through a three-level evidence-grounding validator, and rendered on student-facing pages. All five pilot lessons are strictly grounded in public domain U.S. Government works from the **National Institute of Standards and Technology (NIST) Dictionary of Algorithms and Data Structures (DADS)**.
 
-### Key Refinements in Phase 5.0.1
-1. **Curriculum Reconciliation**: The Software Engineer curriculum contains exactly **18 topics** across 7 modules. Exactly 5 topics are active pilot lessons (`se-top-3`/`swe-top-1`, `swe-top-4`, `se-top-7`/`swe-top-7`, `se-top-9`/`swe-top-9`, `se-top-12`/`swe-top-13`), and exactly **13 topics** are pending generation. Historical alias mappings between `se-top-*` and `swe-top-*` are fully verified and documented.
-2. **Phase 5.1 Sole Focus on Software Engineer**: The first expansion will focus **exclusively on the 13 remaining Software Engineer topics**. Frontend, Backend, DevOps, Data Analyst, Data Scientist, Full Stack, and Mobile roles are excluded from Phase 5.1 and scheduled for subsequent phases.
-3. **Phased Batch Structure (3–5 Topics/Batch)**: The 13 remaining SWE topics are partitioned into three logically sequenced batches based on placement interview frequency, technical dependencies, and approved public domain NIST / Linux man-page availability:
-   - **Batch 1 (Core Data Structures & Complexity)**: 4 topics (`se-top-2`, `se-top-4`, `se-top-5`, `se-top-6`)
-   - **Batch 2 (Advanced Algorithms, Graphs & Memory)**: 4 topics (`se-top-8`, `se-top-10`, `se-top-11`, `se-top-1`)
-   - **Batch 3 (Operating Systems, Networking & Systems Design)**: 5 topics (`se-top-13`, `se-top-14`, `se-top-15`, `se-top-16`, `se-top-17`)
-4. **Conditional Classification for CC BY-SA Sources**: **MDN Web Docs**, **Docker Documentation**, and **OWASP Projects** are classified as **CONDITIONAL** and kept out of the default approved production registry. Because CC BY-SA contains a ShareAlike copyleft provision, formal legal review is required to determine whether AI-synthesized lesson summaries constitute "Adapted Material" that would mandate open-licensing of the entire generated lesson.
-5. **MongoDB Knowledge Sourcing Strategy**: Clarified that **PostgreSQL JSONB is NOT a replacement for MongoDB**. The strategy separates general document database theory, JSON standards, PostgreSQL JSONB implementations, and MongoDB-specific operational mechanics. MongoDB official documentation remains **REJECTED** due to its CC BY-NC-SA 3.0 (NonCommercial) license; vendor-specific topics will be supported via open Apache 2.0 driver specifications and CareerLaunch-authored exemplars.
-6. **Mobile Knowledge Sourcing Strategy**: The mobile curriculum is partitioned into **Swift Language Fundamentals** (Swift.org under Apache 2.0 — Approved), **iOS Platform Development** (Apple Developer Docs — Rejected/Excluded as Proprietary), **Android Development** (AOSP under CC-BY 4.0 / Apache 2.0 — Approved), and **Cross-Platform Development** (React Native / Flutter — Approved).
+### Key Deliverables in Phase 5.0.2
+1. **Authoritative 18-Topic Mapping Table**: One unified, definitive mapping table covering all 18 Software Engineer topics across 7 modules. Explicitly documents Roadmap Topic ID, Exact Topic Title, Canonical Topic ID, Existing Lesson ID in MongoDB, Availability Status, and Duplicate/Collision risk assessment.
+2. **Unambiguous Lesson ID Convention for 13 Remaining Topics**: Standardizes future lesson IDs as `lesson_software-engineer_${roadmapTopicId}_${difficulty}`. Confirms 100% collision-free uniqueness with existing pilot lessons (`se-top-4` vs `swe-top-4` and `se-top-13` vs `swe-top-13` are completely distinct strings).
+3. **Deep Source Coverage & Gap Validation for the 13 Remaining Topics**: Rigorous concept-by-concept analysis of approved sources across all 13 pending topics. Explicitly details concepts directly supported, concepts unaddressed, additional required sources, and required CareerLaunch-authored components (especially for Memory Architecture, Big-O, Concurrency, Networking, Design Patterns, and System Design).
+4. **Formal Grounding and Citation Verification Rules**: Establishes 5 binding rules: strict separation of external claims from platform prose, prohibition of false code attribution (100% original code attributed to CareerLaunch Engineering), zero tolerance for hallucinated citations, explicit labeling of ungrounded pedagogical points, and continued exclusion of conditional CC BY-SA sources.
+5. **Phase 5.1 Software Engineer Phased Batches**: Confirmed 3-batch sequence (Batch 1: 4 topics; Batch 2: 4 topics; Batch 3: 5 topics) focusing exclusively on completing the Software Engineer track.
 
 ---
 
@@ -76,6 +72,80 @@ const ROADMAP_TO_CANONICAL_PILOT_MAP = {
 1. **`swe-top-4`** was inserted directly into the roadmap with its canonical pilot ID.
 2. The remaining four pilot lessons (`swe-top-1`, `swe-top-7`, `swe-top-9`, `swe-top-13`) correspond to roadmap IDs `se-top-3`, `se-top-7`, `se-top-9`, and `se-top-12`.
 3. In Phase 5.1, all 13 remaining topics will be authored using their canonical roadmap IDs (`se-top-1`, `se-top-2`, `se-top-4`, `se-top-5`, `se-top-6`, `se-top-8`, `se-top-10`, `se-top-11`, `se-top-13`, `se-top-14`, `se-top-15`, `se-top-16`, `se-top-17`) to eliminate aliasing overhead.
+
+---
+
+### 2.3 Authoritative 18-Topic Identity & Mapping Table
+
+This authoritative table cross-references all 18 Software Engineer topics across [`src/data/interviewRoadmaps.js`](file:///c:/Users/Tripti%20Dhawan/OneDrive/Desktop/CareerLaunch/src/data/interviewRoadmaps.js), [`server/src/controllers/lessonController.js`](file:///c:/Users/Tripti%20Dhawan/OneDrive/Desktop/CareerLaunch/server/src/controllers/lessonController.js), and the active MongoDB `generatedlessons` collection on port 27018.
+
+| # | Roadmap Topic ID | Exact Topic Title | Canonical Topic ID | Existing Lesson ID (MongoDB) | Availability Status | Mapping Type | Duplicate / Collision Risk |
+| :-: | :--- | :--- | :--- | :--- | :---: | :---: | :--- |
+| **1** | `se-top-1` | Memory Architecture: Stack, Heap & Pointers | `se-top-1` | *None* | `Unavailable` | 1-to-1 Direct | **None** (Unique `se-top-1` key; no alias needed) |
+| **2** | `se-top-2` | Asymptotic Analysis & Big-O Notation | `se-top-2` | *None* | `Unavailable` | 1-to-1 Direct | **None** (Unique `se-top-2` key; no alias needed) |
+| **3** | `se-top-3` | Arrays, Strings & Two-Pointer Strategies | `swe-top-1` | `lesson_software-engineer_swe-top-1_beginner` | **`Available`** | Preserved Alias | **None** (Explicit 1:1 map `se-top-3` -> `swe-top-1`; preserved) |
+| **4** | `swe-top-4` | Binary Search Mechanics and Interval Bisection | `swe-top-4` | `lesson_software-engineer_swe-top-4_beginner` | **`Available`** | 1-to-1 Canonical | **None** (Direct pilot key; distinct prefix from `se-top-4`) |
+| **5** | `se-top-4` | Linked Lists: Singly, Doubly & Circular | `se-top-4` | *None* | `Unavailable` | 1-to-1 Direct | **None** (`se-top-4` != `swe-top-4`; separate namespaces) |
+| **6** | `se-top-5` | Stacks, Queues & Monotonic Variants | `se-top-5` | *None* | `Unavailable` | 1-to-1 Direct | **None** (Unique `se-top-5` key; no alias needed) |
+| **7** | `se-top-6` | Binary Trees & Traversal Algorithms | `se-top-6` | *None* | `Unavailable` | 1-to-1 Direct | **None** (Unique `se-top-6` key; no alias needed) |
+| **8** | `se-top-7` | Binary Search Trees & Balanced Trees | `swe-top-7` | `lesson_software-engineer_swe-top-7_intermediate` | **`Available`** | Preserved Alias | **None** (Explicit 1:1 map `se-top-7` -> `swe-top-7`; preserved) |
+| **9** | `se-top-8` | Heaps & Priority Queues | `se-top-8` | *None* | `Unavailable` | 1-to-1 Direct | **None** (Unique `se-top-8` key; no alias needed) |
+| **10**| `se-top-9` | Graph Representations, BFS & DFS | `swe-top-9` | `lesson_software-engineer_swe-top-9_intermediate` | **`Available`** | Preserved Alias | **None** (Explicit 1:1 map `se-top-9` -> `swe-top-9`; preserved) |
+| **11**| `se-top-10`| Topological Sort & Shortest Paths | `se-top-10` | *None* | `Unavailable` | 1-to-1 Direct | **None** (Unique `se-top-10` key; no alias needed) |
+| **12**| `se-top-11`| Recursion & Backtracking Strategies | `se-top-11` | *None* | `Unavailable` | 1-to-1 Direct | **None** (Unique `se-top-11` key; no alias needed) |
+| **13**| `se-top-12`| Dynamic Programming: 1D & 2D Tabulation | `swe-top-13` | `lesson_software-engineer_swe-top-13_advanced` | **`Available`** | Preserved Alias | **None** (Explicit 1:1 map `se-top-12` -> `swe-top-13`; preserved) |
+| **14**| `se-top-13`| Processes, Threads & Synchronization | `se-top-13` | *None* | `Unavailable` | 1-to-1 Direct | **None** (`se-top-13` != `swe-top-13`; separate namespaces) |
+| **15**| `se-top-14`| Virtual Memory, Paging & Storage | `se-top-14` | *None* | `Unavailable` | 1-to-1 Direct | **None** (Unique `se-top-14` key; no alias needed) |
+| **16**| `se-top-15`| Computer Networking: OSI, TCP/IP & HTTP | `se-top-15` | *None* | `Unavailable` | 1-to-1 Direct | **None** (Unique `se-top-15` key; no alias needed) |
+| **17**| `se-top-16`| Object-Oriented Design Patterns (GoF) | `se-top-16` | *None* | `Unavailable` | 1-to-1 Direct | **None** (Unique `se-top-16` key; no alias needed) |
+| **18**| `se-top-17`| High-Level System Design & Scalability | `se-top-17` | *None* | `Unavailable` | 1-to-1 Direct | **None** (Unique `se-top-17` key; no alias needed) |
+
+---
+
+### 2.4 Unambiguous Lesson ID Convention for the 13 Remaining Topics
+
+To maintain database integrity and guarantee backward compatibility, the lesson ID convention follows the established generator format:
+
+```text
+lesson_${roleId}_${topicId}_${difficulty}
+```
+
+#### Established Pilot Lesson IDs (Preserved — Never Renamed or Regenerated)
+- `swe-top-1` (Beginner): `lesson_software-engineer_swe-top-1_beginner`
+- `swe-top-4` (Beginner): `lesson_software-engineer_swe-top-4_beginner`
+- `swe-top-7` (Intermediate): `lesson_software-engineer_swe-top-7_intermediate`
+- `swe-top-9` (Intermediate): `lesson_software-engineer_swe-top-9_intermediate`
+- `swe-top-13` (Advanced): `lesson_software-engineer_swe-top-13_advanced`
+
+#### Designated Lesson IDs for the 13 Remaining Topics (Phase 5.1 Generation)
+For all 13 pending topics, the canonical `topicId` will match the roadmap topic ID exactly (`se-top-*`):
+
+1. `se-top-2` (Beginner, Batch 1): `lesson_software-engineer_se-top-2_beginner`
+2. `se-top-4` (Beginner, Batch 1): `lesson_software-engineer_se-top-4_beginner`
+3. `se-top-5` (Beginner, Batch 1): `lesson_software-engineer_se-top-5_beginner`
+4. `se-top-6` (Intermediate, Batch 1): `lesson_software-engineer_se-top-6_intermediate`
+5. `se-top-8` (Intermediate, Batch 2): `lesson_software-engineer_se-top-8_intermediate`
+6. `se-top-10` (Intermediate, Batch 2): `lesson_software-engineer_se-top-10_intermediate`
+7. `se-top-11` (Intermediate, Batch 2): `lesson_software-engineer_se-top-11_intermediate`
+8. `se-top-1` (Beginner, Batch 2): `lesson_software-engineer_se-top-1_beginner`
+9. `se-top-13` (Advanced, Batch 3): `lesson_software-engineer_se-top-13_advanced`
+10. `se-top-14` (Advanced, Batch 3): `lesson_software-engineer_se-top-14_advanced`
+11. `se-top-15` (Advanced, Batch 3): `lesson_software-engineer_se-top-15_advanced`
+12. `se-top-16` (Advanced, Batch 3): `lesson_software-engineer_se-top-16_advanced`
+13. `se-top-17` (Advanced, Batch 3): `lesson_software-engineer_se-top-17_advanced`
+
+#### Duplicate & Collision Proof Analysis
+1. **Disjoint Namespaces**: The five pilot lessons use the prefix `swe-top-` (`swe-top-1`, `swe-top-4`, `swe-top-7`, `swe-top-9`, `swe-top-13`), whereas the remaining topics use `se-top-` (`se-top-1` through `se-top-17`).
+2. **Specific Disambiguation for `se-top-4` vs `swe-top-4`**:
+   - `swe-top-4` is the active pilot lesson on *Binary Search* (`lesson_software-engineer_swe-top-4_beginner`).
+   - `se-top-4` is the pending Batch 1 lesson on *Linked Lists* (`lesson_software-engineer_se-top-4_beginner`).
+   - In MongoDB, `topicId: 'swe-top-4'` and `topicId: 'se-top-4'` are distinct keys.
+   - In `ROADMAP_TO_CANONICAL_PILOT_MAP`, `swe-top-4` maps to `'swe-top-4'`, while `se-top-4` has no entry and evaluates directly to `'se-top-4'`. There is **zero possibility of collision or overwrite**.
+3. **Specific Disambiguation for `se-top-13` vs `swe-top-13`**:
+   - `swe-top-13` is the active pilot lesson on *Dynamic Programming* (`lesson_software-engineer_swe-top-13_advanced`).
+   - `se-top-13` is the pending Batch 3 lesson on *Processes, Threads & Synchronization* (`lesson_software-engineer_se-top-13_advanced`).
+   - `ROADMAP_TO_CANONICAL_PILOT_MAP` maps `se-top-12` -> `swe-top-13`. It contains no entry for `se-top-13`, which evaluates directly to `'se-top-13'`. There is **zero possibility of collision or overwrite**.
+4. **Deterministic Invariant**: Every roadmap topic resolves to a unique, deterministic, non-colliding canonical lesson ID.
 
 ---
 
@@ -192,6 +262,128 @@ The 13 topics were prioritized using a weighted index across five criteria:
     - *Interview Relevance*: Mid-to-senior SWE interview requirement. Load balancing, database sharding, caching strategies, CAP theorem.
     - *Source*: PostgreSQL High-Availability Documentation + Linux Man-Pages — PostgreSQL License / Permissive.
     - *Ingestion Effort*: High. Distributed architecture trade-offs.
+
+---
+
+### 4.3 Deep Source Coverage & Gap Validation for All 13 Remaining Topics
+
+A source cannot be treated as comprehensive merely because it is technically relevant. To prevent hallucinated citations and ensure curriculum rigor, this audit validates exactly what each approved source covers, where gaps exist, and which components must be authored by CareerLaunch Engineering.
+
+#### 4.3.0 Source Coverage Summary Matrix
+
+| Topic ID | Topic Title | Primary Approved Source & Canonical URL | Concepts Directly Supported | Key Concepts NOT Covered (Gaps) | Additional Approved Sources Required | CareerLaunch-Authored Content Required |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **`se-top-2`** | Asymptotic Analysis & Big-O Notation | NIST DADS (`bigO.html`, `bigOmega.html`, `bigTheta.html`) | Formal math definitions: $O, \Omega, \Theta$; complexity hierarchies ($O(1)$ to $O(2^n)$) | Amortized array doubling, auxiliary vs input space, recursive call stack space, benchmarking | Python Docs (`sys.getsizeof`, list resizing overview) | Amortized dynamic array accounting trace, string concatenation benchmark ($O(N)$ vs $O(N^2)$) |
+| **`se-top-4`** | Linked Lists: Singly, Doubly & Circular | NIST DADS (`linkedList.html`, `doublyLinkedList.html`, `circularList.html`) | Pointer node topologies, head/tail insertion and deletion complexities | In-place 3-pointer reversal, Floyd's cycle detection proof ($2k-k=nC$), dummy heads, cache miss penalty | NIST DADS (`cycle.html`) | Full Python `ListNode` implementation, iterative list reversal, Floyd's cycle entrance derivation |
+| **`se-top-5`** | Stacks, Queues & Monotonic Variants | NIST DADS (`stack.html`, `queue.html`, `priorityQueue.html`) | LIFO and FIFO abstract definitions, push/pop and enqueue/dequeue operations | Monotonic stack pattern (Next Greater Element), monotonic deque (sliding window max), ring buffer array queues | Python Docs (`collections.deque` mechanics) | Monotonic stack Python implementation, circular buffer queue with modulo wrap-around |
+| **`se-top-6`** | Binary Trees & Traversal Algorithms | NIST DADS (`binaryTree.html`, `treeTraversal.html`) | Tree structural hierarchy, pre/in/post-order recursive definitions | Iterative traversals with explicit stack, BFS level-order queue (`len(q)`), LCA, tree diameter, Morris traversal | NIST DADS (`breadthFirstSearch.html`) | Iterative DFS and BFS level-order Python code, recursive Lowest Common Ancestor (LCA) implementation |
+| **`se-top-8`** | Heaps & Priority Queues | NIST DADS (`heap.html`, `binaryHeap.html`) | Complete binary tree shape, heap-order property, array indexing ($2i+1$), $O(N)$ `heapify` build | Top-K elements ($O(N \log K)$), dual balancing heaps (median finder), k-way sorted stream merge | Python Docs (`heapq` module source overview) | Top-K frequent elements implementation, Dual-Heap Continuous Median Stream Tracker, $O(N)$ heapify proof |
+| **`se-top-10`** | Topological Sort & Shortest Paths | NIST DADS (`topologicalSort.html`, `dijkstra.html`) | DAG topological ordering definition, Dijkstra single-source greedy relaxation and queue complexity | Kahn's algorithm (in-degree array + queue), cycle detection in DAGs, Bellman-Ford negative edge handling | NIST DADS (`bellmanFord.html`) | Kahn's algorithm Python implementation, Dijkstra's algorithm with `heapq`, negative-edge failure trace |
+| **`se-top-11`** | Recursion & Backtracking Strategies | NIST DADS (`backtracking.html`, `recursion.html`) | Backtracking virtual tree search definition, base case recursion, pruning conditions | State-space tree visualization, `choose-explore-unchoose` template, subsets/permutations with duplicates, N-Queens | Python Docs (`sys.getrecursionlimit()`) | Canonical `backtrack()` template in Python, N-Queens coordinate hashing solver ($O(1)$ diagonal check) |
+| **`se-top-1`** | Memory Architecture: Stack, Heap & Pointers | Linux Man-Pages (`malloc.3`, `mmap.2`, `brk.2`) | OS system calls (`brk`, `mmap`), C library `malloc`/`free`, memory alignment, fragmentation | Stack frame lifecycle, instruction pointer, GC algorithms (tracing vs reference counting), Python object model | Python Docs (`memory.html`, `gc.html`) | Virtual address space layout diagram (Text/Data/BSS/Heap/Stack), pointer dereference and leak walkthrough |
+| **`se-top-13`** | Processes, Threads & Synchronization | Linux Man-Pages (`pthreads.7`, `clone.2`, `sem_overview.7`) | OS process vs thread address space isolation, POSIX `pthread_mutex`, counting semaphores | Coffman deadlock conditions, Producer-Consumer bounded buffer, Readers-Writers locks, Python GIL | Python Docs (`threading.html`, `multiprocessing.html`) | Thread-safe Bounded Queue using Condition variables, Coffman deadlock conditions analysis & lock hierarchy |
+| **`se-top-14`** | Virtual Memory, Paging & Storage | Linux Man-Pages (`mmap.2`, `mprotect.2`, `getpagesize.2`) | Anonymous/file memory mapping, page protection flags (`PROT_READ`), system page size (4KB) | Multi-level page tables, TLB hit/miss ratio, LRU/Clock page replacement, Belady's anomaly, cache locality | Linux Man-Pages (`posix_fadvise.2`) | Virtual-to-physical address translation diagram, LRU page replacement cache implementation, row vs column cache benchmark |
+| **`se-top-15`** | Computer Networking: OSI, TCP/IP & HTTP | Linux Man-Pages (`tcp.7`, `socket.2`, `ip.7`) + RFC 9110 | TCP socket lifecycle (`LISTEN`, `SYN_SENT`, `ESTABLISHED`), Berkeley sockets API, HTTP methods/codes | OSI 7-Layer vs TCP/IP 4-Layer, 3-way handshake sequence, TCP vs UDP streaming trade-offs, DNS hierarchy, HTTP/2/3 | IETF RFC 9112 (HTTP/1.1), RFC 9000 (QUIC) | Complete TCP 3-way handshake & teardown sequence diagram, Python client/server socket implementation |
+| **`se-top-16`** | Object-Oriented Design Patterns (GoF) | Python Docs (Data Model) + W3C Standards | Object primitives: classes, inheritance, composition, abstract base classes (`abc`), dunder methods | Gang of Four catalog structure (Creational, Structural, Behavioral), SOLID principles, pattern anti-patterns | NIST DADS (`designPattern.html`) | 100% of GoF pattern implementations in Python (Factory, Singleton, Adapter, Decorator, Strategy, Observer) |
+| **`se-top-17`** | High-Level System Design & Scalability | PostgreSQL HA Docs + Linux Man-Pages (`epoll.7`) | Database replication (primary-standby), synchronous/async failover, I/O multiplexing (`epoll`) | Horizontal scaling, load balancing algorithms, Consistent Hashing, CAP/PACELC theorem, Cache-Aside, Sharding | W3C HTTP Caching Specs | End-to-end System Design Case Study (Distributed URL Shortener), capacity estimation worksheet, Token Bucket code |
+
+---
+
+#### 4.3.1 Detailed Technical Analysis: Big-O & Complexity Analysis (`se-top-2`)
+- **Primary Source**: NIST DADS (`bigO.html`, `bigOmega.html`, `bigTheta.html`) — Public Domain.
+- **Concepts Directly Supported**:
+  - Asymptotic upper bound $f(n) = O(g(n)) \iff \exists c > 0, n_0 > 0 : 0 \le f(n) \le c \cdot g(n) \; \forall n \ge n_0$.
+  - Asymptotic lower bound $\Omega(g(n))$ and tight bound $\Theta(g(n))$.
+  - Classical complexity ordering: $O(1) < O(\log n) < O(\sqrt{n}) < O(n) < O(n \log n) < O(n^2) < O(2^n) < O(n!)$.
+- **Concepts NOT Covered (Gaps)**:
+  - *Amortized Analysis*: Dynamic array doubling ($O(1)$ amortized insertion vs $O(N)$ worst-case copy).
+  - *Space Complexity*: Auxiliary memory vs input space; call stack memory consumed by recursive activation records.
+  - *Practical Wall-Clock Performance*: Impact of CPU cache hierarchies, memory alignment, and constant factor overheads ($1000n$ vs $0.01n^2$).
+- **Additional Approved Sources**: Python Official Documentation (list implementation overview in `Objects/listobject.c`) — PSF License.
+- **CareerLaunch-Authored Content**:
+  - Dynamic array capacity resizing tabular trace and aggregate method derivation.
+  - Practical code benchmark in Python demonstrating why string accumulation via `+=` exhibits $O(N^2)$ behavior due to reallocation while `''.join()` exhibits $O(N)$.
+
+#### 4.3.2 Detailed Technical Analysis: Memory Architecture & Pointers (`se-top-1`)
+- **Primary Source**: Linux Programmer's Manual (`malloc.3`, `mmap.2`, `brk.2`) — Permissive.
+- **Concepts Directly Supported**:
+  - Virtual address space system calls: `brk`/`sbrk` for programmatic heap boundary movement, `mmap` for anonymous virtual memory mapping.
+  - C standard library memory functions: `malloc`, `calloc`, `realloc`, and `free` mechanics and return value contracts.
+  - Alignment constraints (8-byte / 16-byte boundaries) and external memory fragmentation.
+- **Concepts NOT Covered (Gaps)**:
+  - *Call Stack Architecture*: Stack frame construction (activation records), stack pointer (`ESP`/`RSP`), frame pointer (`EBP`/`RBP`), local variable scoping, and stack overflow conditions.
+  - *Language Memory Models*: Python reference counting (`PyObject.ob_refcnt`), cycle detection gc, Java JVM heap generations (Eden, Survivor, Tenured), vs C/C++ manual memory.
+  - *Pass-by-Value vs Pass-by-Reference*: Memory evaluation semantics across parameter boundaries.
+- **Additional Approved Sources**: Python Documentation: C API Memory Management & GC (`docs.python.org/3/c-api/memory.html`, `docs.python.org/3/library/gc.html`) — PSF License.
+- **CareerLaunch-Authored Content**:
+  - Detailed cross-sectional diagram of process virtual address space: Text, Initialized Data, BSS, Heap (growing upward), Memory Mapping Segment, Stack (growing downward).
+  - Memory leak and dangling pointer code demonstrations with step-by-step memory inspection.
+
+#### 4.3.3 Detailed Technical Analysis: Processes, Threads & Concurrency (`se-top-13`)
+- **Primary Source**: Linux Programmer's Manual (`pthreads.7`, `clone.2`, `sem_overview.7`) — Permissive.
+- **Concepts Directly Supported**:
+  - Process creation (`fork`, `clone`) and address space isolation.
+  - POSIX thread primitives (`pthread_create`, `pthread_join`, `pthread_mutex_init`, `pthread_mutex_lock`).
+  - POSIX semaphores: named and unnamed counting semaphores (`sem_wait`, `sem_post`).
+- **Concepts NOT Covered (Gaps)**:
+  - *Coffman Deadlock Conditions*: Mutual Exclusion, Hold and Wait, No Preemption, Circular Wait.
+  - *High-Level Synchronization Idioms*: Bounded-buffer Producer-Consumer pattern, Readers-Writers problem, Dining Philosophers.
+  - *Language Runtimes & Locks*: Python Global Interpreter Lock (GIL) and its effect on CPU-bound vs I/O-bound threads; async event loops (`asyncio`) vs OS threads.
+  - *Race Conditions*: Critical section definition, data races, atomic operations, Compare-And-Swap (CAS).
+- **Additional Approved Sources**: Python Documentation: `threading` and `multiprocessing` modules — PSF License.
+- **CareerLaunch-Authored Content**:
+  - Complete Python implementation of a thread-safe Bounded Queue utilizing `threading.Condition` with `wait()` and `notify()`.
+  - Architectural breakdown of Coffman conditions with lock ordering protocol for deadlock prevention.
+
+#### 4.3.4 Detailed Technical Analysis: Computer Networking & Protocols (`se-top-15`)
+- **Primary Source**: Linux Programmer's Manual (`tcp.7`, `socket.2`, `ip.7`) + IETF RFC 9110 — Public Domain / Permissive / IETF Trust.
+- **Concepts Directly Supported**:
+  - TCP socket lifecycle and state transitions: `LISTEN`, `SYN_SENT`, `SYN_RECV`, `ESTABLISHED`, `FIN_WAIT_1`, `TIME_WAIT`.
+  - Berkeley sockets API: `socket()`, `bind()`, `listen()`, `accept()`, `connect()`, `send()`, `recv()`.
+  - HTTP semantics: request methods (Idempotent vs Safe), status code families (1xx to 5xx), standard header fields.
+- **Concepts NOT Covered (Gaps)**:
+  - *Layered Architectural Models*: Theoretical OSI 7-Layer Model (Physical to Application) mapped to practical TCP/IP 4-Layer Model (Link, Internet, Transport, Application).
+  - *TCP Connection Handshake & Teardown*: Sequence and Acknowledgment number increment mechanics during SYN, SYN-ACK, ACK and FIN, ACK handshakes.
+  - *TCP vs UDP*: Reliability, ordering, flow control (sliding window), congestion control (AIMD) vs lightweight low-latency UDP datagrams.
+  - *DNS & Web Life Cycle*: Recursive vs authoritative DNS resolution, browser connection lifecycle ("What happens when you navigate to a URL?").
+  - *HTTP Protocol Evolution*: HTTP/1.1 persistent connections vs HTTP/2 binary framing and stream multiplexing vs HTTP/3 QUIC over UDP.
+- **Additional Approved Sources**: IETF RFC 9112 (HTTP/1.1) and RFC 9000 (QUIC) — IETF Trust.
+- **CareerLaunch-Authored Content**:
+  - Sequence diagram detailing the complete TCP 3-way handshake and 4-way termination with sequence/ACK number arithmetic.
+  - Python client-server socket implementation handling framing and partial reads.
+
+#### 4.3.5 Detailed Technical Analysis: Object-Oriented Design Patterns (`se-top-16`)
+- **Primary Source**: Python Documentation (Data Model & ABCs) + W3C Architecture — PSF License / W3C License.
+- **Concepts Directly Supported**:
+  - Class definitions, multiple inheritance, Method Resolution Order (C3 MRO), abstract base classes (`abc.ABCMeta`, `@abstractmethod`), composition primitives.
+- **Concepts NOT Covered (Gaps)**:
+  - *Gang of Four (GoF) Structural Catalog*:
+    - Creational: Factory Method, Abstract Factory, Builder, Singleton (with thread-safe double-checked locking).
+    - Structural: Adapter, Decorator, Facade, Composite, Proxy.
+    - Behavioral: Observer, Strategy, Command, State, Template Method.
+  - *SOLID Design Principles*: Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, Dependency Inversion.
+  - *Anti-Patterns*: God Object, Singleton abuse for global state, tight coupling.
+- **Additional Approved Sources**: NIST DADS (`designPattern.html`) — Public Domain.
+- **CareerLaunch-Authored Content**:
+  - 100% of the code exemplars across all GoF patterns must be original CareerLaunch-authored Python code under internal copyright.
+  - Refactoring case study: Transforming hard-coded pricing calculation with conditionals into an extensible Strategy Pattern obeying the Open/Closed Principle.
+
+#### 4.3.6 Detailed Technical Analysis: System Design & Scalability (`se-top-17`)
+- **Primary Source**: PostgreSQL High-Availability Documentation + Linux Man-Pages (`epoll.7`) — PostgreSQL License / Permissive.
+- **Concepts Directly Supported**:
+  - Relational database replication architectures: Primary-Standby streaming replication, synchronous vs asynchronous commit modes, failover mechanics.
+  - High-concurrency I/O event multiplexing (`epoll`) for handling scalable network connections.
+- **Concepts NOT Covered (Gaps)**:
+  - *Horizontal Scaling & Load Balancing*: Layer 4 vs Layer 7 load balancers, DNS round-robin, least connections, sticky sessions.
+  - *Distributed Caching & Consistent Hashing*: Cache-Aside, Write-Through, Write-Behind; Cache Stampede and Thundering Herd mitigation; Consistent Hashing ring with virtual nodes.
+  - *Distributed Storage & Sharding*: Horizontal partition keys, cross-shard joins, distributed 2PC vs Sagas.
+  - *Theoretical Theorems*: CAP Theorem (Consistency vs Availability under Partition), PACELC theorem.
+  - *Rate Limiting*: Token Bucket, Leaky Bucket, and Sliding Window Counter algorithms.
+- **Additional Approved Sources**: W3C HTTP Caching Specifications (`https://www.w3.org/TR/`) — W3C License.
+- **CareerLaunch-Authored Content**:
+  - End-to-end Architectural Case Study: Designing a Distributed URL Shortener (TinyURL) handling 100M daily active users.
+  - Systematic Capacity Estimation Framework: Traffic QPS calculation, memory cache sizing (80/20 Pareto principle), storage projection over 5 years.
+  - Python implementation of the Token Bucket rate-limiting algorithm.
 
 ---
 
@@ -359,6 +551,36 @@ To protect CareerLaunch's intellectual property, prevent legal liability, and ma
 
 ---
 
+### 8.1 Formal Source-Grounding and Citation Verification Rules
+
+To maintain strict academic integrity, commercial licensing compliance, and pedagogical transparency, all future lessons generated in Phase 5.1 and beyond must adhere to five mandatory grounding rules:
+
+1. **Rule 1: Provenance Separation (External Claims vs. Platform Explanations)**
+   - Algorithmic invariants, mathematical complexity bounds ($O, \Omega, \Theta$), formal protocol definitions, and operating system system calls derived from external sources must reference their specific verified chunk ID (`retrievedChunkIds`) and canonical URL.
+   - High-level intuitive summaries, pedagogical analogies, comparative interview guidance, and introductory transitions authored by CareerLaunch must be attributed to `CareerLaunch Engineering` and never falsely represented as quotes or direct claims from external authorities.
+
+2. **Rule 2: Original Code Attribution (`CareerLaunch Engineering`)**
+   - 100% of generated code exemplars, class implementations, test harnesses, and refactoring demonstrations must carry:
+     ```json
+     "attribution": "CareerLaunch Engineering"
+     ```
+   - Code must **NEVER** be falsely attributed to external prose documentation (e.g., NIST DADS provides abstract mathematical definitions and algorithm prose; attributing generated Python code to NIST is strictly forbidden and constitutes a Level 2 validation failure).
+
+3. **Rule 3: Citation Precision & Prohibition of Hallucinated Citations**
+   - Citations in the `references` section must only link to retrieved chunks that directly substantiate the associated technical claim in the lesson body.
+   - "Proxy", fabricated, or invented citations are strictly prohibited. A chunk may not be cited merely because it belongs to the same broad computer science domain if the specific topic or invariant is absent from the chunk's text.
+
+4. **Rule 4: Explicit Identification of Gaps & Unsupported Concepts**
+   - When a curriculum syllabus requires pedagogical concepts not present in the ingested canonical chunk (e.g., Floyd's cycle-finding algorithm on a NIST linked list page, or Coffman conditions in POSIX thread man-pages), the lesson generator must explicitly label the concept as:
+     `[Curriculum Extension — CareerLaunch Curated]`
+   - The generator is strictly prohibited from inventing a citation or falsely asserting that an external source covers these concepts.
+
+5. **Rule 5: Continued Exclusion of Conditional CC BY-SA Sources**
+   - Sources licensed under CC BY-SA (MDN Web Docs, Docker Documentation, OWASP Foundation) remain **STRICTLY BLOCKED** from the automated ingestion pipeline and knowledge retrieval index pending formal legal review.
+   - All knowledge grounding must draw exclusively from Approved public domain (NIST DADS), permissive BSD/MIT (Linux man-pages, PostgreSQL, Python PSF), or internal CareerLaunch-authored materials.
+
+---
+
 ## 9. Official Sources & Licensing Evidence Directory
 
 | Organization / Project | Resource Name | Canonical Documentation URL | Verified Licensing URL | Verified License Type |
@@ -399,6 +621,8 @@ The following questions are submitted for legal counsel and product leadership r
 
 ## STOP CONDITION
 
-Phase 5.0.1 (Knowledge Audit Refinement & SWE Expansion Plan) is complete.  
-No application code, database records, roadmaps, or pilot lessons have been modified.  
-Awaiting explicit review and approval before proceeding to Phase 5.1.
+Phase 5.0.2 (Final Topic Mapping, Source Coverage & Grounding Rules) is complete.  
+- Strictly READ-ONLY audit: Zero application code changes, zero database writes, zero document ingestion, zero embeddings computed, zero AI lesson generation.  
+- All 5 canonical pilot lessons (`swe-top-1`, `swe-top-4`, `swe-top-7`, `swe-top-9`, `swe-top-13`) and 2 student records remain 100% intact and verified in MongoDB.  
+- All environment configurations, ports (27018, 5000, 5173), and system variables are preserved unmodified.  
+- Awaiting explicit user approval before initiating Phase 5.1 (Ingestion & Generation for Batch 1).
