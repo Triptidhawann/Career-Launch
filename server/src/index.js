@@ -8,6 +8,7 @@ import adminIngestRoutes from './routes/adminIngestRoutes.js'
 import adminRetrievalRoutes from './routes/adminRetrievalRoutes.js'
 import adminLessonRoutes from './routes/adminLessonRoutes.js'
 import lessonRoutes from './routes/lessonRoutes.js'
+import prepRoutes from './routes/prepRoutes.js'
 
 const app = express()
 const PORT = process.env.PORT || 5000
@@ -67,6 +68,7 @@ app.use('/api/admin/ingest', adminIngestRoutes)
 app.use('/api/admin/retrieval', adminRetrievalRoutes)
 app.use('/api/admin/lessons', adminLessonRoutes)
 app.use('/api/lessons', lessonRoutes)
+app.use('/api/prep', prepRoutes)
 
 // Fallback for unmatched API routes
 app.use('/api/*', (_req, res) => {

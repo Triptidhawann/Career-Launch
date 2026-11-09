@@ -158,3 +158,66 @@ export async function fetchTopicLesson(topicId, roleId = 'software-engineer') {
 
   return res.json()
 }
+
+/**
+ * Saves or updates student's personalised interview preparation setup.
+ *
+ * @param {object} payload - Setup payload (roleId, goalPrompt, experienceLevel, etc.)
+ * @returns {Promise<{ success: boolean, message: string, session: object }>}
+ */
+export async function savePreparationSetup(payload) {
+  const headers = await getAuthHeader()
+  const res = await fetch(`${API_BASE}/prep/setup`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(payload),
+  })
+
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) {
+    throw new Error(data.error || `Failed to save preparation setup (HTTP ${res.status})`)
+  }
+
+  return data
+}
+
+/**
+ * Retrieves a saved preparation setup session by its ID.
+ *
+ * @param {string} sessionId - PreparationSession ObjectId
+ * @returns {Promise<{ success: boolean, session: object }>}
+ */
+export async function fetchPreparationSetup(sessionId) {
+  const headers = await getAuthHeader()
+  const res = await fetch(`${API_BASE}/prep/setup/${encodeURIComponent(sessionId)}`, {
+    headers,
+  })
+
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) {
+    throw new Error(data.error || `Failed to fetch preparation setup (HTTP ${res.status})`)
+  }
+
+  return data
+}
+
+/**
+ * Retrieves the latest preparation session for a role.
+ *
+ * @param {string} [roleId] - Optional role filter (e.g. 'frontend-developer')
+ * @returns {Promise<{ success: boolean, session: object | null }>}
+ */
+export async function fetchLatestPreparationSession(roleId) {
+  const headers = await getAuthHeader()
+  const url = roleId
+    ? `${API_BASE}/prep/session/latest?roleId=${encodeURIComponent(roleId)}`
+    : `${API_BASE}/prep/session/latest`
+  const res = await fetch(url, { headers })
+
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) {
+    throw new Error(data.error || `Failed to fetch latest session (HTTP ${res.status})`)
+  }
+
+  return data
+}

@@ -219,7 +219,11 @@ export function InterviewPreparationPage() {
   const handleSelectRole = (role) => {
     setSessionRoleId(role.id)
     localStorage.setItem('careerlaunch_selected_prep_role', role.id)
-    navigate(`/interview-preparation/${role.id}`)
+    if (role.id === 'frontend-developer') {
+      navigate('/interview-preparation/frontend-developer/setup')
+    } else {
+      navigate(`/interview-preparation/${role.id}`)
+    }
   }
 
   const handleClearRole = () => {
@@ -699,13 +703,25 @@ export function InterviewPreparationPage() {
                     <p className="roadmap-hero__overview">{roadmapData.overview}</p>
                   </div>
 
-                  <Link
-                    to="/interview-preparation"
-                    className="roadmap-hero__switch-btn"
-                  >
-                    <span>Change Target Role</span>
-                    <ArrowRight size={13} />
-                  </Link>
+                  <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                    {currentRoleId === 'frontend-developer' && (
+                      <Link
+                        to="/interview-preparation/frontend-developer/setup"
+                        className="prep-btn-primary"
+                        style={{ textDecoration: 'none' }}
+                      >
+                        <Sparkles size={13} />
+                        <span>Personalise Preparation Plan</span>
+                      </Link>
+                    )}
+                    <Link
+                      to="/interview-preparation"
+                      className="roadmap-hero__switch-btn"
+                    >
+                      <span>Change Target Role</span>
+                      <ArrowRight size={13} />
+                    </Link>
+                  </div>
                 </div>
 
                 {/* Target Role Objectives */}
