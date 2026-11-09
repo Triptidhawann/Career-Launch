@@ -30,7 +30,35 @@ export function AuthProvider({ children }) {
 
     // Subscribe to Firebase auth state changes
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser)
+      if (currentUser) {
+        setUser(currentUser)
+      } else if (typeof window !== 'undefined' && window.localStorage) {
+        try {
+          const previewToken = window.localStorage.getItem('careerlaunch_preview_token')
+          if (previewToken) {
+            const parts = previewToken.split('.')
+            if (parts.length >= 2) {
+              const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/')
+              const decoded = JSON.parse(atob(base64))
+              setUser({
+                uid: decoded.user_id || decoded.uid,
+                email: decoded.email,
+                displayName: decoded.name || 'Student',
+                emailVerified: true,
+                getIdToken: async () => previewToken,
+              })
+            } else {
+              setUser(null)
+            }
+          } else {
+            setUser(null)
+          }
+        } catch {
+          setUser(null)
+        }
+      } else {
+        setUser(null)
+      }
       setIsLoading(false)
     })
 

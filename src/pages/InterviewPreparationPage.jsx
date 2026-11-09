@@ -220,7 +220,7 @@ export function InterviewPreparationPage() {
     setSessionRoleId(role.id)
     localStorage.setItem('careerlaunch_selected_prep_role', role.id)
     if (role.id === 'frontend-developer') {
-      navigate('/interview-preparation/frontend-developer/setup')
+      navigate('/interview-preparation/frontend-developer/skills')
     } else {
       navigate(`/interview-preparation/${role.id}`)
     }

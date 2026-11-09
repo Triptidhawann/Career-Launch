@@ -427,3 +427,66 @@ export async function acceptPreparationPlan(planId) {
 
   return data
 }
+
+/**
+ * Fetches the official skill taxonomy for a specific role.
+ *
+ * @param {string} roleId
+ * @returns {Promise<{ success: boolean, roleId: string, roleTitle: string, subtitle: string, categories: Array }>}
+ */
+export async function fetchRoleSkills(roleId) {
+  const headers = await getAuthHeader()
+  const res = await fetch(`${API_BASE}/learning/skills/${encodeURIComponent(roleId)}`, {
+    headers,
+  })
+
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) {
+    throw new Error(data.error || `Failed to fetch skills taxonomy (HTTP ${res.status})`)
+  }
+
+  return data
+}
+
+/**
+ * Fetches the authenticated student's saved skill selection for a role.
+ *
+ * @param {string} roleId
+ * @returns {Promise<{ exists: boolean, roleId: string, selectedSkills: Array, customSkills: Array, updatedAt?: string }>}
+ */
+export async function fetchStudentSkillSelection(roleId) {
+  const headers = await getAuthHeader()
+  const res = await fetch(`${API_BASE}/learning/selection/${encodeURIComponent(roleId)}`, {
+    headers,
+  })
+
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) {
+    throw new Error(data.error || `Failed to fetch skill selection (HTTP ${res.status})`)
+  }
+
+  return data
+}
+
+/**
+ * Saves the authenticated student's selected skills and custom skills for a role.
+ *
+ * @param {string} roleId
+ * @param {{ selectedSkillIds: string[], customSkills: string[] }} payload
+ * @returns {Promise<{ success: boolean, selection: object, message: string }>}
+ */
+export async function saveStudentSkillSelection(roleId, payload) {
+  const headers = await getAuthHeader()
+  const res = await fetch(`${API_BASE}/learning/selection/${encodeURIComponent(roleId)}`, {
+    method: 'PUT',
+    headers,
+    body: JSON.stringify(payload),
+  })
+
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) {
+    throw new Error(data.error || `Failed to save skill selection (HTTP ${res.status})`)
+  }
+
+  return data
+}
