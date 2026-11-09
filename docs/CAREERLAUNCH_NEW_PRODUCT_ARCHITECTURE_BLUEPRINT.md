@@ -1,626 +1,638 @@
-# CareerLaunch — New Product Direction: Phase 1
-# Role-Based AI Learning Platform — Architecture & Migration Blueprint
+# CareerLaunch — Final Product Specification & Architecture Blueprint
+# Role-Based AI Learning Platform — Architecture, Chatbot Engine & Migration Blueprint
 
-> **Phase**: Phase 1 (Architecture & Migration Blueprint)  
-> **Status**: APPROVED BLUEPRINT (PLANNING ONLY — NO APPLICATION CODE MODIFIED)  
-> **Document Purpose**: Authoritative architectural blueprint for CareerLaunch's evolution into a role-based, AI-powered interview preparation and continuous learning platform.  
-> **Implementation Pilot Role**: Frontend Developer (`frontend-developer`)  
-> **LLM Engine**: Groq LPU Inference (`openai/gpt-oss-120b`)  
-> **Backend Baseline**: MongoDB `careerlaunch` on port 27018, Node.js/Express, Firebase Auth  
-> **Commit Hash**: `b9ef755`  
+> **Document Type**: Authoritative Product Architecture & System Specification  
+> **Status**: APPROVED REVISED BLUEPRINT (PLANNING & ALIGNMENT ONLY — NO APPLICATION CODE MODIFIED)  
+> **Core Direction**: Simple, role-based AI learning platform with **one continuous ChatGPT-like learning assistant per student and selected career track**.  
+> **Pilot Track**: Frontend Developer (`frontend-developer`)  
+> **Inference Engine**: Groq LPU Inference (`openai/gpt-oss-120b`)  
+> **Backend Baseline**: MongoDB `careerlaunch` (port 27018), Node.js / Express, Firebase Authentication  
+> **Supersedes**: All conflicting UI proposals, multi-chatbot schemes, onboarding roadmaps, and rigid linear sequencing from earlier drafts.
 
 ---
 
-## 1. Product Vision & Philosophy
+## 1. Executive Summary & Product Philosophy
 
-CareerLaunch is evolving from a static career roadmap and standalone lesson repository into a **simple, role-based, AI-powered interview preparation and continuous learning platform**.
+CareerLaunch is an AI-powered interview preparation and continuous learning platform designed for ambitious software students preparing for competitive placement drives. 
 
 ### 1.1 The Core Problem
-Traditional placement preparation platforms suffer from two extremes:
-1. **Static Roadmaps & Textbooks**: Rigid, unpersonalized curriculum trees where students are overwhelmed by hundreds of checkboxes without guidance on what matters for *their* specific timeline, background, or target companies.
-2. **Generic Unbounded Chatbots**: Open-ended conversational assistants that lack role discipline, hallucinate syllabus coverage, invent citations, lose context across sessions, and fail to separate passive browsing from verified technical competence.
+1. **Rigid Syllabus Trees**: Traditional platforms overwhelm students with massive, inflexible roadmaps before they even begin learning.
+2. **Disconnected Micro-Chatbots**: Creating separate AI chat instances for each individual skill destroys conversational context, fragments learning history, and prevents students from naturally exploring how technologies connect.
+3. **Passive Reading vs. Placement Readiness**: Passive scrolling through documentation does not prepare students for technical interviews where interviewers test edge cases, architectural trade-offs, and debugging reasoning.
 
-### 1.2 The CareerLaunch Solution
-CareerLaunch bridges this divide through a role-first, distraction-free learning environment:
-- **Role-Anchored Scoping**: The student selects a specific career role (e.g. Frontend Developer). The platform immediately limits its scope to that discipline.
-- **Skill-Driven Selection**: Students browse organized, role-specific technical skills (e.g. React, Next.js, CSS Layouts, State Management), choose what they need to master, and define their goals in plain English.
-- **Dedicated Conversational Assistant**: A focused AI tutor that provides multi-turn technical explanations, step-by-step code exemplars, and interview-specific advice within the boundaries of the chosen role.
-- **Personalised Roadmap**: An interactive, dynamic curriculum itinerary created on demand, grounded in official syllabus standards and verified open-access documentation.
-- **Continuous Learning Memory**: The platform remembers conversation history, generated roadmaps, active topics, topics needing revision, and recommended next steps across sessions.
+### 1.2 The Final CareerLaunch Solution
+- **Role Anchor**: The student selects a target career role (e.g., Frontend Developer). The platform strictly bounds all learning interactions to that professional role.
+- **Simplified Skill Selection**: The student chooses what they need to master from a clean list of relevant skill names (e.g. React, CSS Layouts, Asynchronous JS, Next.js). No bulky subtopics, no descriptions, and no roadmaps appear at this stage.
+- **One Dedicated AI Chatbot**: Exactly **one continuous learning conversation** per student for the selected career track. The student explores concepts, asks follow-up questions, inspects production code examples, and switches naturally between selected skills in a single cohesive thread.
+- **Contextual Prerequisite Intelligence**: When a student asks to learn an advanced skill (e.g. React) before a foundational one (e.g. JavaScript), the AI checks whether they understand the core prerequisites. If the student confirms knowledge, it proceeds immediately; if they need help, it offers the fundamentals. The student always controls the order.
+- **Dynamic In-Conversation Roadmap**: The learning roadmap is synthesized **inside the conversation** based on what the student wants to accomplish—never forced during initial onboarding.
+- **Persistent Learning Memory**: The platform maintains durable memory across sessions, distinguishing between student-reported knowledge, topics in progress, and **actively demonstrated technical competency**.
 
 ---
 
-## 2. Complete Student Journey
+## 2. Final Student Journey
 
-The streamlined student journey eliminates cognitive overhead and multi-step onboarding hurdles:
+The final student journey is straightforward, frictionless, and free of multi-step intake questionnaires:
 
-$$\text{Select Role} \longrightarrow \text{Select Skills} \longrightarrow \text{Open AI Assistant} \longrightarrow \text{Generate Roadmap} \longrightarrow \text{Contextual Learning} \longrightarrow \text{Resume Anytime}$$
+$$\text{Target Role Selection} \longrightarrow \text{Skill Selection} \longrightarrow \text{One Dedicated AI Chatbot} \longrightarrow \text{Dynamic Learning} \longrightarrow \text{Persistent Learning Memory}$$
 
 ```mermaid
 flowchart TD
-    A[Screen 0: Role Selection<br>/interview-preparation<br>Preserved 100% Unchanged] -->|Selects Role e.g. Frontend Developer| B[Step A: Role-Specific Skill Selection<br>/interview-preparation/:roleId/skills]
-    B -->|Chooses 1..N Skills or Requests Custom| C[Step B: Dedicated AI Learning Assistant<br>/interview-preparation/:roleId/learn/:sessionId]
-    C -->|Student prompts learning goals| D[Step C: Personalised Roadmap Generation<br>Synthesized via Groq openai/gpt-oss-120b]
-    D --> E[Step D: Contextual Learning Loop<br>- Conceptual Explanations<br>- Code Exemplars<br>- Step-by-Step Walkthroughs<br>- Interview Framing<br>- Formative Cross-Checks]
-    E -->|Continuous Progress Tracking| F[Learning Continuity & Memory<br>- Active Topic in Progress<br>- Completed Milestones<br>- Revision Needed<br>- Resumption from Dashboard]
-    F -->|Return Next Day| C
+    A[Step 1: Target Role Selection<br>/interview-preparation<br>Preserved 100% Unchanged] -->|Selects Role e.g. Frontend Developer| B[Step 2: Simplified Skill Selection<br>/interview-preparation/:roleId/skills<br>Skill Names Only • Search • Multi-Select • Custom Addition]
+    B -->|Saves Selection & Launches Assistant| C[Step 3: One Dedicated AI Chatbot Workspace<br>/interview-preparation/:roleId/learn<br>Single Continuous Thread for the Career Track]
+    C -->|Student prompts learning goals or asks question| D[Step 4: Dynamic In-Conversation Learning<br>- Contextual Prerequisite Verification<br>- Dynamic Roadmap Generation Inside Chat<br>- Code Exemplars & Placement Interview Insights<br>- Natural Skill Switching]
+    D -->|Continuous Interaction| E[Step 5: Persistent Learning Memory<br>- Selected Role & Skills<br>- Full Conversation History<br>- Active & Completed Milestones<br>- Demonstrated Competency vs Passive Exposure<br>- Recommended Next Step]
+    E -->|One-Click Return Next Day| C
 ```
 
 ### Detailed Journey Steps:
-1. **Role Selection (`/interview-preparation`)**: The student views CareerLaunch's approved 8-card role catalog (Frontend, Backend, Full Stack, Software Engineer, Data Analyst, Data Scientist, DevOps, Mobile). The interface is 100% visually and functionally preserved.
-2. **Skill Selection (`/interview-preparation/:roleId/skills`)**: The student views a clean, organized inventory of core technologies and concepts relevant to that role. They can filter via search, select one or multiple skills, or add a custom skill.
-3. **Dedicated Learning Assistant (`/interview-preparation/:roleId/learn/:sessionId`)**: A distraction-free workspace opens. The student describes what they want to prepare (e.g., *"Preparing for campus interviews, know basic JS and React, need help with hooks cleanup and state management"*).
-4. **Personalised Roadmap**: The AI synthesizes a tailored topic roadmap displayed in a collapsible side itinerary.
-5. **Contextual AI Learning**: The student engages in focused, multi-turn technical dialogue. The assistant explains concepts, presents production-grade code examples, poses checkpoint questions, and frames discussions around real placement interview expectations.
-6. **Learning Continuity**: When returning to CareerLaunch, the student is greeted with a single-click resumption widget: *"Continue Frontend Learning: React Hooks (Topic 3 of 6)"*, picking up exactly where they stopped with complete conversation and roadmap state intact.
+1. **Target Role Selection (`/interview-preparation`)**: The student views the approved 8-card role catalog (Frontend Developer, Backend Developer, Full Stack Developer, Software Engineer, Data Analyst, Data Scientist, DevOps Engineer, Mobile App Developer). The page, styling, descriptions, and icons remain **100% unchanged**.
+2. **Simplified Skill Selection (`/interview-preparation/:roleId/skills`)**: The student selects the technologies they want to learn or improve. The interface displays **skill names only** (no subtopics, no descriptions, no roadmaps, no lengthy text). Includes live search, multi-selection, and a custom skill addition field.
+3. **One Dedicated AI Chatbot (`/interview-preparation/:roleId/learn`)**: A unified, distraction-free conversational workspace opens. The student chats naturally with their senior technical mentor for that role.
+4. **Dynamic In-Conversation Learning**:
+   - The student states what they want to tackle or asks a direct question.
+   - The AI checks relevant prerequisites contextually (without rigid sequence locking).
+   - The AI dynamically synthesizes and updates an interactive learning roadmap inside the workspace.
+   - The student transitions seamlessly between selected skills (e.g., from CSS Flexbox to React Hooks to Next.js App Router) within the same conversation.
+5. **Persistent Learning Memory**: The platform stores the full dialogue, roadmap state, demonstrated competencies, and revision items. Returning students resume immediately with complete memory intact.
 
 ---
 
-## 3. Frontend Developer Skill Taxonomy (Pilot Track)
+## 3. Simplified Skill Selection Specification
 
-For the Frontend Developer pilot role, skills are categorized into 12 core domains. Every skill maps to its curriculum alignment, proficiency tier, interview weighting, and knowledge source status.
+The skill-selection screen serves as an intentional focus-setting tool, not a curriculum syllabus.
 
-| Category | Skill / Technology | Official Curriculum Mapping | Proficiency Tiers | Placement Interview Relevance | Knowledge Source Status |
-|---|---|---|---|---|---|
-| **1. HTML & Accessibility** | Semantic HTML5 & Landmark Outlines | `fe-top-1` | Beginner $\to$ Advanced | High (Form semantics, SEO, Accessibility screening) | Verified (`whatwg-standards`) |
-| | WCAG 2.1 & Keyboard Navigation | `fe-top-13` | Intermediate $\to$ Advanced | High (ARIA attributes, Focus trapping, Screen readers) | Syllabus Topic (MDN / W3C mapped) |
-| **2. CSS & Responsive Design** | Box Model, Flexbox & CSS Grid | `fe-top-2` | Beginner $\to$ Advanced | Very High (Layout mechanics, centering, responsive alignments) | Verified (`w3c-standards`) |
-| | Responsive Design & Media Queries | `fe-top-3` | Beginner $\to$ Intermediate | High (Fluid typography, clamp(), viewport units, mobile breakpoints) | Verified (`w3c-standards`) |
-| | Modern CSS: Variables, Subgrid & CSS Modules | Curriculum Extension | Intermediate $\to$ Advanced | Medium (Scoped styles, design tokens, maintainable theming) | Syllabus Topic |
-| **3. JavaScript Fundamentals** | Execution Context, Scope & Closures | `fe-top-4` | Beginner $\to$ Advanced | Critical (Lexical scope, hoisting, memory retention, TDZ) | Verified (`ecma-standards`) |
-| | Asynchronous JS & Browser Event Loop | `fe-top-6` | Intermediate $\to$ Advanced | Critical (Microtasks vs macrotasks, Promises, async/await) | Syllabus Topic (HTML spec mapped) |
-| | DOM Architecture & Event Delegation | `fe-top-5` | Beginner $\to$ Intermediate | High (Event bubbling, capturing, target vs currentTarget) | Syllabus Topic (WHATWG DOM mapped) |
-| **4. TypeScript** | Static Typing & Type Annotations | Custom / Extension | Beginner $\to$ Intermediate | Very High (Primitives, unions, type inference, interfaces) | Source Review Required |
-| | Advanced Generics & Utility Types | Custom / Extension | Intermediate $\to$ Advanced | High (Record, Partial, Pick, Omit, conditional types) | Source Review Required |
-| **5. React Fundamentals** | JSX, Virtual DOM & Reconciliation | `fe-top-7` | Beginner $\to$ Intermediate | Critical (Diffing algorithm, element keys, component lifecycle) | Syllabus Topic (React docs mapped) |
-| | Component Architecture & Props | `fe-top-7` | Beginner $\to$ Intermediate | Critical (Pure components, container/presenter, composition) | Syllabus Topic (React docs mapped) |
-| **6. Modern React Hooks** | State & Effect Hooks (`useState`, `useEffect`) | `fe-top-8`, `fe-top-9` | Beginner $\to$ Intermediate | Critical (Dependency arrays, stale closures, effect cleanup) | Syllabus Topic (React docs mapped) |
-| | Performance & Ref Hooks (`useMemo`, `useCallback`, `useRef`) | `fe-top-9` | Intermediate $\to$ Advanced | Critical (Referential equality, DOM refs, expensive recomputations) | Syllabus Topic (React docs mapped) |
-| | Custom Hook Extraction | `fe-top-9` | Intermediate $\to$ Advanced | Very High (Reusable logic, headless state abstraction) | Syllabus Topic (React docs mapped) |
-| **7. Next.js & Modern Frameworks** | Next.js App Router & Server Components (RSC) | Custom / Extension | Intermediate $\to$ Advanced | Very High (Client vs server components, streaming SSR, layouts) | Source Review Required |
-| | Routing, Server Actions & Data Fetching | Custom / Extension | Intermediate $\to$ Advanced | High (Server Actions, revalidation, route handlers) | Source Review Required |
-| **8. State Management** | React Context API & Unidirectional Flow | `fe-top-10` | Beginner $\to$ Intermediate | High (Prop drilling solutions, context re-render pitfalls) | Syllabus Topic |
-| | Global Stores: Redux Toolkit (RTK) | `fe-top-11` | Intermediate $\to$ Advanced | High (Redux slices, immutability, selectors, middleware) | Source Review Required |
-| | Server State: TanStack Query (React Query) | `fe-top-12` | Intermediate $\to$ Advanced | Very High (Query caching, deduplication, invalidation, mutations) | Source Review Required |
-| **9. API Integration & Network** | Fetch API, Axios & REST Client Contracts | `fe-top-12` | Beginner $\to$ Intermediate | Very High (HTTP status codes, abort controllers, retry logic) | Syllabus Topic |
-| | WebSockets & Real-time Client Streams | Curriculum Extension | Intermediate $\to$ Advanced | Medium (Socket events, reconnect strategies, heartbeat) | Syllabus Topic |
-| **10. Browser Fundamentals** | Client Storage: localStorage, sessionStorage, Cookies | Curriculum Extension | Beginner $\to$ Intermediate | High (Storage limits, security flags: HttpOnly, Secure, SameSite) | Syllabus Topic |
-| | Web Security: CORS, XSS, CSRF | Curriculum Extension | Intermediate $\to$ Advanced | Critical (Origin matching, input sanitization, token defense) | Syllabus Topic |
-| **11. Web Performance** | Core Web Vitals (LCP, INP, CLS) | `fe-top-14` | Intermediate $\to$ Advanced | Very High (Diagnostic profiling, layout shifts, interaction speed) | Syllabus Topic (W3C WebPerf mapped) |
-| | Rendering Pipeline: Reflow & Repaint | `fe-top-15` | Intermediate $\to$ Advanced | High (Compositor thread, transform vs top/left, GPU acceleration) | Syllabus Topic |
-| | Code Splitting & Dynamic Imports | `fe-top-17` | Intermediate $\to$ Advanced | High (React.lazy, Suspense, bundle analysis, tree shaking) | Syllabus Topic |
-| **12. Testing & Tooling** | Unit & Component Testing (Vitest / RTL) | `fe-top-16` | Intermediate $\to$ Advanced | High (User-centric tests, mocking APIs via MSW, test assertions) | Syllabus Topic |
-| | Git & GitHub Version Control | Curriculum Extension | Beginner $\to$ Intermediate | Critical (Branching strategies, merge conflicts, pull requests) | Syllabus Topic |
+### 3.1 Strict Design & Content Rules
+- **Display Skill Names Only**: Show concise, industry-standard skill titles (e.g., *"Box Model, Flexbox & CSS Grid"*, *"React Hooks"*, *"TypeScript Generics"*).
+- **No Subtopics**: Subtopics are not displayed on this screen; they are introduced contextually by the chatbot.
+- **No Descriptions**: No multi-sentence definitions or explanatory paragraphs.
+- **No Roadmaps**: No timelines, module trees, or sequencing diagrams.
+- **No Lengthy Explanations**: Clean, fast, glanceable selection interface.
+- **Role Isolation**: Only skills relevant to the chosen role are displayed. Skills belonging to unrelated roles (e.g. Kubernetes in Frontend) are never shown.
+- **Multiple Selection**: Students can select one, several, or all relevant skills.
+- **Live Search**: Instant keyword filtering across skill names.
+- **Custom Skill Addition**: A clean input field allowing students to enter specific tools or libraries (e.g., *"Tailwind CSS"*, *"Three.js"*, *"GraphQL"*).
+- **Clear Selection State**: Prominent check indicators, a real-time selected count badge, removable summary chips, and a primary action button: **"Start Learning Assistant →"**.
 
----
-
-## 4. Proposed Skill Taxonomies for All Eight Roles
-
-While Frontend Developer is the primary implementation pilot, the platform's role-to-skill taxonomy is designed to support all 8 existing roles uniformly:
+### 3.2 Approved Frontend Developer Skill Inventory (Pilot Role)
+For the Frontend Developer pilot track, the approved skill names from the canonical taxonomy are:
 
 ```
-├── 1. Frontend Developer (UI Engineering, React, Next.js, CSS, Browser Internals, Web Vitals)
-├── 2. Backend Developer (Node.js/Express, Python/FastAPI, SQL & NoSQL, Redis, Message Queues, Microservices)
-├── 3. Full Stack Developer (MERN/Next.js Full-Stack, Auth Pipelines, Schema Design, REST/GraphQL, Cloud Deploy)
-├── 4. Software Engineer (Data Structures, Algorithms, Dynamic Programming, System Design, Operating Systems, Networks)
-├── 5. Data Analyst (Advanced SQL, Python Pandas/NumPy, Tableau/PowerBI, EDA, Statistics, Cohort Metrics)
-├── 6. Data Scientist (Probability, Supervised/Unsupervised ML, Deep Learning, Feature Engineering, MLOps, Model Metrics)
-├── 7. DevOps Engineer (Linux Internals, Docker, Kubernetes, CI/CD Actions, Terraform IaC, AWS/GCP, Prometheus/Grafana)
-└── 8. Mobile App Developer (React Native, Flutter, Native Android/iOS, Mobile Lifecycle, Offline Sync, Native Modules)
+[HTML & Accessibility]
+  • Semantic HTML5 & Landmark Elements
+  • WCAG 2.1 & Keyboard Accessibility
+
+[CSS & Layouts]
+  • CSS Box Model, Flexbox & Grid
+  • Responsive Design & Media Queries
+  • Modern CSS: Variables & Modules
+
+[JavaScript Core]
+  • Execution Context, Scopes & Closures
+  • Asynchronous JavaScript & Event Loop
+  • DOM Architecture & Event Delegation
+
+[TypeScript]
+  • Static Typing & Type Annotations
+  • Advanced Generics & Utility Types
+
+[React Ecosystem]
+  • JSX, Virtual DOM & Reconciliation
+  • Component Architecture & Props
+  • Core React Hooks (useState, useEffect, useRef)
+  • Advanced Hooks & Custom Hooks
+  • React Context API
+
+[Modern Frameworks]
+  • Next.js App Router & Server Components
+  • Server Actions & Route Handlers
+
+[State Management & Data]
+  • Redux Toolkit (RTK) & Slices
+  • Server State & Caching (TanStack Query)
+  • Fetch API, Axios & REST Contracts
+  • WebSockets & Real-Time Streams
+
+[Browser & Security]
+  • Client Storage: Cookies, LocalStorage, IndexedDB
+  • Web Security: CORS, XSS & CSRF Defense
+
+[Performance & Quality]
+  • Core Web Vitals (LCP, INP, CLS)
+  • Browser Rendering Pipeline (Reflow & Repaint)
+  • Code Splitting & Dynamic Imports
+  • Unit & Component Testing (Vitest / RTL)
+  • Git Branching & Version Control
 ```
-
-### 4.1 Backend Developer
-1. **Language Runtimes**: Node.js (Async I/O, Streams, Worker Threads) / Python (FastAPI, Django, ASGI/WSGI) / Java (JVM, Spring Boot).
-2. **Relational Databases & SQL**: PostgreSQL, MySQL, Indexing (B-Tree, Hash), Query Planning (`EXPLAIN ANALYZE`), ACID transactions, Normalization.
-3. **NoSQL & Document Stores**: MongoDB, DynamoDB, Sharding, Replica Sets, Document modeling.
-4. **API Architecture**: RESTful design principles, GraphQL schemas & resolvers, gRPC & Protocol Buffers.
-5. **In-Memory Caching**: Redis (Cache-aside, Write-through, Eviction policies, Redis data structures).
-6. **Message Brokers & Async Tasks**: RabbitMQ, Apache Kafka, BullMQ, Idempotent event consumers, Dead-letter queues.
-7. **Concurrency & Threading**: Process models, Race conditions, Distributed locks (Redlock), Thread pools.
-8. **Authentication & Security**: OAuth 2.0 / OIDC, JWT signing & revocation, Rate limiting, SQL injection defense.
-9. **System Architecture**: Monolith to Microservices, Database per service, Saga pattern, API Gateways.
-10. **Backend Testing**: Unit testing, Integration testing with Testcontainers, API Contract testing.
-
-### 4.2 Full Stack Developer
-1. **Frontend Core**: Semantic HTML, Modern CSS, Responsive Design, JavaScript ESNext.
-2. **Component Libraries & Frameworks**: React, Next.js (Full-stack App Router), TypeScript across the stack.
-3. **Backend Services & APIs**: Express.js / Fastify / Next.js Route Handlers, REST API conventions.
-4. **Database Design & ORMs**: Prisma, Mongoose, Drizzle ORM, Schema migrations, Connection pooling.
-5. **Authentication & Sessions**: NextAuth/Auth.js, JWT, HTTP-only cookie session handling, Role-Based Access Control (RBAC).
-6. **Client-Server Integration**: Data contracts, tRPC, TanStack Query integration, Optimistic UI updates.
-7. **Cloud Hosting & Deployment**: Vercel, Render, Railway, Docker multi-stage builds, Environment configuration.
-8. **Security & State Sanitation**: CSRF protection, Content Security Policy (CSP), Input validation with Zod.
-
-### 4.3 Software Engineer (Core CS & Problem Solving)
-1. **Linear Data Structures**: Arrays, Two-Pointer mechanics, Linked Lists (Singly/Doubly/Circular), Stacks, Queues, Monotonic Variants.
-2. **Non-Linear Data Structures**: Binary Trees, BSTs, AVL/Red-Black Tree invariants, Heaps & Priority Queues, Tries, Graphs.
-3. **Core Algorithmic Paradigms**: Binary Search & Interval Bisection, Sorting (Quick, Merge, Heap), BFS & DFS Traversals, Topological Sort, Dijkstra's Shortest Path.
-4. **Advanced Problem Solving**: Recursion & Backtracking, Dynamic Programming (1D/2D, Memoization vs Tabulation), Greedy algorithms, Bit manipulation.
-5. **Complexity Analysis**: Big-O, Big-$\Omega$, Big-$\Theta$, Amortized analysis, Master Theorem.
-6. **Operating Systems**: Processes vs Threads, CPU Scheduling, Synchronization primitives (Mutex, Semaphore), Virtual Memory, Paging, Deadlocks.
-7. **Computer Networks**: OSI Model, TCP vs UDP, TCP 3-Way Handshake, HTTP/1.1 vs HTTP/2 vs HTTP/3, TLS/SSL, DNS.
-8. **Software Design & Patterns**: SOLID principles, Object-Oriented Design, Gang of Four patterns (Factory, Singleton, Observer, Strategy, Decorator).
-9. **High-Level System Design**: Scalability fundamentals, Load balancers, Consistent hashing, Database partitioning, CAP theorem.
-
-### 4.4 Data Analyst
-1. **Advanced SQL**: Window functions (`ROW_NUMBER`, `RANK`, `LEAD`, `LAG`), CTEs, Self-joins, Aggregate subqueries, PIVOT.
-2. **Data Manipulation in Python/R**: Pandas dataframes, NumPy vectorization, Missing data imputation, Data type casting.
-3. **Exploratory Data Analysis (EDA)**: Distribution analysis, Outlier detection, Correlation matrices, Skewness correction.
-4. **Business Intelligence & Dashboards**: Tableau / Power BI, DAX formulas, Interactive drill-downs, Executive KPI cards.
-5. **Business & Product Metrics**: Customer Lifetime Value (CLV), Churn rate, Cohort retention curves, Conversion funnels, CAC.
-6. **Applied Statistics**: Descriptive statistics, Normal distribution, Z-scores, Confidence intervals, A/B test hypothesis testing ($p$-values).
-7. **Data Storytelling & Reporting**: Executive summarization, Choosing appropriate visualizations, Automated report generation.
-
-### 4.5 Data Scientist
-1. **Mathematical Foundations**: Linear Algebra (Vectors, Matrices, Eigenvalues), Multivariable Calculus (Gradients), Probability distributions.
-2. **Statistical Inference**: Maximum Likelihood Estimation (MLE), Hypothesis testing (t-test, ANOVA, Chi-Square), Bayesian inference.
-3. **Supervised Machine Learning**: Linear/Logistic Regression, Decision Trees, Random Forests, Gradient Boosted Trees (XGBoost, LightGBM), SVMs.
-4. **Unsupervised Learning**: K-Means clustering, Hierarchical clustering, PCA dimensionality reduction, t-SNE.
-5. **Feature Engineering**: Target encoding, One-hot encoding, Feature scaling, Interaction terms, Handling imbalanced data (SMOTE).
-6. **Model Evaluation & Loss Functions**: ROC-AUC, Precision-Recall curves, F1-Score, Cross-Validation, Log-loss, MSE/MAE.
-7. **Deep Learning Fundamentals**: Neural networks, Backpropagation, Activation functions, Regularization (Dropout, Weight Decay), PyTorch basics.
-8. **MLOps & Deployment**: Model serialization (ONNX, Pickle), Flask/FastAPI model inference, Experiment tracking (MLflow).
-
-### 4.6 DevOps Engineer
-1. **Linux Operating Systems & Shell**: Bash scripting, Linux directory hierarchy, Process management (`systemd`, `ps`, `top`), Permissions, SSH keys.
-2. **Containerization**: Docker architecture, Writing efficient Dockerfiles, Multi-stage builds, Docker Compose orchestration.
-3. **Container Orchestration**: Kubernetes core objects (Pods, Deployments, Services, ConfigMaps, Secrets), Namespaces, Ingress controllers.
-4. **CI/CD Automation**: GitHub Actions workflows, Pipeline triggers, Automated linting/testing, Artifact deployment, Secret management.
-5. **Infrastructure as Code (IaC)**: Terraform (HCL, State files, Providers, Modules), Ansible playbooks.
-6. **Cloud Infrastructure (AWS/GCP)**: VPC networking, Subnets, Security Groups, IAM roles & policies, Compute (EC2/ECS), Storage (S3).
-7. **Observability & Reliability**: Prometheus metrics collection, Grafana dashboards, Centralized logging (Loki / ELK), SRE concepts (SLO, SLA, SLI).
-8. **Networking & Security**: Reverse proxies (Nginx, Caddy), TLS certificate automation (Let's Encrypt), VPNs, Firewalls.
-
-### 4.7 Mobile App Developer
-1. **Core Cross-Platform Platforms**: React Native / Flutter / Native Android (Kotlin) / Native iOS (Swift).
-2. **Mobile Layouts & UI**: Adaptive layouts, Safe Area insets, Flexbox in React Native, Touch gestures, Native animations.
-3. **Application Lifecycle**: Active, Inactive, Background, Suspended states; Memory warning handling; Deep linking.
-4. **Offline Persistence & Caching**: SQLite, Realm, WatermelonDB, Async Storage, Cache synchronization.
-5. **Device Hardware APIs**: Camera, Geolocation, Accelerometer, Push Notifications (APNs, FCM), Biometric authentication.
-6. **Networking & Resilience**: Offline-first architecture, Network status detection, Exponential backoff on dropped connections.
-7. **Store Deployment & CI/CD**: Fastlane automation, App Store Connect guidelines, Google Play Console release tracks, Code signing.
-8. **Mobile Performance**: Frame rate optimization (60/120 FPS), Image caching & downsampling, Bundle size reduction, Profiling memory leaks.
 
 ---
 
-## 5. AI Learning Assistant Architecture
+## 4. One Continuous Chatbot Architecture
 
-The AI learning assistant provides a natural, contextual dialogue while adhering to strict pedagogical principles and role boundaries:
+CareerLaunch rejects the anti-pattern of creating separate chatbot instances for individual skills. A student preparing for a role requires a **single, unified conversational intelligence** that understands their complete role context and selected skills.
 
 ```mermaid
 flowchart LR
-    User[Student Query / Goal] --> Gateway[API Gateway & Auth Verification]
-    Gateway --> Guard[Role Boundary & Intent Classifier]
-    Guard -->|Out-of-Scope Query| Redirect[Polite Pedagogical Redirection]
-    Guard -->|In-Scope Query| Router{Topic Grounding Status}
-    Router -->|Curriculum / Ingested Source| RAG[Hybrid Knowledge Retriever<br>RRF: Vector + Keyword Search]
-    Router -->|Custom Topic / Extension| CustomNotice[Flag: Source Review Required<br>No Fabricated Citations]
-    RAG --> Context[Prompt Context Assembler]
-    CustomNotice --> Context
-    Context --> Groq[Groq LPU Inference<br>Model: openai/gpt-oss-120b]
-    Groq --> Sanitizer[Response Validator & Provenance Formatter]
-    Sanitizer --> DB[(LearningConversation & Progress)]
-    Sanitizer --> Client[Rich Editorial UI Chat]
+    subgraph Single Continuous Assistant
+        Student[Student Prompt] --> Dispatcher[Context & Session Dispatcher]
+        Dispatcher --> Memory[Persistent Learning Memory<br>- Active Role & Skills<br>- Conversation History<br>- Dynamic Roadmap State<br>- Demonstrated Competencies]
+        Memory --> IntentGuard[Role & Scope Classifier]
+        IntentGuard --> PrereqCheck[Contextual Prerequisite Evaluator]
+        PrereqCheck --> GroqLLM[Groq Inference Engine<br>Model: openai/gpt-oss-120b]
+        GroqLLM --> Output[Structured Pedagogical Response]
+    end
+    Output --> UI[Unified Chatbot Interface<br>- Markdown & Syntax-Highlighted Code<br>- Dynamic In-Chat Roadmap Drawer<br>- Checkpoint Questions & Practice Drills]
 ```
 
-### 5.1 System Prompt Design
-The assistant's system prompt enforces:
-1. **Role Persona**: Senior Technical Mentor for the specific target role (e.g. Principal Frontend Architect).
-2. **Pedagogical Structure**:
-   - Begin with an intuitive conceptual definition without dense jargon.
-   - Provide concrete, production-grade code exemplars clearly attributed to CareerLaunch Engineering.
-   - Explain real-world placement interview angles: *"Why interviewers ask this"*, *"Common candidate pitfalls"*, *"Edge cases to bring up"*.
-   - Conclude with a targeted, thought-provoking checkpoint question to test active comprehension rather than passive reading.
-3. **License & Provenance Integrity**:
-   - Only cite approved, ingested knowledge sources (WHATWG, W3C, ECMA, NIST).
-   - If discussing a topic without ingested sources (e.g. Next.js, Redux Toolkit), explain it authoritatively based on verified engineering practice, clearly labeling it as CareerLaunch-authored without fabricating academic citations.
-4. **Tone**: Warm, encouraging, concise, rigorous, and completely free of filler or generic marketing prose.
-
-### 5.2 Conversational State & Context Window Management
-- Each session maintains a sliding context window of recent dialogue exchanges (the last 6–8 turns) combined with a summarized memory block of earlier topics covered in the session.
-- Total context length is strictly tracked using token budgeting to remain comfortably within the 128k context window of `openai/gpt-oss-120b`.
+### 4.1 Chatbot Core Capabilities
+1. **Natural Language Prompts**: Accepts unstructured, casual, or highly technical queries (e.g., *"Explain why my useEffect is running twice in React 18"*, *"Help me prepare for an SDE-1 frontend interview at Flipkart"*).
+2. **Structured Educational Responses**:
+   - Clear conceptual breakdown without bloated academic jargon.
+   - Clean, production-grade code exemplars with comments, attributed to CareerLaunch Engineering.
+   - Visual ASCII / mermaid diagrams for execution flow when helpful.
+3. **Natural Skill Switching**: The student can seamlessly shift topics in the middle of a session:
+   - *"We just covered closures, now can you show how closures cause stale state bugs in React useState?"*
+   - *"Let's pause React for a moment and look at CSS Grid subgrid."*
+   The assistant maintains the thread context without resetting or requiring a new session.
+4. **Follow-Up Inquiries & Socratic Dialogue**: The assistant invites questions, tests edge cases, and guides students step-by-step through complex debugging scenarios.
+5. **Interview Preparation Focus**: Every concept includes actionable placement interview framing:
+   - *Why interviewers ask this question.*
+   - *Common candidate mistakes.*
+   - *Nuanced points that distinguish top candidates (e.g. performance implications, browser differences).*
+6. **Dynamic In-Conversation Roadmap**: Rather than forcing a roadmap during onboarding, the assistant builds and updates an interactive roadmap **inside the chat workspace** as learning progresses.
 
 ---
 
-## 6. Personalised Roadmap Architecture
+## 5. Prerequisite Intelligence Engine
 
-When a student selects their target skills and describes their preparation goal, the system synthesizes a personalized roadmap:
+CareerLaunch features an **adaptive, non-blocking prerequisite intelligence system**.
 
 ```mermaid
-flowchart TD
-    Skills[Selected Skills] & Goal[Student Goal Prompt] & History[Prior Topic Progress] --> Synth[Roadmap Synthesis Engine]
-    Synth --> Groq[Groq openai/gpt-oss-120b]
-    Groq --> Validate[Plan Validator<br>Checks official fe-top-X IDs]
-    Validate --> Persist[LearningRoadmap in MongoDB]
-    Persist --> UI[Interactive Itinerary Panel]
-    UI -->|Click Milestone| Chat[Assistant focuses on Selected Milestone]
+sequenceDiagram
+    autonumber
+    actor Student
+    participant Chat as Dedicated AI Chatbot
+    participant Memory as Learning Memory
+    participant Prereq as Prerequisite Evaluator
+
+    Student->>Chat: "I want to start by building a custom React hook for data fetching."
+    Chat->>Prereq: Evaluate prerequisites for "Custom React Hooks"
+    Prereq-->>Chat: Critical Prerequisites: JavaScript Closures, Promises/Async, useEffect lifecycle
+    Chat->>Memory: Check demonstrated competencies for student
+    alt Competencies already verified in memory
+        Chat->>Student: Directly presents Custom Hook architecture and implementation
+    else Prerequisites not yet confirmed
+        Chat->>Student: "Custom data-fetching hooks rely heavily on JS Closures, Promise handling, and useEffect cleanup. Do you feel confident with those, or should we quickly review them with a 2-minute refresher?"
+        alt Student confirms knowledge ("I already know closures and promises")
+            Student->>Chat: "Yes, I know them well, let's dive into the hook."
+            Chat->>Memory: Log student-reported knowledge (unverified)
+            Chat->>Student: Proceeds directly to Custom Hook design
+        else Student requests help ("Let's review cleanup first")
+            Student->>Chat: "A quick refresher on effect cleanup would be great."
+            Chat->>Student: Explains effect cleanup functions and stale closure traps, then bridges to Custom Hooks
+        end
+    end
 ```
 
-### 6.1 Roadmap Structure
-Every generated milestone contains:
-- `milestoneId`: Unique identifier (e.g., `m-1`, `m-2`).
-- `title`: Actionable technical milestone title.
-- `officialTopicId`: Maps to canonical curriculum ID (e.g., `fe-top-1` to `fe-top-17`) when covering official curriculum topics.
-- `topicSource`: `'curriculum'` or `'student_custom'`.
-- `difficulty`: `'beginner'`, `'intermediate'`, or `'advanced'`.
-- `priority`: `'high'`, `'medium'`, or `'low'`.
-- `reasonForRecommendation`: Explains how the milestone addresses the student's background and declared goal.
-- `learningObjectives`: Specific outcomes the student will master.
-- `estimatedMinutes`: Realistic study duration.
-- `knowledgeSupportStatus`: `'verified'` (ingested source), `'roadmap_topic'` (official syllabus), or `'source_review_required'` (custom extension).
-- `status`: `'not_started'`, `'in_progress'`, `'completed'`, or `'revision_needed'`.
+### 5.1 Prerequisite System Principles
+- **No Forced Linear Sequencing**: The student is never locked out of advanced topics. CareerLaunch respects student autonomy.
+- **Contextual Verification**: If an advanced concept requires foundational understanding, the AI proactively identifies the dependency and asks the student to self-assess.
+- **Intelligent Bridging**: When the student needs foundational help, the AI presents the prerequisite in the direct context of their target goal (e.g. explaining closures specifically through how they power React state).
+- **Memory Integration**: If the student has already demonstrated competence in closures in an earlier turn, the AI skips redundant prerequisite checks.
 
 ---
 
-## 7. Role-Based AI Boundaries & Scope Enforcement
+## 6. Role & Skill Scope Enforcement
 
-A key requirement of the new architecture is **strict backend-enforced role and skill scope**.
+The platform enforces technical boundaries on the backend to maintain a disciplined, high-signal placement preparation environment.
 
-### 7.1 The Contextual Boundary Principle
-Role enforcement must **not** rely on a naive keyword blacklist. In modern engineering, technologies frequently intersect:
-- *Acceptable Intersection*: A Frontend Developer student asking how Next.js Server Components interact with a backend REST API or how Node.js streams render HTML is completely valid within frontend architecture.
-- *Out-of-Scope Deviation*: That same student asking how to write an Ansible playbook for database replication, train a Convolutional Neural Network in PyTorch, or calculate financial options volatility is out of scope.
+### 6.1 Scope Boundary Matrix
 
-### 7.2 The Intent Classifier Pipeline
-Every incoming message passes through a lightweight classifier before invocation:
-1. **Context Extraction**: Inspects the student's active role (`frontend-developer`) and chosen skills.
-2. **Domain Relevance Evaluation**: Evaluates whether the primary intent relates to the chosen role or valid cross-boundary engineering topics.
-3. **Response Strategy**:
-   - **In-Scope**: Handled directly by the assistant with full technical rigor.
-   - **Cross-Boundary with Frontend Relevance**: Answered through the lens of the student's role (e.g. explaining backend status codes specifically from the perspective of client error handling and user feedback).
-   - **Completely Out-of-Scope**: Politely redirected using a warm pedagogical bridge:
-     > *"That is an interesting topic in DevOps infrastructure, but our current focus is your Frontend Developer preparation track. Let's keep our energy focused on mastering React Hooks and state management for your upcoming interviews. If you'd like to explore cloud deployment later, you can switch to the DevOps Engineer track from the role selection catalog."*
+| Category | Description | Assistant Handling |
+|---|---|---|
+| **Selected Skills** | Technologies explicitly chosen by the student (e.g., React, CSS Grid). | Full technical depth, code examples, placement interview questions. |
+| **Necessary Prerequisites** | Foundational concepts required to understand selected skills (e.g., JS Closures for React Hooks). | Seamlessly supported with contextual bridging. |
+| **Closely Related Tech** | Modern industry companions (e.g., TypeScript with React, Vite tooling, REST APIs). | Fully permitted and connected to the core discussion. |
+| **Supporting Engineering** | General software engineering concepts (HTTP headers, browser caching, debugging tools). | Permitted through the lens of the target role. |
+| **Unrelated Disciplines** | Questions belonging to outside tracks (e.g., Kubernetes cluster setup, training PyTorch models, iOS Swift lifecycle). | **Politely redirected** with a helpful pedagogical bridge. |
+| **Non-Engineering Topics** | Creative writing, general trivia, politics, entertainment. | Strictly declined with a redirection back to interview preparation. |
 
-### 7.3 Knowledge Provenance Classification
-The assistant categorizes every technical claim into one of three tiers:
-1. **Tier 1 — Grounded in Verified Open-Access Evidence**: Sourced from ingested NIST, W3C, WHATWG, or ECMA documentation. Fully verified with document-level provenance.
-2. **Tier 2 — Curriculum-Syllabus Standard**: Official CareerLaunch curriculum topics without ingested full-text vectors. Attributed to CareerLaunch Technical Curriculum.
-3. **Tier 3 — Custom Industry Extension (Source Review Required)**: Topics like Next.js or Redux Toolkit where no official public domain source is currently ingested. The assistant answers authoritatively using vetted industry standards while flagging that official source review is ongoing. **Zero fake citations are ever generated.**
+### 6.2 Contextual Intent Classification (No Naive Keyword Blocking)
+- **Why Keyword Blocking Fails**: A naive blacklist blocking the word `"server"` would erroneously reject a valid frontend question like *"How do Next.js Server Components differ from Client Components?"*.
+- **Contextual Classification Pipeline**:
+  1. The backend inspects the active role (`frontend-developer`) and selected skills.
+  2. A lightweight prompt classification evaluates the *pedagogical intent* of the student's message against the role's scope.
+  3. If the query touches another engineering discipline but has a direct frontend implication (e.g., *"What HTTP status code should the backend return for validation errors?"*), the assistant answers directly from the client application perspective.
+  4. If the query is completely foreign, the assistant responds with an encouraging, polite redirection:
+     > *"That is a core topic in Backend Distributed Systems, but our focus right now is your Frontend Developer placement track. Let's make sure your React and CSS fundamentals are bulletproof for upcoming interviews. If you'd like to prepare for backend engineering, you can switch tracks anytime from the role catalog."*
 
 ---
 
-## 8. Learning History, Progress & Competency
+## 7. Persistent Learning Memory
 
-CareerLaunch remembers where a student stopped and distinguishes between **passive exposure** and **demonstrated understanding**.
-
-### 8.1 Passive Exposure vs. Demonstrated Competency
-- **Passive Exposure**: A student reads a lesson, browses an explanation, or scrolls through code snippets. This updates the topic status to `in_progress` and logs time spent, but does *not* award verified competency badges.
-- **Demonstrated Competency**: The student actively answers a formative cross-question, writes a correct code implementation, or diagnoses a subtle bug presented by the AI assistant. Demonstrated competency is recorded with a verification timestamp and score.
+CareerLaunch implements a durable learning memory model that differentiates between **passive exposure** and **demonstrated competence**.
 
 ```mermaid
 stateDiagram-v2
-    [*] --> NotStarted
-    NotStarted --> InProgress: Student opens topic or asks question
-    InProgress --> InProgress: AI dialogue / code review
-    InProgress --> Completed: Passive read-through completed
-    Completed --> RevisionNeeded: Checkpoint missed / student requests review
-    RevisionNeeded --> InProgress: Student re-engages
-    InProgress --> VerifiedCompetent: Passes formative diagnostic / coding check
-    VerifiedCompetent --> [*]
+    [*] --> NotStarted: Skill Selected
+    NotStarted --> InProgress: Student initiates discussion in chat
+    InProgress --> StudentReported: Student states prior familiarity
+    InProgress --> PassiveExposure: Student reads code / explanation
+    PassiveExposure --> DemonstratedCompetence: Student correctly answers checkpoint / writes valid code / spots bug
+    DemonstratedCompetence --> RevisionRequired: Follow-up drill reveals misconception
+    RevisionRequired --> DemonstratedCompetence: Student successfully completes remedial drill
+    DemonstratedCompetence --> [*]: Retained in placement portfolio
 ```
 
-### 8.2 Learning State Tracking
-For every student and active role, CareerLaunch maintains:
-- `activeSessionId`: The currently open learning dialogue.
-- `selectedSkills`: The list of technologies the student selected for this cycle.
-- `activeTopicId`: The topic currently being discussed.
-- `completedTopicIds`: Milestones where foundational review is complete.
-- `verifiedTopicIds`: Milestones where active technical competency was demonstrated.
-- `revisionTopicIds`: Milestones flagged for reinforcement.
-- `recommendedNextTopic`: The next logical topic derived from prerequisites.
+### 7.1 Learning Memory Record Specification
+Every student learning profile tracks:
+1. **Selected Role**: The active career track (`roleId`).
+2. **Selected Skills**: Array of active skill names.
+3. **Full Conversation History**: Complete ordered turns with message timestamps, code snippets, and topic linkages.
+4. **Dynamic Roadmap State**: Current milestone itinerary generated inside the chat, including:
+   - Milestone titles and canonical topic IDs (`fe-top-X` when curriculum-aligned).
+   - Order and priority.
+   - Status: `not_started`, `in_progress`, `completed`, `revision_needed`.
+5. **Current Learning Topic**: The exact technical concept actively being discussed.
+6. **Student-Reported Knowledge**: Topics the student claimed to understand during prerequisite checks (flagged as self-reported, unverified).
+7. **Demonstrated Competency**:
+   - Explicitly verified achievements (e.g., solving an AI-presented coding exercise, correctly identifying an architectural bottleneck).
+   - Scored on an objective 0–100 rubric with timestamp and evidence summary.
+   - **Passive reading is never recorded as demonstrated competence.**
+8. **Revision Requirements**: Concepts where the student hesitated, answered incorrectly, or requested later reinforcement.
+9. **Recommended Next Learning Step**: A context-aware pointer generated by the AI indicating the ideal next milestone.
 
 ---
 
-## 9. Proposed Database Design
+## 8. Database Model Strategy
 
-The database schema is streamlined to minimize unnecessary collection proliferation while enforcing strict data ownership and separating public educational content from private student sessions.
+To prevent database bloat and preserve backward compatibility with existing records, the new system introduces targeted collections that link cleanly to verified student identities.
 
 ```mermaid
 erDiagram
     StudentProfile ||--o{ LearningSession : owns
-    LearningSession ||--|| StudentSkillSelection : contains
-    LearningSession ||--o{ LearningConversation : records
+    LearningSession ||--|| StudentSkillSelection : references
+    LearningSession ||--o{ LearningConversation : contains
     LearningSession ||--o| LearningRoadmap : possesses
-    LearningRoadmap ||--o{ LearningTopicProgress : tracks
-    GeneratedLesson ||--o{ LearningTopicProgress : references_canonical
+    LearningSession ||--o{ LearningMemory : maintains
 
     LearningSession {
         ObjectId _id PK
         string firebaseUid FK
         string roleId
         string status
+        string currentTopicTitle
         date lastActiveAt
+        date createdAt
+        date updatedAt
     }
+
     StudentSkillSelection {
         ObjectId _id PK
         string firebaseUid FK
-        ObjectId sessionId FK
-        string[] selectedSkillIds
-        string[] customSkills
+        string roleId
+        string[] selectedSkillNames
+        object[] customSkills
+        date updatedAt
     }
+
     LearningConversation {
         ObjectId _id PK
         ObjectId sessionId FK
         string firebaseUid FK
         string role
         string content
+        string topicTag
         object metadata
         date createdAt
     }
+
     LearningRoadmap {
         ObjectId _id PK
         ObjectId sessionId FK
         string firebaseUid FK
-        object overview
+        string roleId
         object[] milestones
         string status
+        date updatedAt
     }
-    LearningTopicProgress {
+
+    LearningMemory {
         ObjectId _id PK
         ObjectId sessionId FK
         string firebaseUid FK
-        string topicId
+        string roleId
+        string skillName
         string status
-        boolean demonstratedCompetency
-        number score
+        boolean demonstratedCompetence
+        number competencyScore
+        string[] studentReportedConcepts
+        string[] demonstratedEvidence
+        string[] revisionItems
+        date lastEvaluatedAt
     }
 ```
 
-### 9.1 Model Specifications
+### 8.1 Collection Specifications
 
-#### 1. `StudentSkillSelection`
+#### 1. `StudentSkillSelection` (Enhanced & Simplified)
 - `firebaseUid`: String (indexed)
-- `sessionId`: ObjectId ref `LearningSession` (indexed)
-- `roleId`: String (enum of 8 roles)
-- `selectedSkills`: `[{ skillId: String, name: String, category: String }]`
-- `customSkills`: `[{ name: String, requestedAt: Date }]`
-- `timestamps`: true
+- `roleId`: String (enum of 8 roles, indexed)
+- `selectedSkillNames`: `[String]` — clean, flat array of selected skill names.
+- `customSkills`: `[{ name: String, requestedAt: Date }]` — student-added skills.
+- Unique Compound Index: `{ firebaseUid: 1, roleId: 1 }`.
 
 #### 2. `LearningSession`
 - `firebaseUid`: String (indexed)
 - `roleId`: String (indexed)
-- `title`: String (e.g. *"Frontend Campus Placement Prep"*)
 - `status`: String (`'active'`, `'paused'`, `'completed'`)
-- `currentTopicId`: String (optional)
-- `lastActiveAt`: Date (indexed for rapid dashboard resumption)
-- `timestamps`: true
+- `currentTopicTitle`: String (active topic being explored)
+- `lastActiveAt`: Date (indexed for quick dashboard resumption)
+- Timestamps: `createdAt`, `updatedAt`
 
 #### 3. `LearningConversation`
 - `sessionId`: ObjectId ref `LearningSession` (indexed)
 - `firebaseUid`: String (indexed)
 - `role`: String (`'user'`, `'assistant'`, `'system'`)
-- `content`: String (markdown text)
-- `topicId`: String (optional, tags dialogue turn to a specific roadmap milestone)
+- `content`: String (markdown, syntax-highlighted code blocks)
+- `topicTag`: String (links the exchange to an active skill/milestone)
 - `metadata`:
   - `tokens`: `{ prompt: Number, completion: Number, total: Number }`
   - `intent`: `{ isInScope: Boolean, detectedDomain: String, redirected: Boolean }`
-  - `sourcesCited`: `[{ sourceId: String, docId: String, chunkId: String }]`
+  - `prerequisiteEvaluation`: `{ checked: Boolean, prerequisiteName: String, status: String }`
+  - `citedChunks`: `[{ sourceId: String, docId: String, chunkId: String }]`
 - `createdAt`: Date (indexed)
 
 #### 4. `LearningRoadmap`
-- `sessionId`: ObjectId ref `LearningSession` (indexed, unique per session)
+- `sessionId`: ObjectId ref `LearningSession` (indexed, unique)
 - `firebaseUid`: String (indexed)
 - `roleId`: String
-- `overview`: `{ goalPrompt: String, summary: String, targetTimeline: String }`
-- `milestones`: `[{ milestoneId: String, title: String, officialTopicId: String, topicSource: String, difficulty: String, priority: String, estimatedMinutes: Number, orderIndex: Number, status: String }]`
+- `milestones`: Array of:
+  - `milestoneId`: String (e.g. `"m-1"`)
+  - `title`: String (e.g. `"Mastering React Hooks & Stale Closures"`)
+  - `officialTopicId`: String (nullable, e.g. `"fe-top-8"`)
+  - `status`: String (`'not_started'`, `'in_progress'`, `'completed'`, `'revision_needed'`)
+  - `orderIndex`: Number
 - `status`: String (`'draft'`, `'active'`, `'completed'`)
-- `timestamps`: true
+- Timestamps: `createdAt`, `updatedAt`
 
-#### 5. `LearningTopicProgress`
+#### 5. `LearningMemory`
 - `sessionId`: ObjectId ref `LearningSession` (indexed)
 - `firebaseUid`: String (indexed)
-- `topicId`: String (indexed)
+- `roleId`: String (indexed)
+- `skillName`: String (indexed)
 - `status`: String (`'not_started'`, `'in_progress'`, `'completed'`, `'revision_needed'`)
-- `demonstratedCompetency`: Boolean (default: `false`)
-- `competencyScore`: Number (0–100)
-- `timeSpentMinutes`: Number
-- `lastInteractedAt`: Date
-- `timestamps`: true
+- `demonstratedCompetence`: Boolean (default: `false`)
+- `competencyScore`: Number (0–100, default: `0`)
+- `studentReportedConcepts`: `[String]`
+- `demonstratedEvidence`: `[String]` (e.g., *"Successfully debugged dependency array memory leak"*)
+- `revisionItems`: `[String]`
+- `lastEvaluatedAt`: Date
 
 ---
 
-## 10. API Design
+## 9. API Contracts & Endpoints
 
-All endpoints require verified Firebase Bearer tokens (`requireAuth`). Ownership is verified via `req.user.uid === resource.firebaseUid`.
+All endpoints require an authenticated Firebase Bearer token verified via Express middleware (`requireAuth`). Student ownership is enforced via `req.user.uid === resource.firebaseUid`.
 
-### 10.1 Skills & Roles Endpoints
-- `GET /api/learning/roles/:roleId/skills`  
-  *Returns the structured skill taxonomy for the specified role.*
-- `POST /api/learning/skills/select`  
-  *Saves or updates the student's selected skills for a learning session.*  
-  *Body*: `{ roleId, selectedSkillIds: [...], customSkills: [...] }`
+```
+========================================================================================
+METHOD  ENDPOINT                                                  PURPOSE
+========================================================================================
+GET     /api/learning/skills/:roleId                              Fetch flat skill names for role
+GET     /api/learning/selection/:roleId                           Get student's saved skill selection
+PUT     /api/learning/selection/:roleId                           Save simplified skill selection
+----------------------------------------------------------------------------------------
+POST    /api/learning/session/init                                Get or create continuous session
+GET     /api/learning/session/:sessionId                          Fetch session & memory state
+GET     /api/learning/session/latest?roleId=...                   One-click resumption lookup
+----------------------------------------------------------------------------------------
+POST    /api/learning/session/:sessionId/message                  Send message to continuous chatbot
+GET     /api/learning/session/:sessionId/messages?limit=50        Retrieve conversation history
+----------------------------------------------------------------------------------------
+POST    /api/learning/session/:sessionId/roadmap/generate         Generate roadmap inside chat
+GET     /api/learning/session/:sessionId/roadmap                  Fetch dynamic roadmap status
+PUT     /api/learning/session/:sessionId/memory/checkpoint        Record demonstrated competency
+GET     /api/learning/dashboard/resume                            Dashboard resumption widget data
+========================================================================================
+```
 
-### 10.2 Learning Sessions & Continuity Endpoints
-- `POST /api/learning/session/start`  
-  *Initializes a new dedicated learning session for a role with chosen skills.*  
-  *Body*: `{ roleId, skillSelectionId, goalPrompt }`
-- `GET /api/learning/session/:sessionId`  
-  *Retrieves session details, active topic, and roadmap status.*
-- `GET /api/learning/session/latest?roleId=...`  
-  *Retrieves the student's most recently active session for quick one-click resumption.*
-- `GET /api/learning/dashboard/resume`  
-  *Returns the student's active learning cards across roles for the main dashboard.*
+### 9.1 Endpoint Details
 
-### 10.3 Conversational AI Assistant Endpoints
-- `POST /api/learning/session/:sessionId/message`  
-  *Sends a user message to the dedicated AI tutor. Evaluates role scope, retrieves knowledge chunks when applicable, queries Groq `openai/gpt-oss-120b`, and returns the assistant response with formative checkpoint recommendations.*  
-  *Body*: `{ message, currentTopicId }`
-- `GET /api/learning/session/:sessionId/messages?limit=50&before=...`  
-  *Retrieves paginated conversation history for the session.*
+#### `GET /api/learning/skills/:roleId`
+- **Response**:
+  ```json
+  {
+    "success": true,
+    "roleId": "frontend-developer",
+    "roleTitle": "Frontend Developer",
+    "skills": [
+      "Semantic HTML5 & Landmark Elements",
+      "WCAG 2.1 & Keyboard Accessibility",
+      "CSS Box Model, Flexbox & Grid",
+      "Responsive Design & Media Queries",
+      "Modern CSS: Variables & Modules",
+      "Execution Context, Scopes & Closures",
+      "Asynchronous JavaScript & Event Loop",
+      "DOM Architecture & Event Delegation",
+      "Static Typing & Type Annotations",
+      "Advanced Generics & Utility Types",
+      "JSX, Virtual DOM & Reconciliation",
+      "Component Architecture & Props",
+      "Core React Hooks (useState, useEffect, useRef)",
+      "Advanced Hooks & Custom Hooks",
+      "React Context API",
+      "Next.js App Router & Server Components",
+      "Server Actions & Route Handlers",
+      "Redux Toolkit (RTK) & Slices",
+      "Server State & Caching (TanStack Query)",
+      "Fetch API, Axios & REST Contracts",
+      "WebSockets & Real-Time Streams",
+      "Client Storage: Cookies, LocalStorage, IndexedDB",
+      "Web Security: CORS, XSS & CSRF Defense",
+      "Core Web Vitals (LCP, INP, CLS)",
+      "Browser Rendering Pipeline (Reflow & Repaint)",
+      "Code Splitting & Dynamic Imports",
+      "Unit & Component Testing (Vitest / RTL)",
+      "Git Branching & Version Control"
+    ]
+  }
+  ```
 
-### 10.4 Roadmap & Progress Endpoints
-- `POST /api/learning/session/:sessionId/roadmap/generate`  
-  *Synthesizes a personalized learning roadmap based on selected skills and goal prompt.*
-- `GET /api/learning/session/:sessionId/roadmap`  
-  *Retrieves the current roadmap with real-time milestone progress states.*
-- `PUT /api/learning/session/:sessionId/progress/topic/:topicId`  
-  *Updates topic status (e.g., mark as completed, flag for revision).*  
-  *Body*: `{ status, timeSpentMinutes }`
+#### `PUT /api/learning/selection/:roleId`
+- **Request Body**:
+  ```json
+  {
+    "selectedSkillNames": [
+      "CSS Box Model, Flexbox & Grid",
+      "Execution Context, Scopes & Closures",
+      "Core React Hooks (useState, useEffect, useRef)",
+      "Next.js App Router & Server Components"
+    ],
+    "customSkills": ["Tailwind CSS", "Three.js"]
+  }
+  ```
+- **Response**: Returns saved record, sanitized and deduplicated.
+
+#### `POST /api/learning/session/:sessionId/message`
+- **Request Body**:
+  ```json
+  {
+    "message": "I want to start with custom hooks, but can we review closures first?",
+    "currentTopic": "Custom React Hooks"
+  }
+  ```
+- **Processing**:
+  1. Validates role scope and detects technical domain.
+  2. Evaluates prerequisites (identifies JavaScript Closures as requested).
+  3. Queries hybrid RAG retriever for grounding chunks when curriculum-aligned.
+  4. Calls Groq LPU inference with `openai/gpt-oss-120b`.
+  5. Records turns in `LearningConversation` and updates `LearningMemory`.
+- **Response**:
+  ```json
+  {
+    "success": true,
+    "response": "...",
+    "topicTag": "Execution Context, Scopes & Closures",
+    "prerequisiteStatus": {
+      "isPrerequisiteReview": true,
+      "prerequisiteFor": "Advanced Hooks & Custom Hooks"
+    },
+    "metadata": {
+      "tokens": { "total": 420 },
+      "inScope": true
+    }
+  }
+  ```
 
 ---
 
-## 11. Existing System Audit & Migration Matrix
+## 10. Existing System Migration Matrix
 
-Every existing component, route, model, and service in the CareerLaunch repository has been inspected and classified:
+A strict principle of this architecture is **zero unnecessary rebuilds and zero data deletion**. Existing models, records, and services are audited and classified:
 
-| Existing Asset / Component | Path | Current Purpose | Classification | Migration Strategy |
-|---|---|---|---|---|
-| **Role Selection Catalog Page** | `src/pages/InterviewPreparationPage.jsx` | 8-card role selection grid (`/interview-preparation`) | **1. Reuse Unchanged** | **Preserve 100% untouched**. Update role click handler for Frontend Developer to route to new Skill Selection page. |
-| **Role Metadata Registry** | `src/data/interviewRoles.js` | Authoritative definition of 8 career roles | **1. Reuse Unchanged** | Preserved exactly. Add references to new role skill taxonomies. |
-| **Authentication System** | `src/lib/firebase.js`, `src/hooks/useAuth.js`, `server/src/middleware/authMiddleware.js` | Firebase token verification & auth state | **1. Reuse Unchanged** | Preserved. All new learning endpoints leverage existing `requireAuth`. |
-| **Groq AI Provider Client** | `server/src/services/ai/groqProvider.js`, `aiConfig.js` | High-speed LPU inference with `openai/gpt-oss-120b` | **1. Reuse Unchanged** | Preserved. New learning assistant directly utilizes `GroqProvider`. |
-| **Canonical Lesson Inventory (20 Lessons)** | MongoDB `generatedlessons` | 16 Software Engineer + 4 Frontend Developer lessons | **1. Reuse Unchanged** | Preserved intact. Can be linked directly as deep-dive references from chat. |
-| **Knowledge Sources & RAG Chunks** | MongoDB `knowledgesources`, `ingesteddocuments`, `contentchunks` | 7 sources, 20 docs, 28 verified content chunks | **1. Reuse Unchanged** | Preserved intact. Sourced by hybrid retriever during learning dialogue. |
-| **Hybrid Knowledge Retriever** | `server/src/services/retrieval/hybridRetriever.js` | Vector + keyword RRF search | **1. Reuse Unchanged** | Preserved. Supplies factual evidence chunks to conversation engine. |
-| **Curriculum Registry** | `server/src/services/ai/curriculumRegistry.js` | Canonical mapping of `fe-top-1` to `fe-top-17` | **1. Reuse Unchanged** | Preserved. Used to ground roadmap synthesis. |
-| **Student Profile Model** | `server/src/models/StudentProfile.js` | Student metadata, education, target roles | **2. Reuse with Modifications** | Keep schema intact; add optional `activeLearningSessionId` reference. |
-| **Frontend Topic Lesson View** | `src/components/interview/LessonContentView.jsx` | 9-section editorial lesson rendering | **2. Reuse with Modifications** | Reuse as an optional in-depth reading modal accessible from the learning assistant. |
-| **Preparation Setup Page** | `src/pages/PreparationSetupPage.jsx` | Phase B1 intake setup page | **4. Keep Temporarily (Backward Comp.)** | Retain route `/interview-preparation/frontend-developer/setup` so previous student setups remain accessible during Phase 1 & 2. |
-| **Preparation Session Model** | `server/src/models/PreparationSession.js` | Stores Phase B1 setup records | **4. Keep Temporarily (Backward Comp.)** | Preserve all existing records in MongoDB. Zero data deletion. |
-| **Diagnostic Session Model & Engine** | `server/src/models/DiagnosticSession.js`, `DiagnosticPage.jsx` | Phase B2 adaptive diagnostic | **4. Keep Temporarily (Backward Comp.)** | Retain endpoints and questions. Diagnostic question bank can be repurposed for interactive competency checks. |
-| **Preparation Plan Model & Page** | `server/src/models/PreparationPlan.js`, `PreparationPlanPage.jsx` | Phase B2 preparation plan | **4. Keep Temporarily (Backward Comp.)** | Retain existing records. Roadmap schema in new architecture evolves from this model. |
-| **Static Roadmap Tree Sidebar** | `src/pages/InterviewPreparationPage.jsx` (roadmap view) | Static 3-level module tree | **5. Defer / Retire After Migration** | Transition to dynamic personalized roadmap sidebar in the new assistant workspace after user sign-off. |
+```mermaid
+pie title Existing Asset Classification
+    "Reuse Unchanged" : 55
+    "Modify" : 15
+    "Retain Temporarily" : 25
+    "Retire After Approval" : 5
+```
 
----
-
-## 12. UI Screen Specifications
-
-The new interface embraces CareerLaunch's editorial design system (Warm Ivory, Deep Forest, Muted Terracotta, Soft Sage) while delivering a clean, modern, distraction-free environment.
-
-### 12.1 Screen 0 — Target Role Selection (`/interview-preparation`)
-- **Status**: **PRESERVED 100% UNCHANGED**.
-- Preserves header, subtitle, 8 role cards, Lucide icons, descriptions, stage badges, and responsive grid.
-- Selecting **Frontend Developer** navigates to the new Skill Selection view (`/interview-preparation/frontend-developer/skills`).
-
-### 12.2 Screen 1 — Role-Specific Skill Selection (`/interview-preparation/:roleId/skills`)
-- **Header**: Breadcrumbs (`Interview Prep / Frontend Developer / Skill Selection`), Title (*"What technologies do you want to master?"*), Subtitle.
-- **Search Bar**: Instant filtering across skill names, categories, and keywords.
-- **Categorized Skill Grid**: Clean cards grouped by category (HTML/CSS, JavaScript, Frameworks, State Management, Tooling). Each card shows skill name, description, priority badge, and an interactive toggle checkbox.
-- **Custom Skill Prompt**: Inline field at the bottom: *"Need something else? Add custom skill (e.g. Astro, WebGPU, GraphQL)"*.
-- **Selected Skills Tray**: Sticky bottom bar displaying count of selected skills with removable pills and primary button: **"Open Learning Assistant"** $\to$.
-
-### 12.3 Screen 2 — Dedicated AI Learning Assistant & Chat (`/interview-preparation/:roleId/learn/:sessionId`)
-- **Layout**: Two-column layout (collapsible roadmap on left, conversational workspace on right).
-- **Left Column (Roadmap Drawer, 320px)**:
-  - Overall progress bar (e.g. *"Topic 2 of 5 in progress"*).
-  - Vertical milestone list with status indicators (`not_started`, `in_progress`, `completed`).
-  - Clicking any milestone immediately reorients the conversational assistant to that topic.
-- **Right Column (Conversational Stage, flexible max 840px)**:
-  - Clean message thread: user bubbles in Warm Ivory/Sand, assistant responses in clear typography with typography tokens.
-  - Markdown formatting: highlighted code blocks with language badges, bulleted concept breakdowns, and interview callout cards.
-  - Interactive Action Chips: *"Explain with code example"*, *"Ask me a placement interview question"*, *"Show common bugs"*.
-  - Message Input Bar: Clean textarea with auto-resize, send button, and keyboard shortcut (`Enter` to send, `Shift+Enter` for newline).
-
-### 12.4 Screen 3 — Dashboard Resumption Widget (`/dashboard`)
-- A prominent, clean resumption card at the top of the student dashboard:
-  - Role badge: **Frontend Developer**.
-  - Current milestone: **React Hooks: Dependency Arrays & Cleanup**.
-  - Quick stats: 3 of 6 topics completed (50%).
-  - Primary button: **"Resume Learning Session"** $\to$.
+| Existing Asset | Location | Classification | Migration & Coexistence Strategy |
+|---|---|---|---|
+| **Role Catalog Page** | `src/pages/InterviewPreparationPage.jsx` | **Reuse Unchanged** | **100% Preserved**. All 8 role cards, descriptions, and styling remain untouched. Clicking Frontend Developer navigates to `/skills`. |
+| **Role Definitions** | `src/data/interviewRoles.js` | **Reuse Unchanged** | Preserved authoritative metadata for the 8 career roles. |
+| **Firebase Auth Subsystem** | `server/src/middleware/authMiddleware.js`, `src/lib/firebase.js`, `src/hooks/useAuth.js` | **Reuse Unchanged** | Preserved. All `/api/learning` routes use `requireAuth`. |
+| **Groq LPU Client** | `server/src/services/ai/groqProvider.js`, `aiConfig.js` | **Reuse Unchanged** | Preserved. Continues using model `openai/gpt-oss-120b`. |
+| **Canonical Lessons (20)** | MongoDB `generatedlessons` (16 SWE + 4 FE) | **Reuse Unchanged** | Preserved completely intact. Accessible for citation and deep-dive reading. |
+| **Knowledge Sources & RAG** | MongoDB `knowledgesources`, `ingesteddocuments`, `contentchunks` | **Reuse Unchanged** | Preserved. 7 sources, 20 docs, 28 chunks remain active for hybrid retrieval. |
+| **Curriculum Registry** | `server/src/services/ai/curriculumRegistry.js` | **Reuse Unchanged** | Preserved. Maps `fe-top-1` to `fe-top-17` for canonical grounding. |
+| **Student Profiles** | MongoDB `studentprofiles` (2 existing) | **Reuse Unchanged** | Preserved intact. |
+| **StudentSkillSelection** | `server/src/models/StudentSkillSelection.js` | **Modify** | Update to support flat `selectedSkillNames` alongside legacy `selectedSkills` for smooth transition. |
+| **Skill Selection Page** | `src/pages/RoleSkillSelectionPage.jsx` | **Modify** | Streamline UI: remove category descriptions, subtopics, and lengthy explanations. Show clean skill names only with search and custom skill input. |
+| **PreparationSession** | MongoDB `preparationsessions` (Phase B1) | **Retain Temporarily** | Preserved in MongoDB. Zero deletion. Existing `/setup` route remains reachable for backward compatibility. |
+| **PreparationPlan** | MongoDB `preparationplans` (Phase B2) | **Retain Temporarily** | Preserved in MongoDB. Existing `/plan/:planId` route remains intact. In-conversation roadmap borrows proven validation logic from `planValidator.js`. |
+| **DiagnosticSession** | MongoDB `diagnosticsessions` (Phase B2) | **Retain Temporarily** | Preserved in MongoDB. Diagnostic bank (`diagnosticBank.js`) is reused inside the chatbot for formative checkpoint questions. |
+| **Static Module Sidebar** | `src/pages/InterviewPreparationPage.jsx` (old roadmap) | **Retire After Approval** | Replaced by the dynamic in-chat roadmap drawer once the continuous assistant is approved. |
 
 ---
 
-## 13. Implementation Phases & Acceptance Criteria
+## 11. Resolution of Contradictions with Earlier Blueprints
+
+To establish absolute clarity, the following table resolves every point of friction between earlier proposals and the final approved specification:
+
+| Feature Area | Earlier / Conflicting Proposals | Final Approved Specification (Superseding) | Rationale |
+|---|---|---|---|
+| **Skill Selection UI** | Verbose category cards with descriptions, subtopics, difficulty tags, and roadmap previews. | **Skill names only**. No subtopics, no descriptions, no roadmaps, no lengthy text. Includes search, multi-selection, and custom skill input. | Eliminates cognitive fatigue; students want to quickly select their skills and start learning immediately. |
+| **Chatbot Scope & Structure** | Separate chatbot instances created per individual skill or topic. | **One continuous chatbot for the entire selected career track and chosen skills**. | A single conversation maintains holistic memory, enables cross-skill connections, and avoids fractured chat threads. |
+| **Roadmap Timing** | Generating a complete fixed roadmap during onboarding before learning begins. | **Dynamic roadmap generated inside the conversation as learning progresses**. | Roadmaps created before speaking to the student are static guesses; in-conversation generation adapts to the student's live input. |
+| **Prerequisite Handling** | Strict linear blocking (forcing students to complete JS before touching React). | **Contextual prerequisite intelligence without rigid sequencing**. AI checks knowledge, advises, and lets the student choose. | Adult learners have diverse backgrounds; forcing rigid sequences causes frustration. |
+| **Scope Enforcement** | Hardcoded keyword blacklists. | **Contextual intent classification with explicit role/skill context and polite pedagogical bridges**. | Keyword filters break on valid cross-disciplinary questions (e.g. Next.js Server Components). |
+| **Progress Tracking** | Counting page views or passive reading as milestone completion. | **Clear distinction: passive reading is NOT competence**. Competence requires demonstrated code, diagnostic, or debugging success. | Prepares students for real technical interviews where demonstrated ability is evaluated. |
+
+---
+
+## 12. Phased Implementation Roadmap & Acceptance Criteria
 
 ```mermaid
 gantt
-    title CareerLaunch New Direction Implementation Roadmap
+    title Revised Phased Implementation Roadmap
     dateFormat  YYYY-MM-DD
     section Phase 1
-    Blueprint & Architecture Audit        :done, p1, 2026-11-09, 1d
-    section Phase 2
-    Skill Taxonomy & Selection UI         :active, p2, 2026-11-10, 2d
+    Revised Specification & Architecture Alignment :done, p1, 2026-11-09, 1d
+    section Phase 2 (Revised)
+    Simplified Skill Selection (Names Only)        :p2, 2026-11-10, 1d
     section Phase 3
-    AI Learning Assistant & Chat Engine   :p3, after p2, 3d
+    One Continuous AI Chatbot & Memory Engine      :p3, after p2, 3d
     section Phase 4
-    Personalised Roadmap & Continuity     :p4, after p3, 2d
+    In-Conversation Dynamic Roadmap & Resumption   :p4, after p3, 2d
     section Phase 5
-    Practice & Assessment Integration     :p5, after p4, 3d
+    Interactive Checkpoints & Placement Drills     :p5, after p4, 2d
 ```
 
-### Phase 1 — Architecture & Migration Blueprint (Current Phase)
-- **Deliverable**: `docs/CAREERLAUNCH_NEW_PRODUCT_ARCHITECTURE_BLUEPRINT.md`.
-- **Constraint**: Planning only. Zero code modifications. Baseline invariants strictly verified.
+### Phase 1 — Specification & Architecture Alignment (Current Phase)
+- **Goal**: Update and commit `docs/CAREERLAUNCH_NEW_PRODUCT_ARCHITECTURE_BLUEPRINT.md` reflecting the final specification.
+- **Strict Constraint**: Architecture alignment and planning only. Zero code modified. Baseline database invariants strictly preserved.
+- **Acceptance Criteria**:
+  1. Blueprint comprehensively covers the 11 required sections.
+  2. Contradictions with earlier proposals are explicitly resolved.
+  3. Committed to git and reported to user. Stop condition met.
 
-### Phase 2 — Skill Taxonomy & Selection Experience
-- Implement `SkillSelectionPage.jsx` for Frontend Developer.
-- Backend endpoint `GET /api/learning/roles/:roleId/skills` and `POST /api/learning/skills/select`.
-- Search, multi-select, custom skill input, and responsive design.
+### Phase 2 (Revised) — Simplified Skill Selection Experience
+- **Goal**: Implement the streamlined skill-selection interface.
+- **Acceptance Criteria**:
+  1. Displays **skill names only** for Frontend Developer (28 approved skills).
+  2. Zero subtopics, descriptions, roadmaps, or lengthy text.
+  3. Instant search filtering across skill names.
+  4. Multiple selection with visual toggle and counter.
+  5. Custom skill addition field with duplicate prevention.
+  6. Backend endpoint updates for simplified skill names storage.
+  7. Automated test verification and CDP screenshots.
 
-### Phase 3 — Dedicated AI Learning Assistant
-- Implement `LearningAssistantPage.jsx` with chat stream/polling and markdown code rendering.
-- Backend endpoint `POST /api/learning/session/:sessionId/message` with Groq `openai/gpt-oss-120b`.
-- Role-scoping classifier with polite out-of-scope redirection.
-- Multi-turn conversation persistence in `LearningConversation`.
+### Phase 3 — One Continuous AI Chatbot & Memory Engine
+- **Goal**: Build the unified conversational learning workspace for the role.
+- **Acceptance Criteria**:
+  1. Single continuous chat thread per student per role (`/interview-preparation/:roleId/learn`).
+  2. Natural switching between selected skills in the same conversation.
+  3. Groq LPU inference with `openai/gpt-oss-120b`.
+  4. Contextual prerequisite intelligence (detects dependencies, asks student, bridges smoothly).
+  5. Backend intent classifier enforcing role and skill scope with polite redirections.
+  6. Multi-turn conversation persistence in `LearningConversation`.
 
-### Phase 4 — Personalised Roadmap & Learning Continuity
-- AI roadmap generation endpoint `POST /api/learning/session/:sessionId/roadmap/generate`.
-- Interactive sidebar roadmap showing milestones, estimated time, and progress.
-- Topic status updates and dashboard resumption widget.
+### Phase 4 — Dynamic In-Conversation Roadmap & Continuity
+- **Goal**: In-conversation roadmap generation and persistent learning memory.
+- **Acceptance Criteria**:
+  1. Roadmap generated dynamically inside the chat workspace based on conversational context.
+  2. Collapsible side drawer displaying milestones and real-time progress.
+  3. Distinct tracking for student-reported knowledge vs. demonstrated competency.
+  4. Dashboard one-click resumption card restoring conversation and roadmap state.
 
-### Phase 5 — Practice Engines & Placement Assessments (Future Phase D)
-- Integration of interactive MCQs, code debugging drills, and mock interview assessments directly within the chat workspace.
-
----
-
-## 14. Security, Privacy & Licensing Considerations
-
-1. **Strict Resource Ownership**:
-   - Every session, conversation turn, and roadmap milestone is tied to the authenticated `firebaseUid`.
-   - Access attempts by unauthorized UIDs yield HTTP 403 Forbidden.
-2. **Data Privacy**:
-   - Student prompts and conversations are kept strictly private in private collections. They are never exported or mixed into shared canonical educational assets.
-3. **Open-Access Licensing Compliance**:
-   - Grounding evidence is restricted to approved open licenses (Public Domain, CC0, CC BY, W3C Software/Document License, WHATWG).
-   - No arbitrary web scraping or automatic ingestion of student-supplied URLs.
-   - Code examples are authored and attributed to CareerLaunch Engineering.
-
----
-
-## 15. Risks & Unresolved Decisions
-
-| Risk / Decision | Impact | Proposed Mitigation |
-|---|---|---|
-| **High Token Consumption in Multi-Turn Chat** | Exceeding rate limits or token budgets during long dialogues | Implement rolling context truncation (last 6-8 turns + summary). Use `openai/gpt-oss-120b` for core responses with token limits. |
-| **Embeddings Model for Semantic Search** | Groq does not provide embedding generation endpoints | Continue utilizing the existing configured embedding provider / hybrid keyword-semantic fallback currently active in `hybridRetriever.js`. |
-| **Out-of-Scope Classification Latency** | Added latency if classification runs as a separate LLM call | Embed classification guidelines directly within the assistant system prompt, or use a lightweight rule-based semantic filter for obvious cross-domain requests. |
-| **Preserving Previous Phase Data** | Potential data confusion between Phase B1/B2 models and new learning models | Maintain separate collections (`LearningSession`, `LearningConversation`, `LearningRoadmap`) while preserving existing `PreparationSession` and `PreparationPlan` tables untouched. |
+### Phase 5 — Interactive Placement Checkpoints & Coding Drills
+- **Goal**: Embed formative placement drills directly inside the chat.
+- **Acceptance Criteria**:
+  1. Socratic check questions, code debugging exercises, and interview follow-ups.
+  2. Objective scoring updating `demonstratedCompetence` in `LearningMemory`.
 
 ---
 
-## 16. Baseline Verification & Invariant Sign-Off
+## 13. Technical Stack Verification
 
-At the conclusion of Phase 1 planning, the system baseline was strictly verified:
-
-- **Git Commit Hash**: `b9ef755`
-- **Working Tree**: Clean (`git status` reports nothing to commit).
-- **Code Linter**: `npx oxlint` passed with **0 warnings and 0 errors** across 118 files.
-- **Production Build**: `npm run build` compiled cleanly in 1.12s with zero errors.
-- **Database Status**:
-  - `studentprofiles`: Exactly 2
-  - `generatedlessons`: Exactly 20 (16 SWE + 4 FE)
-  - `knowledgesources`: Exactly 7
-  - `ingesteddocuments`: Exactly 20
-  - `contentchunks`: Exactly 28
-  - `preparationsessions`: Exactly 1
-  - `diagnosticsessions`: 8
-  - `preparationplans`: 5
-- **Test Suites Verified**:
-  - Phase B2 Suite (`testPhaseB2DiagnosticAndPlan.js`): **43 / 43 PASSED** (100%)
-  - Pre-B2 Dropdown Suite (`testPreB2Dropdown.js`): **24 / 24 PASSED** (100%)
-  - Phase B1 Setup Suite (`testPhaseB1Setup.js`): **26 / 26 PASSED** (100%)
-  - Phase 6.1 Batch 1 Suite (`testPhase6Batch1.js`): **101 / 101 PASSED** (100%)
+The system continues using CareerLaunch's proven production stack:
+- **Frontend**: React 19, Vite, JavaScript (JSX), Plain CSS (Warm Ivory `#FAF8F5`/`#F6F2E9`, Deep Forest `#1E3D34`/`#24372F`, Muted Terracotta `#C45A3C`/`#C66A4A`, Soft Sage `#8FA89B`/`#879477`, Charcoal `#2B2927`, Sand `#E8E4DC`). Zero Tailwind, zero TypeScript.
+- **Backend**: Node.js, Express, MongoDB with Mongoose (port 27018, database `careerlaunch`).
+- **Authentication**: Firebase Authentication with Admin SDK token verification.
+- **Inference Provider**: Groq Cloud LPU inference (`openai/gpt-oss-120b`).
+- **Retrieval Engine**: Hybrid keyword + vector reciprocal rank fusion (RRF) over verified W3C, WHATWG, ECMA, and NIST sources. Provider-independent architecture.
 
 ---
 
-## 17. Strict Stop Condition Met
+## 14. Strict Stop Condition Met
 
-Phase 1 (Architecture & Migration Blueprint) is complete. In strict adherence with instructions:
-- Zero application code was modified.
-- Zero UI was changed.
-- Zero routes were added.
-- Zero database models were migrated or deleted.
-- Zero lessons were generated.
-- Zero student records were modified.
+In strict compliance with instructions:
+- **Planning and architecture alignment only.**
+- **Zero application code, UI components, routes, database models, or student records were modified.**
+- **Zero lessons were generated or documents ingested.**
+- **All existing database invariants remain strictly preserved.**
 
-Standing by for user review and explicit approval before starting Phase 2.
+Standing by for user review and explicit approval before implementing the revised Phase 2.
