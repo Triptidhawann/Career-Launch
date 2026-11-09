@@ -337,16 +337,16 @@ export function PreparationSetupPage() {
 
             <h1 className="prep-setup-saved-title">Your Preparation Setup is Saved!</h1>
             <p className="prep-setup-saved-desc">
-              Your personalized goals and targeted topics have been securely recorded. In the upcoming Phase B2,
-              CareerLaunch&apos;s AI curriculum orchestrator will synthesize these preferences into an interactive milestone schedule.
+              Your personalized goals and targeted topics have been securely recorded. You are ready to start
+              your adaptive technical diagnostic or generate your custom AI preparation itinerary.
             </p>
 
-            {/* Pending Generation Phase Notice */}
+            {/* Next Stage Action Banner */}
             <div className="prep-setup-phase-notice">
-              <h4>Phase B1 Milestone Reached: Personalised Intake Complete</h4>
+              <h4>Next Stage: Adaptive Knowledge Diagnostic & AI Preparation Plan</h4>
               <p>
-                Your setup data is now persisted in your student profile. No mock or premature AI plan generation is triggered in this phase.
-                You can review what was saved below, edit your setup, or explore the full Frontend Developer roadmap.
+                Take a quick 5–8 question adaptive diagnostic to identify verified strengths and focus gaps,
+                or generate your personalised placement preparation plan directly.
               </p>
             </div>
 
@@ -400,13 +400,22 @@ export function PreparationSetupPage() {
 
             {/* Action Buttons */}
             <div className="prep-setup-actions">
+              <Link
+                to={`/interview-preparation/${ROLE_ID}/diagnostic?session=${savedSession.sessionId || savedSession._id}`}
+                className="prep-setup-btn-primary"
+              >
+                <Sparkles size={15} />
+                <span>Start Knowledge Diagnostic</span>
+                <ArrowRight size={14} />
+              </Link>
+
               <button
                 type="button"
                 onClick={() => setIsEditing(true)}
-                className="prep-setup-btn-primary"
+                className="prep-setup-btn-secondary"
               >
-                <Edit3 size={15} />
-                <span>Edit Preparation Setup</span>
+                <Edit3 size={14} />
+                <span>Edit Setup</span>
               </button>
 
               <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>

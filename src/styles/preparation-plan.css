@@ -1,0 +1,627 @@
+/* ==========================================================================
+   CareerLaunch — Personalised Preparation Plan Styling
+   Editorial Design System: Warm Ivory, Deep Forest, Muted Terracotta, Soft Sage
+   ========================================================================== */
+
+.plan-container {
+  min-height: 100vh;
+  background-color: var(--color-ivory, #FAF8F5);
+  color: var(--color-charcoal, #2B2927);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Topbar */
+.plan-topbar {
+  height: 64px;
+  background: rgba(250, 248, 245, 0.95);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--color-sand, #E8E4DC);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.plan-topbar__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-family: var(--font-serif, "Newsreader", Georgia, serif);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-forest, #1E3D34);
+  text-decoration: none;
+}
+
+.plan-topbar__role-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.2rem 0.55rem;
+  border-radius: 9999px;
+  background-color: rgba(30, 61, 52, 0.08);
+  color: var(--color-forest, #1E3D34);
+}
+
+.plan-topbar__user {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.plan-topbar__avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--color-forest, #1E3D34);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+/* Main Layout */
+.plan-main {
+  flex: 1;
+  max-width: 1040px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 5rem;
+}
+
+/* Breadcrumbs */
+.plan-breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--color-charcoal-muted, #6B6864);
+  margin-bottom: 1.5rem;
+}
+
+.plan-breadcrumbs a {
+  color: var(--color-charcoal-muted, #6B6864);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.plan-breadcrumbs a:hover {
+  color: var(--color-forest, #1E3D34);
+}
+
+.plan-breadcrumbs__current {
+  color: var(--color-forest, #1E3D34);
+  font-weight: 600;
+}
+
+/* Plan Hero & Overview */
+.plan-hero {
+  margin-bottom: 2.25rem;
+}
+
+.plan-hero__status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  margin-bottom: 0.875rem;
+}
+
+.plan-hero__status-badge--draft {
+  background-color: rgba(224, 159, 62, 0.15);
+  color: #8C590E;
+}
+
+.plan-hero__status-badge--customized {
+  background-color: rgba(30, 61, 52, 0.1);
+  color: var(--color-forest, #1E3D34);
+}
+
+.plan-hero__status-badge--accepted {
+  background-color: rgba(143, 168, 155, 0.2);
+  color: #2D5A46;
+}
+
+.plan-hero__title {
+  font-family: var(--font-serif, "Newsreader", Georgia, serif);
+  font-size: 2.25rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--color-forest, #1E3D34);
+  margin-bottom: 0.75rem;
+}
+
+.plan-hero__summary {
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  color: var(--color-charcoal-muted, #6B6864);
+  max-width: 860px;
+  margin-bottom: 1.75rem;
+}
+
+/* Metric Cards Grid */
+.plan-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+
+.plan-metric-card {
+  background: #ffffff;
+  border: 1px solid var(--color-sand, #E8E4DC);
+  border-radius: 10px;
+  padding: 1.125rem 1.25rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.plan-metric-card__label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-charcoal-muted, #6B6864);
+  margin-bottom: 0.35rem;
+}
+
+.plan-metric-card__value {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-forest, #1E3D34);
+}
+
+/* Knowledge Assessment Panel */
+.plan-section {
+  background: #ffffff;
+  border: 1px solid var(--color-sand, #E8E4DC);
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.02);
+}
+
+.plan-section__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.plan-section__title {
+  font-family: var(--font-serif, "Newsreader", Georgia, serif);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-forest, #1E3D34);
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.plan-assessment-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+.plan-assessment-col {
+  background-color: var(--color-ivory, #FAF8F5);
+  border: 1px solid var(--color-sand, #E8E4DC);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+
+.plan-assessment-col__title {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.875rem;
+}
+
+.plan-assessment-col__title--strengths { color: #2D5A46; }
+.plan-assessment-col__title--gaps { color: var(--color-terracotta, #C45A3C); }
+
+.plan-assessment-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.plan-tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8125rem;
+  padding: 0.3rem 0.625rem;
+  border-radius: 6px;
+  background: #ffffff;
+  border: 1px solid var(--color-sand, #E8E4DC);
+}
+
+.plan-tag-chip--strength {
+  border-color: rgba(143, 168, 155, 0.6);
+  color: #2D5A46;
+}
+
+.plan-tag-chip--gap {
+  border-color: rgba(196, 90, 60, 0.5);
+  color: var(--color-terracotta, #C45A3C);
+}
+
+/* Learning Milestones Timeline */
+.plan-milestones-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.plan-milestone-card {
+  border: 1.5px solid var(--color-sand, #E8E4DC);
+  border-radius: 10px;
+  background: #ffffff;
+  padding: 1.5rem;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.plan-milestone-card:hover {
+  border-color: rgba(30, 61, 52, 0.3);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+}
+
+.plan-milestone-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.plan-milestone-card__main {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  flex: 1;
+}
+
+.plan-milestone-number {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background-color: var(--color-forest, #1E3D34);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+}
+
+.plan-milestone-card__title-wrap {
+  flex: 1;
+}
+
+.plan-milestone-title {
+  font-family: var(--font-serif, "Newsreader", Georgia, serif);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-forest, #1E3D34);
+  margin-bottom: 0.4rem;
+}
+
+.plan-milestone-tags {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.875rem;
+}
+
+.plan-badge {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 0.2rem 0.55rem;
+  border-radius: 4px;
+}
+
+.plan-badge--high {
+  background-color: rgba(196, 90, 60, 0.15);
+  color: var(--color-terracotta, #C45A3C);
+}
+
+.plan-badge--medium {
+  background-color: rgba(224, 159, 62, 0.15);
+  color: #8C590E;
+}
+
+.plan-badge--low {
+  background-color: rgba(143, 168, 155, 0.15);
+  color: #2D5A46;
+}
+
+.plan-badge--curriculum {
+  background-color: rgba(30, 61, 52, 0.08);
+  color: var(--color-forest, #1E3D34);
+}
+
+.plan-badge--custom {
+  background-color: rgba(196, 90, 60, 0.1);
+  color: var(--color-terracotta, #C45A3C);
+}
+
+.plan-badge--verified {
+  background-color: rgba(143, 168, 155, 0.2);
+  color: #2D5A46;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.plan-badge--review-required {
+  background-color: rgba(224, 159, 62, 0.15);
+  color: #8C590E;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.plan-milestone-reason {
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: var(--color-charcoal-muted, #6B6864);
+  margin-bottom: 1rem;
+}
+
+/* Milestone Controls */
+.plan-milestone-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.plan-icon-btn {
+  background: none;
+  border: 1px solid var(--color-sand, #E8E4DC);
+  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-charcoal-muted, #6B6864);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.plan-icon-btn:hover:not(:disabled) {
+  border-color: var(--color-forest, #1E3D34);
+  color: var(--color-forest, #1E3D34);
+  background-color: rgba(30, 61, 52, 0.04);
+}
+
+.plan-icon-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.plan-icon-btn--danger:hover {
+  border-color: var(--color-terracotta, #C45A3C);
+  color: var(--color-terracotta, #C45A3C);
+  background-color: rgba(196, 90, 60, 0.06);
+}
+
+/* Milestone Details Collapse */
+.plan-milestone-details {
+  border-top: 1px dashed var(--color-sand, #E8E4DC);
+  padding-top: 1rem;
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+.plan-details-group__title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-charcoal-muted, #6B6864);
+  margin-bottom: 0.5rem;
+}
+
+.plan-details-list {
+  margin: 0;
+  padding-left: 1.25rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--color-charcoal, #2B2927);
+}
+
+.plan-details-list li {
+  margin-bottom: 0.35rem;
+}
+
+/* Custom Topic Notice Box */
+.plan-custom-topic-notice {
+  margin-top: 0.875rem;
+  padding: 0.75rem 1rem;
+  background-color: rgba(224, 159, 62, 0.08);
+  border-left: 3px solid #E09F3E;
+  border-radius: 4px;
+  font-size: 0.8125rem;
+  color: #7A4E0B;
+}
+
+/* Weekly Schedule */
+.plan-schedule-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.plan-schedule-card {
+  background: var(--color-ivory, #FAF8F5);
+  border: 1px solid var(--color-sand, #E8E4DC);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+
+.plan-schedule-card__week {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-forest, #1E3D34);
+  margin-bottom: 0.35rem;
+}
+
+.plan-schedule-card__focus {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-charcoal, #2B2927);
+  margin-bottom: 0.75rem;
+}
+
+/* Practice Recommendations */
+.plan-practice-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.plan-practice-card {
+  background: var(--color-ivory, #FAF8F5);
+  border: 1px solid var(--color-sand, #E8E4DC);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+
+.plan-practice-card__type {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-forest, #1E3D34);
+  margin-bottom: 0.5rem;
+}
+
+.plan-practice-card ul {
+  margin: 0;
+  padding-left: 1.2rem;
+  font-size: 0.8125rem;
+  color: var(--color-charcoal, #2B2927);
+  line-height: 1.5;
+}
+
+/* Action Bar */
+.plan-action-bar {
+  position: sticky;
+  bottom: 0;
+  background: rgba(250, 248, 245, 0.96);
+  backdrop-filter: blur(8px);
+  border-top: 1px solid var(--color-sand, #E8E4DC);
+  padding: 1.25rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  z-index: 40;
+  border-radius: 12px 12px 0 0;
+}
+
+.plan-btn-accept {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: var(--color-forest, #1E3D34);
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.875rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 2px 8px rgba(30, 61, 52, 0.2);
+}
+
+.plan-btn-accept:hover:not(:disabled) {
+  background-color: #152C25;
+  transform: translateY(-1px);
+}
+
+.plan-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: #ffffff;
+  border: 1px solid var(--color-sand, #E8E4DC);
+  color: var(--color-charcoal, #2B2927);
+  border-radius: 6px;
+  padding: 0.875rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.plan-btn-secondary:hover:not(:disabled) {
+  border-color: var(--color-charcoal, #2B2927);
+}
+
+/* Accepted Celebration Banner */
+.plan-accepted-banner {
+  background: linear-gradient(135deg, rgba(30, 61, 52, 0.08), rgba(143, 168, 155, 0.18));
+  border: 1.5px solid var(--color-forest, #1E3D34);
+  border-radius: 12px;
+  padding: 2rem 2.5rem;
+  margin-bottom: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.plan-accepted-banner__text h2 {
+  font-family: var(--font-serif, "Newsreader", Georgia, serif);
+  font-size: 1.625rem;
+  color: var(--color-forest, #1E3D34);
+  margin-bottom: 0.35rem;
+}
+
+.plan-accepted-banner__text p {
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--color-charcoal, #2B2927);
+}
+
+@media (max-width: 900px) {
+  .plan-metrics-grid { grid-template-columns: repeat(2, 1fr); }
+  .plan-assessment-grid { grid-template-columns: 1fr; }
+  .plan-schedule-grid { grid-template-columns: 1fr; }
+  .plan-practice-grid { grid-template-columns: 1fr; }
+  .plan-accepted-banner { flex-direction: column; text-align: center; }
+  .plan-action-bar { flex-direction: column; }
+}

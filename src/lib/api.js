@@ -221,3 +221,209 @@ export async function fetchLatestPreparationSession(roleId) {
 
   return data
 }
+
+// =============================================================================
+// PHASE B2: ADAPTIVE DIAGNOSTIC & PERSONALISED PREPARATION PLAN API
+// =============================================================================
+
+/**
+ * Starts or resumes an adaptive knowledge diagnostic session.
+ *
+ * @param {object} params
+ * @param {string} params.sessionId
+ * @returns {Promise<{ success: boolean, diagnostic: object }>}
+ */
+export async function startDiagnostic({ sessionId }) {
+  const headers = await getAuthHeader()
+  const res = await fetch(`${API_BASE}/prep/diagnostic/start`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ sessionId }),
+  })
+
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) {
+    throw new Error(data.error || `Failed to start diagnostic (HTTP ${res.status})`)
+  }
+
+  return data
+}
+
+/**
+ * Submits an answer to a diagnostic question and retrieves formative feedback + next adaptive question.
+ *
+ * @param {object} params
+ * @param {string} params.diagnosticId
+ * @param {string} params.questionId
+ * @param {string|number|null} params.studentAnswer
+ * @param {boolean} [params.isSkipped=false]
+ * @returns {Promise<{ success: boolean, isFinished: boolean, evaluation: object, nextQuestion: object | null, diagnostic: object }>}
+ */
+export async function submitDiagnosticAnswer({ diagnosticId, questionId, studentAnswer, isSkipped = false }) {
+  const headers = await getAuthHeader()
+  const res = await fetch(`${API_BASE}/prep/diagnostic/answer`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ diagnosticId, questionId, studentAnswer, isSkipped }),
+  })
+
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) {
+    throw new Error(data.error || `Failed to evaluate answer (HTTP ${res.status})`)
+  }
+
+  return data
+}
+
+/**
+ * Completes or skips the diagnostic session early.
+ *
+ * @param {object} params
+ * @param {string} params.diagnosticId
+ * @param {boolean} [params.skipped=false]
+ * @returns {Promise<{ success: boolean, diagnostic: object }>}
+ */
+export async function completeDiagnostic({ diagnosticId, skipped = false }) {
+  const headers = await getAuthHeader()
+  const res = await fetch(`${API_BASE}/prep/diagnostic/complete`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ diagnosticId, skipped }),
+  })
+
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) {
+    throw new Error(data.error || `Failed to complete diagnostic (HTTP ${res.status})`)
+  }
+
+  return data
+}
+
+/**
+ * Retrieves diagnostic session details by ID.
+ *
+ * @param {string} diagnosticId
+ * @returns {Promise<{ success: boolean, diagnostic: object }>}
+ */
+export async function fetchDiagnosticSession(diagnosticId) {
+  const headers = await getAuthHeader()
+  const res = await fetch(`${API_BASE}/prep/diagnostic/${encodeURIComponent(diagnosticId)}`, {
+    headers,
+  })
+
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) {
+    throw new Error(data.error || `Failed to fetch diagnostic session (HTTP ${res.status})`)
+  }
+
+  return data
+}
+
+/**
+ * Requests Groq AI synthesis of a personalised preparation plan.
+ *
+ * @param {object} params
+ * @param {string} params.sessionId
+ * @param {string} [params.diagnosticId]
+ * @returns {Promise<{ success: boolean, planId: string, plan: object }>}
+ */
+export async function generatePreparationPlan({ sessionId, diagnosticId }) {
+  const headers = await getAuthHeader()
+  const res = await fetch(`${API_BASE}/prep/plan/generate`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ sessionId, diagnosticId }),
+  })
+
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) {
+    throw new Error(data.error || `Failed to generate preparation plan (HTTP ${res.status})`)
+  }
+
+  return data
+}
+
+/**
+ * Retrieves a preparation plan by ID.
+ *
+ * @param {string} planId
+ * @returns {Promise<{ success: boolean, plan: object }>}
+ */
+export async function fetchPreparationPlan(planId) {
+  const headers = await getAuthHeader()
+  const res = await fetch(`${API_BASE}/prep/plan/${encodeURIComponent(planId)}`, {
+    headers,
+  })
+
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) {
+    throw new Error(data.error || `Failed to fetch preparation plan (HTTP ${res.status})`)
+  }
+
+  return data
+}
+
+/**
+ * Retrieves latest preparation plan for a role.
+ *
+ * @param {string} [roleId]
+ * @returns {Promise<{ success: boolean, plan: object | null }>}
+ */
+export async function fetchLatestPreparationPlan(roleId) {
+  const headers = await getAuthHeader()
+  const url = roleId
+    ? `${API_BASE}/prep/plan/latest?roleId=${encodeURIComponent(roleId)}`
+    : `${API_BASE}/prep/plan/latest`
+  const res = await fetch(url, { headers })
+
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) {
+    throw new Error(data.error || `Failed to fetch latest plan (HTTP ${res.status})`)
+  }
+
+  return data
+}
+
+/**
+ * Customizes milestones or schedule in an existing plan.
+ *
+ * @param {string} planId
+ * @param {object} updates - { milestones, weeklySchedule, overview }
+ * @returns {Promise<{ success: boolean, plan: object }>}
+ */
+export async function customizePreparationPlan(planId, updates) {
+  const headers = await getAuthHeader()
+  const res = await fetch(`${API_BASE}/prep/plan/${encodeURIComponent(planId)}/customize`, {
+    method: 'PUT',
+    headers,
+    body: JSON.stringify(updates),
+  })
+
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) {
+    throw new Error(data.error || `Failed to customize plan (HTTP ${res.status})`)
+  }
+
+  return data
+}
+
+/**
+ * Accepts and finalizes a preparation plan.
+ *
+ * @param {string} planId
+ * @returns {Promise<{ success: boolean, plan: object, message: string }>}
+ */
+export async function acceptPreparationPlan(planId) {
+  const headers = await getAuthHeader()
+  const res = await fetch(`${API_BASE}/prep/plan/${encodeURIComponent(planId)}/accept`, {
+    method: 'POST',
+    headers,
+  })
+
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) {
+    throw new Error(data.error || `Failed to accept plan (HTTP ${res.status})`)
+  }
+
+  return data
+}

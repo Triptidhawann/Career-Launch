@@ -10,6 +10,8 @@ import { SignupPage } from '@/pages/SignupPage'
 import { StudentDashboardPage } from '@/pages/StudentDashboardPage'
 import { InterviewPreparationPage } from '@/pages/InterviewPreparationPage'
 import { PreparationSetupPage } from '@/pages/PreparationSetupPage'
+import { DiagnosticPage } from '@/pages/DiagnosticPage'
+import { PreparationPlanPage } from '@/pages/PreparationPlanPage'
 import { VerifyEmailPage } from '@/pages/VerifyEmailPage'
 
 function ScrollToTop() {
@@ -67,6 +69,22 @@ export default function App() {
             element={
               <ProtectedRoute requireVerifiedEmail={true} requireOnboarding={false}>
                 <PreparationSetupPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/interview-preparation/frontend-developer/diagnostic"
+            element={
+              <ProtectedRoute requireVerifiedEmail={true} requireOnboarding={false}>
+                <DiagnosticPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/interview-preparation/frontend-developer/plan/:planId"
+            element={
+              <ProtectedRoute requireVerifiedEmail={true} requireOnboarding={false}>
+                <PreparationPlanPage />
               </ProtectedRoute>
             }
           />
