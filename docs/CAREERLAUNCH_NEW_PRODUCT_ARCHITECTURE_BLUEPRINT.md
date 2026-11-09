@@ -63,67 +63,36 @@ flowchart TD
 The skill-selection screen serves as an intentional focus-setting tool, not a curriculum syllabus.
 
 ### 3.1 Strict Design & Content Rules
-- **Display Skill Names Only**: Show concise, industry-standard skill titles (e.g., *"Box Model, Flexbox & CSS Grid"*, *"React Hooks"*, *"TypeScript Generics"*).
-- **No Subtopics**: Subtopics are not displayed on this screen; they are introduced contextually by the chatbot.
-- **No Descriptions**: No multi-sentence definitions or explanatory paragraphs.
-- **No Roadmaps**: No timelines, module trees, or sequencing diagrams.
+- **Top-Level Core Technology Names Only**: Show direct, top-level technology names (e.g., **HTML**, **CSS**, **JavaScript**, **TypeScript**, **React**, **Next.js**, **State Management**, **API Integration**, **Browser Fundamentals**, **Web Performance**, **Testing**, **Git & GitHub**).
+- **No Granular Sub-Topics**: Sub-items and syllabus topic titles (such as *"Semantic HTML5 & Landmark Outlines"*, *"Box Model, Flexbox & CSS Grid Systems"*, *"WCAG 2.1 Compliance"*, *"Closures"*) are **never** shown as individual selectable items or checkboxes.
+- **No Nested Accordions with Sub-Checkboxes**: The interface is not divided into accordion categories with lists of sub-checkboxes inside. Each core technology is a single, clean selectable item.
+- **No Descriptions**: Zero multi-sentence definitions, explanatory paragraphs, or topic synopses.
+- **No Roadmaps**: Zero timelines, module trees, or sequencing diagrams.
 - **No Lengthy Explanations**: Clean, fast, glanceable selection interface.
-- **Role Isolation**: Only skills relevant to the chosen role are displayed. Skills belonging to unrelated roles (e.g. Kubernetes in Frontend) are never shown.
-- **Multiple Selection**: Students can select one, several, or all relevant skills.
-- **Live Search**: Instant keyword filtering across skill names.
+- **Role Isolation**: Only core technologies relevant to the chosen role are displayed. Skills belonging to unrelated roles (e.g. Kubernetes, SQL in Frontend) are never shown.
+- **Multiple Selection**: Students can select one, several, or all relevant core technologies.
+- **Live Search**: Instant keyword filtering across technology names.
 - **Custom Skill Addition**: A clean input field allowing students to enter specific tools or libraries (e.g., *"Tailwind CSS"*, *"Three.js"*, *"GraphQL"*).
 - **Clear Selection State**: Prominent check indicators, a real-time selected count badge, removable summary chips, and a primary action button: **"Start Learning Assistant →"**.
 
 ### 3.2 Approved Frontend Developer Skill Inventory (Pilot Role)
-For the Frontend Developer pilot track, the approved skill names from the canonical taxonomy are:
+For the Frontend Developer pilot track, the student selects from the clean, top-level core technologies:
 
 ```
-[HTML & Accessibility]
-  • Semantic HTML5 & Landmark Elements
-  • WCAG 2.1 & Keyboard Accessibility
-
-[CSS & Layouts]
-  • CSS Box Model, Flexbox & Grid
-  • Responsive Design & Media Queries
-  • Modern CSS: Variables & Modules
-
-[JavaScript Core]
-  • Execution Context, Scopes & Closures
-  • Asynchronous JavaScript & Event Loop
-  • DOM Architecture & Event Delegation
-
-[TypeScript]
-  • Static Typing & Type Annotations
-  • Advanced Generics & Utility Types
-
-[React Ecosystem]
-  • JSX, Virtual DOM & Reconciliation
-  • Component Architecture & Props
-  • Core React Hooks (useState, useEffect, useRef)
-  • Advanced Hooks & Custom Hooks
-  • React Context API
-
-[Modern Frameworks]
-  • Next.js App Router & Server Components
-  • Server Actions & Route Handlers
-
-[State Management & Data]
-  • Redux Toolkit (RTK) & Slices
-  • Server State & Caching (TanStack Query)
-  • Fetch API, Axios & REST Contracts
-  • WebSockets & Real-Time Streams
-
-[Browser & Security]
-  • Client Storage: Cookies, LocalStorage, IndexedDB
-  • Web Security: CORS, XSS & CSRF Defense
-
-[Performance & Quality]
-  • Core Web Vitals (LCP, INP, CLS)
-  • Browser Rendering Pipeline (Reflow & Repaint)
-  • Code Splitting & Dynamic Imports
-  • Unit & Component Testing (Vitest / RTL)
-  • Git Branching & Version Control
+1.  HTML
+2.  CSS
+3.  JavaScript
+4.  TypeScript
+5.  React
+6.  Next.js
+7.  State Management
+8.  API Integration
+9.  Browser Fundamentals
+10. Web Performance
+11. Testing
+12. Git & GitHub
 ```
+*(All granular topics, sub-concepts, and code mechanics within these technologies—such as CSS Flexbox vs Grid, JavaScript Closures, React Hooks, and Server Actions—are explored dynamically inside the continuous AI chatbot conversation.)*
 
 ---
 
