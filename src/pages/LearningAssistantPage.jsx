@@ -116,17 +116,29 @@ function MarkdownRenderer({ content = '' }) {
         const lines = seg.data.split('\n')
         const elements = []
         let currentList = []
+        let listType = 'ul'
 
         const flushList = () => {
           if (currentList.length > 0) {
-            elements.push(
-              <ul key={`ul-${elements.length}`}>
-                {currentList.map((li, lIdx) => (
-                  <li key={lIdx}>{formatInline(li)}</li>
-                ))}
-              </ul>,
-            )
+            if (listType === 'ol') {
+              elements.push(
+                <ol key={`ol-${elements.length}`} className="bolt-ol">
+                  {currentList.map((li, lIdx) => (
+                    <li key={lIdx}>{formatInline(li)}</li>
+                  ))}
+                </ol>,
+              )
+            } else {
+              elements.push(
+                <ul key={`ul-${elements.length}`} className="bolt-ul">
+                  {currentList.map((li, lIdx) => (
+                    <li key={lIdx}>{formatInline(li)}</li>
+                  ))}
+                </ul>,
+              )
+            }
             currentList = []
+            listType = 'ul'
           }
         }
 
@@ -139,6 +151,8 @@ function MarkdownRenderer({ content = '' }) {
             continue
           }
 
+          const olMatch = trimmed.match(/^(\d+)\.\s+(.*)/)
+
           if (trimmed.startsWith('#### ')) {
             flushList()
             elements.push(<h4 key={`h4-${i}`}>{formatInline(trimmed.substring(5))}</h4>)
@@ -149,7 +163,13 @@ function MarkdownRenderer({ content = '' }) {
             flushList()
             elements.push(<h2 key={`h2-${i}`}>{formatInline(trimmed.substring(3))}</h2>)
           } else if (trimmed.startsWith('* ') || trimmed.startsWith('- ')) {
+            if (listType === 'ol') flushList()
+            listType = 'ul'
             currentList.push(trimmed.substring(2))
+          } else if (olMatch) {
+            if (listType === 'ul') flushList()
+            listType = 'ol'
+            currentList.push(olMatch[2])
           } else {
             flushList()
             elements.push(<p key={`p-${i}`}>{formatInline(trimmed)}</p>)
@@ -482,9 +502,9 @@ export function LearningAssistantPage() {
                   </button>
 
                   <div className="bolt-model-pill" title="Active Groq reasoning model">
-                    <Zap size={13} color="#38bdf8" />
+                    <Zap size={13} color="var(--color-terracotta)" />
                     <span>Groq 120B</span>
-                    <ChevronDown size={12} color="#94a3b8" />
+                    <ChevronDown size={12} color="var(--color-charcoal-subtle)" />
                   </div>
                 </div>
 
@@ -529,7 +549,7 @@ export function LearningAssistantPage() {
                   )
                 }
               >
-                <MapPin size={13} color="#38bdf8" />
+                <MapPin size={13} color="var(--color-terracotta)" />
                 <span>React Roadmap</span>
               </button>
 
@@ -542,7 +562,7 @@ export function LearningAssistantPage() {
                   )
                 }
               >
-                <Code size={13} color="#fbbf24" />
+                <Code size={13} color="var(--color-forest)" />
                 <span>JS Closures</span>
               </button>
 
@@ -555,7 +575,7 @@ export function LearningAssistantPage() {
                   )
                 }
               >
-                <Sparkles size={13} color="#a855f7" />
+                <Sparkles size={13} color="var(--color-terracotta)" />
                 <span>CSS Grid vs Flexbox</span>
               </button>
 
@@ -568,14 +588,14 @@ export function LearningAssistantPage() {
                   )
                 }
               >
-                <HelpCircle size={13} color="#4ade80" />
+                <HelpCircle size={13} color="var(--color-sage-dark)" />
                 <span>Interview Quiz</span>
               </button>
             </div>
           </div>
 
           {/* Watermark preview badge */}
-          <div className="bolt-preview-badge">Bolt Style Chat preview</div>
+          <div className="bolt-preview-badge">CareerLaunch AI Assistant</div>
         </main>
       ) : (
         /* ================================================================
@@ -801,7 +821,7 @@ export function LearningAssistantPage() {
                 <div className="bolt-card__toolbar">
                   <div className="bolt-card__left">
                     <div className="bolt-model-pill">
-                      <Zap size={12} color="#38bdf8" />
+                      <Zap size={12} color="var(--color-terracotta)" />
                       <span>Groq 120B</span>
                     </div>
                   </div>

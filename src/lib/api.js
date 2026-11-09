@@ -7,35 +7,92 @@ const API_BASE = '/api'
  *
  * @returns {Promise<Record<string, string>>}
  */
+/**
+ * Creates a valid base64url development student JWT for local offline development.
+ */
+function getDevFallbackToken() {
+  const header = btoa(JSON.stringify({ alg: 'none', typ: 'JWT' }))
+    .replace(/=/g, '')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_');
+  const payload = btoa(
+    JSON.stringify({
+      user_id: 'H0cYrHDcguQl66eMXY5niCG8mEj2',
+      email: 'triptidhawan15@gmail.com',
+      name: 'Tripti Dhawan',
+      email_verified: true,
+    }),
+  )
+    .replace(/=/g, '')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_');
+  return header + '.' + payload + '.dev-sig';
+}
+
+/**
+ * Retrieves authorization headers attaching Firebase Bearer ID token if user is signed in.
+ *
+ * @returns {Promise<Record<string, string>>}
+ */
 async function getAuthHeader() {
   const headers = {
     'Content-Type': 'application/json',
+  };
+
+  // Ensure Firebase auth state is fully loaded from IndexedDB
+  if (auth && typeof auth.authStateReady === 'function') {
+    try {
+      await auth.authStateReady();
+    } catch {
+      // Ignore if auth state ready fails
+    }
   }
 
   if (auth && auth.currentUser) {
     try {
-      const token = await auth.currentUser.getIdToken()
+      const token = await auth.currentUser.getIdToken();
       if (token) {
-        headers['Authorization'] = `Bearer ${token}`
+        headers['Authorization'] = 'Bearer ' + token;
+        if (typeof window !== 'undefined' && window.localStorage) {
+          try {
+            window.localStorage.setItem('careerlaunch_preview_token', token);
+          } catch {}
+        }
       }
     } catch (err) {
-      console.warn('Failed to retrieve Firebase ID token:', err)
+      console.warn('Failed to retrieve Firebase ID token:', err);
     }
   }
 
   // Development/preview fallback from localStorage if not signed into Firebase in browser
   if (!headers['Authorization'] && typeof window !== 'undefined' && window.localStorage) {
     try {
-      const previewToken = window.localStorage.getItem('careerlaunch_preview_token')
+      const previewToken = window.localStorage.getItem('careerlaunch_preview_token');
       if (previewToken) {
-        headers['Authorization'] = `Bearer ${previewToken}`
+        headers['Authorization'] = 'Bearer ' + previewToken;
       }
     } catch {
       // Ignore in non-browser context
     }
   }
 
-  return headers
+  // In local development, if still no Authorization header, auto-generate and persist the dev token
+  if (!headers['Authorization'] && typeof window !== 'undefined') {
+    const isDev = Boolean(
+      import.meta.env?.DEV ||
+        window.location.hostname === 'localhost' ||
+        window.location.hostname === '127.0.0.1',
+    );
+    if (isDev) {
+      const devToken = getDevFallbackToken();
+      headers['Authorization'] = 'Bearer ' + devToken;
+      try {
+        window.localStorage.setItem('careerlaunch_preview_token', devToken);
+      } catch {}
+    }
+  }
+
+  return headers;
 }
 
 /**

@@ -1,19 +1,16 @@
-/* CareerLaunch Dedicated AI Learning Assistant (Bolt / ChatGPT Dark Aesthetic)
-   Inspired directly by Bolt V2 / ChatGPT Hero Interface:
-   - Deep Black Background: #07080B / #0B0D13
-   - Curved Celestial Horizon Glow: Electric Cyan #38BDF8, Sky Blue #60A5FA, White #FFFFFF
-   - Dark Floating Input Container: #15161E / #1B1D27
-   - Electric Blue Accent: #2563EB / #3B82F6
-   - Subtle Slate Text: #94A3B8 / #CBD5E1
-*/
+/* ==========================================================================
+   CareerLaunch - Dedicated AI Learning Assistant Styles
+   Palette: Warm Ivory, Deep Forest, Muted Terracotta, Soft Sage, Charcoal, Sand
+   Layout: Centered Hero Input Card with Curved Celestial Horizon Glow
+   ========================================================================== */
 
 .bolt-page {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: #07080B;
-  color: #F8FAFC;
-  font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
+  background-color: var(--color-ivory, #F6F2E9);
+  color: var(--color-charcoal, #292A27);
+  font-family: var(--font-sans, 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
   position: relative;
   overflow-x: hidden;
 }
@@ -22,10 +19,10 @@
    TOPBAR
    ========================================================================== */
 .bolt-topbar {
-  background-color: rgba(7, 8, 11, 0.85);
+  background-color: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--color-sand, #E5DED2);
   padding: 0.875rem 1.75rem;
   display: flex;
   align-items: center;
@@ -34,6 +31,7 @@
   position: sticky;
   top: 0;
   z-index: 50;
+  box-shadow: 0 1px 3px rgba(41, 42, 39, 0.03);
 }
 
 .bolt-topbar__left {
@@ -47,29 +45,29 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-family: var(--font-serif, Georgia, serif);
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: #FFFFFF;
+  font-family: var(--font-serif, 'Newsreader', Georgia, serif);
+  font-size: 1.1875rem;
+  font-weight: 700;
+  color: var(--color-forest, #24372F);
   text-decoration: none;
   letter-spacing: -0.01em;
 }
 
 .bolt-topbar__brand-icon {
-  color: #38BDF8;
+  color: var(--color-terracotta, #C66A4A);
 }
 
 .bolt-topbar__role-pill {
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
-  background-color: rgba(56, 189, 248, 0.1);
-  color: #38BDF8;
-  border: 1px solid rgba(56, 189, 248, 0.25);
+  background-color: var(--color-sand-light, #EFE9DF);
+  color: var(--color-forest, #24372F);
+  border: 1px solid var(--color-sand, #E5DED2);
   padding: 0.25rem 0.625rem;
   border-radius: 9999px;
   font-size: 0.6875rem;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -89,11 +87,11 @@
 }
 
 .bolt-skill-pill {
-  background-color: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #94A3B8;
+  background-color: var(--color-white, #FFFFFF);
+  border: 1px solid var(--color-sand, #E5DED2);
+  color: var(--color-charcoal-muted, #5E605B);
   font-size: 0.6875rem;
-  font-weight: 500;
+  font-weight: 600;
   padding: 0.2rem 0.5rem;
   border-radius: 4px;
   white-space: nowrap;
@@ -111,35 +109,35 @@
   align-items: center;
   gap: 0.375rem;
   font-size: 0.8125rem;
-  font-weight: 500;
-  color: #94A3B8;
+  font-weight: 600;
+  color: var(--color-charcoal-muted, #5E605B);
   text-decoration: none;
   padding: 0.375rem 0.75rem;
   border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background-color: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--color-sand, #E5DED2);
+  background-color: var(--color-white, #FFFFFF);
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .bolt-topbar__action-btn:hover {
-  color: #FFFFFF;
-  border-color: rgba(255, 255, 255, 0.25);
-  background-color: rgba(255, 255, 255, 0.08);
+  color: var(--color-forest, #24372F);
+  border-color: var(--color-charcoal-subtle, #8A8C84);
+  background-color: var(--color-ivory, #F6F2E9);
 }
 
 .bolt-topbar__avatar {
   width: 2rem;
   height: 2rem;
   border-radius: 9999px;
-  background: linear-gradient(135deg, #1E3D34 0%, #2563EB 100%);
-  color: #FFFFFF;
+  background-color: var(--color-forest, #24372F);
+  color: var(--color-white, #FFFFFF);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 0.75rem;
-  font-weight: 600;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  font-weight: 700;
+  border: 1px solid var(--color-sand, #E5DED2);
 }
 
 /* ==========================================================================
@@ -157,21 +155,26 @@
   z-index: 2;
 }
 
-/* Curved Celestial Horizon Background Glow */
+/* Curved Celestial Horizon Glow (Warm Editorial Theme) */
 .bolt-horizon-glow {
   position: absolute;
-  top: 52%;
+  top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 140vw;
-  height: 600px;
+  width: 135vw;
+  height: 580px;
   border-radius: 50%;
-  border-top: 2px solid rgba(255, 255, 255, 0.85);
-  background: radial-gradient(ellipse at 50% 0%, rgba(56, 189, 248, 0.25) 0%, rgba(37, 99, 235, 0.15) 35%, transparent 70%);
+  border-top: 2px solid rgba(198, 106, 74, 0.45);
+  background: radial-gradient(
+    ellipse at 50% 0%,
+    rgba(198, 106, 74, 0.12) 0%,
+    rgba(229, 222, 210, 0.4) 32%,
+    rgba(246, 242, 233, 0.7) 60%,
+    transparent 78%
+  );
   box-shadow: 
-    0 -4px 30px rgba(255, 255, 255, 0.4),
-    0 -12px 60px rgba(56, 189, 248, 0.6),
-    0 -30px 120px rgba(37, 99, 235, 0.4);
+    0 -4px 20px rgba(198, 106, 74, 0.18),
+    0 -12px 50px rgba(229, 222, 210, 0.6);
   filter: blur(1px);
   pointer-events: none;
   z-index: 1;
@@ -193,59 +196,59 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background-color: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  backdrop-filter: blur(8px);
+  background-color: var(--color-white, #FFFFFF);
+  border: 1px solid var(--color-sand, #E5DED2);
+  box-shadow: 0 2px 8px rgba(41, 42, 39, 0.04);
   padding: 0.35rem 0.875rem;
   border-radius: 9999px;
   font-size: 0.8125rem;
-  font-weight: 500;
-  color: #E2E8F0;
+  font-weight: 600;
+  color: var(--color-forest, #24372F);
   margin-bottom: 1.25rem;
 }
 
 .bolt-pill__icon {
-  color: #38BDF8;
+  color: var(--color-terracotta, #C66A4A);
 }
 
 /* Big Headline */
 .bolt-title {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: var(--font-serif, 'Newsreader', Georgia, serif);
   font-size: 3.5rem;
   font-weight: 700;
-  line-height: 1.1;
-  color: #FFFFFF;
-  letter-spacing: -0.035em;
+  line-height: 1.12;
+  color: var(--color-forest, #24372F);
+  letter-spacing: -0.025em;
   margin: 0 0 0.75rem;
 }
 
 .bolt-title em {
   font-style: italic;
   font-family: inherit;
-  background: linear-gradient(135deg, #BAE6FD 0%, #38BDF8 50%, #93C5FD 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  padding: 0 0.25rem;
-  text-shadow: 0 0 40px rgba(56, 189, 248, 0.4);
+  color: var(--color-terracotta, #C66A4A);
+  text-shadow: 0 2px 16px rgba(198, 106, 74, 0.2);
+  padding: 0 0.2rem;
 }
 
 /* Subtitle */
 .bolt-subtitle {
   font-size: 1.125rem;
-  color: #94A3B8;
+  color: var(--color-charcoal-muted, #5E605B);
   margin: 0 0 2.25rem;
   font-weight: 400;
   letter-spacing: -0.01em;
+  max-width: 620px;
+  line-height: 1.5;
 }
 
-/* Centered Input Card (Ditto Bolt V2 layout) */
+/* Centered Input Card */
 .bolt-card {
   width: 100%;
-  background-color: #14151C;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background-color: var(--color-white, #FFFFFF);
+  border: 1.5px solid var(--color-sand, #E5DED2);
   border-radius: 16px;
   padding: 1.125rem 1.25rem 0.875rem;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  box-shadow: 0 12px 36px rgba(41, 42, 39, 0.06), 0 2px 8px rgba(41, 42, 39, 0.03);
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -254,9 +257,8 @@
 }
 
 .bolt-card:focus-within {
-  border-color: rgba(56, 189, 248, 0.45);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7), 0 0 0 2px rgba(56, 189, 248, 0.25);
-  background-color: #161722;
+  border-color: var(--color-forest, #24372F);
+  box-shadow: 0 16px 44px rgba(36, 55, 47, 0.1), 0 0 0 3px rgba(198, 106, 74, 0.15);
 }
 
 .bolt-textarea {
@@ -264,9 +266,9 @@
   background: transparent;
   border: none;
   outline: none;
-  color: #F8FAFC;
+  color: var(--color-charcoal, #292A27);
   font-family: inherit;
-  font-size: 1rem;
+  font-size: 1.0625rem;
   line-height: 1.5;
   resize: none;
   min-height: 56px;
@@ -275,7 +277,7 @@
 }
 
 .bolt-textarea::placeholder {
-  color: #64748B;
+  color: var(--color-charcoal-subtle, #8A8C84);
 }
 
 /* Toolbar inside card */
@@ -284,8 +286,8 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  padding-top: 0.5rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding-top: 0.625rem;
+  border-top: 1px solid var(--color-sand-light, #EFE9DF);
 }
 
 .bolt-card__left {
@@ -298,9 +300,9 @@
   width: 2rem;
   height: 2rem;
   border-radius: 9999px;
-  background-color: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #94A3B8;
+  background-color: var(--color-ivory, #F6F2E9);
+  border: 1px solid var(--color-sand, #E5DED2);
+  color: var(--color-charcoal-muted, #5E605B);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -309,21 +311,21 @@
 }
 
 .bolt-icon-btn:hover {
-  background-color: rgba(255, 255, 255, 0.12);
-  color: #FFFFFF;
+  background-color: var(--color-sand, #E5DED2);
+  color: var(--color-forest, #24372F);
 }
 
 .bolt-model-pill {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  background-color: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: var(--color-sand-light, #EFE9DF);
+  border: 1px solid var(--color-sand, #E5DED2);
   padding: 0.3rem 0.65rem;
   border-radius: 9999px;
   font-size: 0.75rem;
-  font-weight: 500;
-  color: #E2E8F0;
+  font-weight: 600;
+  color: var(--color-forest, #24372F);
   cursor: default;
 }
 
@@ -339,9 +341,9 @@
   gap: 0.35rem;
   background: transparent;
   border: none;
-  color: #94A3B8;
+  color: var(--color-charcoal-muted, #5E605B);
   font-size: 0.8125rem;
-  font-weight: 500;
+  font-weight: 600;
   padding: 0.4rem 0.65rem;
   border-radius: 8px;
   cursor: pointer;
@@ -349,34 +351,34 @@
 }
 
 .bolt-plan-btn:hover {
-  color: #F8FAFC;
-  background-color: rgba(255, 255, 255, 0.06);
+  color: var(--color-forest, #24372F);
+  background-color: var(--color-ivory, #F6F2E9);
 }
 
 .bolt-send-btn {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background-color: #2563EB;
-  color: #FFFFFF;
+  background-color: var(--color-terracotta, #C66A4A);
+  color: var(--color-white, #FFFFFF);
   border: none;
-  padding: 0.5rem 1rem;
+  padding: 0.55rem 1.15rem;
   border-radius: 9999px;
   font-size: 0.8125rem;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+  box-shadow: 0 3px 12px rgba(198, 106, 74, 0.35);
   transition: all 0.15s ease;
 }
 
 .bolt-send-btn:hover:not(:disabled) {
-  background-color: #3B82F6;
+  background-color: var(--color-terracotta-hover, #B35A3B);
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
+  box-shadow: 0 6px 18px rgba(198, 106, 74, 0.45);
 }
 
 .bolt-send-btn:disabled {
-  opacity: 0.4;
+  opacity: 0.5;
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
@@ -394,7 +396,8 @@
 
 .bolt-chips-label {
   font-size: 0.8125rem;
-  color: #64748B;
+  font-weight: 500;
+  color: var(--color-charcoal-subtle, #8A8C84);
   margin-right: 0.25rem;
 }
 
@@ -402,22 +405,24 @@
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  background-color: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background-color: var(--color-white, #FFFFFF);
+  border: 1px solid var(--color-sand, #E5DED2);
   padding: 0.4rem 0.85rem;
   border-radius: 9999px;
   font-size: 0.8125rem;
-  font-weight: 500;
-  color: #CBD5E1;
+  font-weight: 600;
+  color: var(--color-charcoal, #292A27);
   cursor: pointer;
+  box-shadow: 0 1px 3px rgba(41, 42, 39, 0.04);
   transition: all 0.15s ease;
 }
 
 .bolt-chip:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  color: #FFFFFF;
-  border-color: rgba(56, 189, 248, 0.4);
+  background-color: #FAF6EF;
+  color: var(--color-forest, #24372F);
+  border-color: var(--color-forest, #24372F);
   transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(41, 42, 39, 0.08);
 }
 
 /* Preview Badge at bottom right */
@@ -425,13 +430,14 @@
   position: absolute;
   bottom: 1.5rem;
   right: 1.5rem;
-  background-color: #FFFFFF;
-  color: #0F172A;
+  background-color: var(--color-sand-light, #EFE9DF);
+  border: 1px solid var(--color-sand, #E5DED2);
+  color: var(--color-charcoal-muted, #5E605B);
   font-size: 0.6875rem;
   font-weight: 600;
   padding: 0.25rem 0.6rem;
   border-radius: 4px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 6px rgba(41, 42, 39, 0.04);
   z-index: 10;
 }
 
@@ -445,7 +451,7 @@
   max-width: 860px;
   width: 100%;
   margin: 0 auto;
-  padding: 1.5rem 1rem 8rem;
+  padding: 1.5rem 1rem 8.5rem;
   position: relative;
   z-index: 5;
 }
@@ -480,50 +486,51 @@
   align-items: center;
   justify-content: center;
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .bolt-msg--assistant .bolt-msg__avatar {
-  background: linear-gradient(135deg, #1E3D34 0%, #0284C7 100%);
-  color: #FFFFFF;
-  border: 1px solid rgba(56, 189, 248, 0.3);
+  background-color: var(--color-forest, #24372F);
+  color: var(--color-white, #FFFFFF);
+  border: 1px solid var(--color-sand, #E5DED2);
 }
 
 .bolt-msg--user .bolt-msg__avatar {
-  background-color: #2563EB;
-  color: #FFFFFF;
+  background-color: var(--color-terracotta, #C66A4A);
+  color: var(--color-white, #FFFFFF);
 }
 
 .bolt-msg__bubble {
   max-width: 84%;
   border-radius: 12px;
-  padding: 1.125rem 1.375rem;
+  padding: 1.25rem 1.5rem;
   font-size: 0.9375rem;
   line-height: 1.6;
 }
 
 .bolt-msg--user .bolt-msg__bubble {
-  background-color: #1E212D;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #F8FAFC;
+  background-color: var(--color-forest, #24372F);
+  border: 1px solid var(--color-forest-dark, #1A2822);
+  color: #FBF9F4;
   border-top-right-radius: 4px;
+  box-shadow: 0 2px 8px rgba(36, 55, 47, 0.15);
 }
 
 .bolt-msg--assistant .bolt-msg__bubble {
-  background-color: #13141B;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: #E2E8F0;
+  background-color: var(--color-white, #FFFFFF);
+  border: 1.5px solid var(--color-sand, #E5DED2);
+  color: var(--color-charcoal, #292A27);
   border-top-left-radius: 4px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 12px rgba(41, 42, 39, 0.04);
 }
 
 /* Markdown Typography */
 .bolt-markdown h2,
 .bolt-markdown h3,
 .bolt-markdown h4 {
-  color: #F8FAFC;
+  color: var(--color-forest, #24372F);
   margin: 1.125rem 0 0.5rem;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.3;
 }
 
@@ -550,14 +557,20 @@
   margin-bottom: 0.375rem;
 }
 
+.bolt-markdown strong {
+  color: var(--color-forest, #24372F);
+  font-weight: 700;
+}
+
 .bolt-markdown code.inline-code {
-  background-color: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #38BDF8;
+  background-color: var(--color-sand-light, #EFE9DF);
+  border: 1px solid var(--color-sand, #E5DED2);
+  color: var(--color-terracotta, #C66A4A);
   padding: 0.15rem 0.35rem;
   border-radius: 4px;
-  font-family: 'Consolas', 'Monaco', monospace;
+  font-family: var(--font-mono, Consolas, Monaco, monospace);
   font-size: 0.875em;
+  font-weight: 600;
 }
 
 /* Code Blocks */
@@ -565,23 +578,23 @@
   margin: 0.875rem 0;
   border-radius: 8px;
   overflow: hidden;
-  background-color: #0B0D13;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background-color: var(--color-forest-dark, #1A2822);
+  border: 1px solid var(--color-forest, #24372F);
 }
 
 .bolt-codeblock__header {
-  background-color: #151821;
+  background-color: #14201B;
   padding: 0.4rem 0.875rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(229, 222, 210, 0.12);
 }
 
 .bolt-codeblock__lang {
-  color: #94A3B8;
+  color: var(--color-sage, #879477);
   font-size: 0.6875rem;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -589,7 +602,7 @@
 .bolt-codeblock__copy {
   background: none;
   border: none;
-  color: #94A3B8;
+  color: var(--color-sand-dark, #D6CDBC);
   font-size: 0.75rem;
   display: flex;
   align-items: center;
@@ -601,32 +614,33 @@
 }
 
 .bolt-codeblock__copy:hover {
-  color: #FFFFFF;
-  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--color-white, #FFFFFF);
+  background-color: rgba(255, 255, 255, 0.08);
 }
 
 .bolt-codeblock pre {
   margin: 0;
   padding: 0.875rem 1rem;
   overflow-x: auto;
-  color: #E2E8F0;
-  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  color: #FBF9F4;
+  font-family: var(--font-mono, Consolas, Monaco, monospace);
   font-size: 0.84375rem;
-  line-height: 1.5;
+  line-height: 1.55;
 }
 
 /* Roadmap Card inside Chat */
 .bolt-roadmap-card {
   margin: 1.25rem 0;
-  border: 1px solid rgba(56, 189, 248, 0.4);
-  background-color: #0E1017;
+  border: 1.5px solid var(--color-terracotta, #C66A4A);
+  background-color: var(--color-white, #FFFFFF);
   border-radius: 12px;
   overflow: hidden;
+  box-shadow: 0 4px 16px rgba(198, 106, 74, 0.1);
 }
 
 .bolt-roadmap-card__banner {
-  background: linear-gradient(135deg, rgba(37, 99, 235, 0.2) 0%, rgba(56, 189, 248, 0.1) 100%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(135deg, rgba(198, 106, 74, 0.08) 0%, rgba(229, 222, 210, 0.35) 100%);
+  border-bottom: 1px solid var(--color-sand, #E5DED2);
   padding: 1.125rem 1.25rem;
 }
 
@@ -635,26 +649,28 @@
   align-items: center;
   gap: 0.375rem;
   font-size: 0.6875rem;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  background-color: rgba(56, 189, 248, 0.15);
-  color: #38BDF8;
+  background-color: var(--color-terracotta-light, rgba(198, 106, 74, 0.12));
+  color: var(--color-terracotta, #C66A4A);
+  border: 1px solid rgba(198, 106, 74, 0.25);
   padding: 0.2rem 0.5rem;
   border-radius: 4px;
   margin-bottom: 0.5rem;
 }
 
 .bolt-roadmap-card__title {
+  font-family: var(--font-serif, 'Newsreader', Georgia, serif);
   font-size: 1.25rem;
-  font-weight: 600;
+  font-weight: 700;
   margin: 0 0 0.375rem;
-  color: #FFFFFF;
+  color: var(--color-forest, #24372F);
 }
 
 .bolt-roadmap-card__obj {
   font-size: 0.875rem;
-  color: #94A3B8;
+  color: var(--color-charcoal-muted, #5E605B);
   margin: 0;
   line-height: 1.4;
 }
@@ -667,8 +683,8 @@
 }
 
 .bolt-milestone-item {
-  background-color: #151821;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background-color: var(--color-ivory, #F6F2E9);
+  border: 1px solid var(--color-sand, #E5DED2);
   border-radius: 8px;
   padding: 1rem;
 }
@@ -683,16 +699,17 @@
 
 .bolt-milestone-item__title {
   font-size: 1rem;
-  font-weight: 600;
-  color: #F8FAFC;
+  font-weight: 700;
+  color: var(--color-forest, #24372F);
   margin: 0;
 }
 
 .bolt-milestone-item__hours {
   font-size: 0.75rem;
-  font-weight: 600;
-  color: #38BDF8;
-  background-color: rgba(56, 189, 248, 0.1);
+  font-weight: 700;
+  color: var(--color-terracotta, #C66A4A);
+  background-color: var(--color-sand-light, #EFE9DF);
+  border: 1px solid var(--color-sand, #E5DED2);
   padding: 0.2rem 0.5rem;
   border-radius: 4px;
 }
@@ -709,9 +726,9 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 0.75rem;
-  padding: 0.625rem 0.75rem;
-  background-color: #0E1017;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 0.75rem 0.875rem;
+  background-color: var(--color-white, #FFFFFF);
+  border: 1px solid var(--color-sand, #E5DED2);
   border-radius: 6px;
 }
 
@@ -721,22 +738,22 @@
 
 .bolt-topic-row__name {
   font-size: 0.875rem;
-  font-weight: 600;
-  color: #F8FAFC;
+  font-weight: 700;
+  color: var(--color-forest, #24372F);
   margin: 0 0 0.25rem;
 }
 
 .bolt-topic-row__desc {
   font-size: 0.8125rem;
-  color: #94A3B8;
+  color: var(--color-charcoal-muted, #5E605B);
   margin: 0;
   line-height: 1.4;
 }
 
 .bolt-topic-row__btn {
-  background-color: rgba(56, 189, 248, 0.1);
-  border: 1px solid rgba(56, 189, 248, 0.3);
-  color: #38BDF8;
+  background-color: var(--color-terracotta-light, rgba(198, 106, 74, 0.12));
+  border: 1px solid var(--color-terracotta, #C66A4A);
+  color: var(--color-terracotta, #C66A4A);
   font-size: 0.75rem;
   font-weight: 600;
   padding: 0.35rem 0.65rem;
@@ -747,27 +764,28 @@
 }
 
 .bolt-topic-row__btn:hover {
-  background-color: #38BDF8;
-  color: #07080B;
+  background-color: var(--color-terracotta, #C66A4A);
+  color: var(--color-white, #FFFFFF);
 }
 
 .bolt-milestone-item__exercise {
   margin-top: 0.75rem;
   padding: 0.5rem 0.75rem;
-  background-color: rgba(37, 99, 235, 0.08);
-  border-left: 3px solid #2563EB;
+  background-color: rgba(198, 106, 74, 0.08);
+  border-left: 3px solid var(--color-terracotta, #C66A4A);
   border-radius: 0 6px 6px 0;
   font-size: 0.8125rem;
-  color: #CBD5E1;
+  color: var(--color-charcoal, #292A27);
 }
 
 /* Prerequisite Check Card */
 .bolt-prereq-card {
   margin: 1rem 0;
-  background-color: #12141C;
-  border: 1px solid rgba(251, 191, 36, 0.4);
+  background-color: #FFFDF8;
+  border: 1.5px solid var(--color-sand-dark, #D6CDBC);
   border-radius: 10px;
   padding: 1.125rem 1.25rem;
+  box-shadow: 0 2px 8px rgba(41, 42, 39, 0.04);
 }
 
 .bolt-prereq-card__title {
@@ -775,14 +793,18 @@
   align-items: center;
   gap: 0.5rem;
   font-size: 0.9375rem;
-  font-weight: 600;
-  color: #FBBF24;
+  font-weight: 700;
+  color: var(--color-forest, #24372F);
   margin: 0 0 0.5rem;
+}
+
+.bolt-prereq-card__title svg {
+  color: var(--color-terracotta, #C66A4A);
 }
 
 .bolt-prereq-card__desc {
   font-size: 0.875rem;
-  color: #CBD5E1;
+  color: var(--color-charcoal, #292A27);
   margin: 0 0 0.75rem;
 }
 
@@ -794,11 +816,11 @@
 }
 
 .bolt-prereq-chip {
-  background-color: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #E2E8F0;
+  background-color: var(--color-ivory, #F6F2E9);
+  border: 1px solid var(--color-sand, #E5DED2);
+  color: var(--color-forest, #24372F);
   font-size: 0.75rem;
-  font-weight: 500;
+  font-weight: 600;
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
 }
@@ -810,35 +832,36 @@
 }
 
 .bolt-prereq-btn-primary {
-  background-color: #2563EB;
-  color: #FFFFFF;
+  background-color: var(--color-terracotta, #C66A4A);
+  color: var(--color-white, #FFFFFF);
   border: none;
   font-size: 0.8125rem;
   font-weight: 600;
-  padding: 0.45rem 0.875rem;
+  padding: 0.5rem 0.95rem;
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .bolt-prereq-btn-primary:hover {
-  background-color: #3B82F6;
+  background-color: var(--color-terracotta-hover, #B35A3B);
 }
 
 .bolt-prereq-btn-secondary {
-  background-color: rgba(255, 255, 255, 0.06);
-  color: #E2E8F0;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background-color: var(--color-white, #FFFFFF);
+  color: var(--color-charcoal, #292A27);
+  border: 1px solid var(--color-sand, #E5DED2);
   font-size: 0.8125rem;
-  font-weight: 500;
-  padding: 0.45rem 0.875rem;
+  font-weight: 600;
+  padding: 0.5rem 0.95rem;
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .bolt-prereq-btn-secondary:hover {
-  background-color: rgba(255, 255, 255, 0.12);
+  background-color: var(--color-ivory, #F6F2E9);
+  border-color: var(--color-charcoal-subtle, #8A8C84);
 }
 
 /* Follow-up Chips */
@@ -850,20 +873,21 @@
 }
 
 .bolt-msg-action-chip {
-  background-color: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #38BDF8;
+  background-color: var(--color-ivory, #F6F2E9);
+  border: 1px solid var(--color-sand, #E5DED2);
+  color: var(--color-forest, #24372F);
   font-size: 0.75rem;
   font-weight: 600;
-  padding: 0.3rem 0.625rem;
+  padding: 0.35rem 0.75rem;
   border-radius: 9999px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .bolt-msg-action-chip:hover {
-  background-color: rgba(56, 189, 248, 0.15);
-  border-color: #38BDF8;
+  background-color: var(--color-forest, #24372F);
+  border-color: var(--color-forest, #24372F);
+  color: var(--color-white, #FFFFFF);
 }
 
 /* Typing Indicator */
@@ -872,11 +896,12 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0.875rem 1.25rem;
-  background-color: #13141B;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background-color: var(--color-white, #FFFFFF);
+  border: 1px solid var(--color-sand, #E5DED2);
   border-radius: 8px;
   width: fit-content;
   margin-top: 0.5rem;
+  box-shadow: 0 2px 8px rgba(41, 42, 39, 0.04);
 }
 
 .bolt-typing__dots {
@@ -888,7 +913,7 @@
   width: 0.45rem;
   height: 0.45rem;
   border-radius: 9999px;
-  background-color: #38BDF8;
+  background-color: var(--color-terracotta, #C66A4A);
   animation: boltPulse 1.4s infinite ease-in-out both;
 }
 
@@ -902,17 +927,17 @@
 
 .bolt-typing__text {
   font-size: 0.8125rem;
-  color: #94A3B8;
-  font-weight: 500;
+  color: var(--color-charcoal-muted, #5E605B);
+  font-weight: 600;
 }
 
 /* Error State */
 .bolt-error {
-  background-color: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background-color: #FDF2F0;
+  border: 1px solid #F5C6CB;
   border-radius: 8px;
   padding: 0.875rem 1rem;
-  color: #FCA5A5;
+  color: #721C24;
   font-size: 0.875rem;
   display: flex;
   align-items: center;
@@ -922,7 +947,7 @@
 }
 
 .bolt-error__retry-btn {
-  background-color: #DC2626;
+  background-color: #C66A4A;
   color: #FFFFFF;
   border: none;
   font-size: 0.75rem;
@@ -938,7 +963,7 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background: linear-gradient(180deg, transparent 0%, rgba(7, 8, 11, 0.95) 25%, #07080B 100%);
+  background: linear-gradient(180deg, transparent 0%, rgba(246, 242, 233, 0.95) 25%, #F6F2E9 100%);
   padding: 1rem 1.5rem 1.5rem;
   z-index: 40;
 }
@@ -968,7 +993,7 @@
   }
 
   .bolt-chat-container {
-    padding: 1rem 0.75rem 8rem;
+    padding: 1rem 0.75rem 8.5rem;
   }
 
   .bolt-topic-row {
