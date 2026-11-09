@@ -149,7 +149,7 @@ async function run() {
     1440,
     1800,
     false,
-    '.skill-sel-categories'
+    '.skill-grid'
   );
 
   // 3. Search Filter Active ("React")
@@ -160,7 +160,7 @@ async function run() {
     1440,
     1400,
     false,
-    '.skill-sel-categories',
+    '.skill-grid',
     async (send) => {
       await send('Runtime.evaluate', {
         expression: `
@@ -184,18 +184,14 @@ async function run() {
     1440,
     1600,
     false,
-    '.skill-sel-categories',
+    '.skill-grid',
     async (send) => {
       await send('Runtime.evaluate', {
         expression: `
-          // Expand all categories first
-          const expandBtn = document.querySelectorAll('.skill-sel-actions__btn')[0];
-          if (expandBtn && expandBtn.textContent.includes('Expand All')) {
-            expandBtn.click();
-          }
+          // clean grid
 
           // Select first 3 skill items
-          const items = document.querySelectorAll('.skill-item');
+          const items = document.querySelectorAll('.skill-card');
           if (items.length >= 3) {
             items[0].click();
             items[1].click();
@@ -206,7 +202,7 @@ async function run() {
           const customInput = document.querySelector('.skill-custom-input');
           if (customInput) {
             const nativeSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
-            nativeSetter.call(customInput, 'Three.js & WebGL');
+            nativeSetter.call(customInput, 'Tailwind CSS');
             customInput.dispatchEvent(new Event('input', { bubbles: true }));
             const addBtn = document.querySelector('.skill-custom-add-btn');
             if (addBtn) addBtn.click();
@@ -225,12 +221,12 @@ async function run() {
     1440,
     1500,
     false,
-    '.skill-sel-categories',
+    '.skill-grid',
     async (send) => {
       await send('Runtime.evaluate', {
         expression: `
           // Select some skills and click Save
-          const items = document.querySelectorAll('.skill-item');
+          const items = document.querySelectorAll('.skill-card');
           if (items.length >= 2) {
             items[0].click();
             items[1].click();
@@ -261,7 +257,7 @@ async function run() {
     390,
     1800,
     true,
-    '.skill-sel-categories'
+    '.skill-grid'
   );
 
   console.log('\n' + '='.repeat(70));

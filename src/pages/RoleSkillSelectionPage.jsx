@@ -3,12 +3,9 @@ import { Link, useNavigate } from 'react-router-dom'
 import {
   ArrowLeft,
   ArrowRight,
-  BookOpen,
   CheckCircle2,
-  ChevronDown,
   Compass,
   Edit3,
-  Layers,
   Plus,
   RotateCcw,
   Search,
@@ -21,7 +18,7 @@ import {
   fetchStudentSkillSelection,
   saveStudentSkillSelection,
 } from '@/lib/api'
-import { FRONTEND_DEVELOPER_SKILL_TAXONOMY } from '@/data/roleSkillTaxonomy'
+import { FRONTEND_DEVELOPER_ROLE } from '@/data/roleSkillTaxonomy'
 import '@/styles/skill-selection.css'
 
 export function RoleSkillSelectionPage() {
@@ -30,7 +27,7 @@ export function RoleSkillSelectionPage() {
   const roleId = 'frontend-developer'
 
   // Data state
-  const [taxonomy, setTaxonomy] = useState(FRONTEND_DEVELOPER_SKILL_TAXONOMY)
+  const [roleData, setRoleData] = useState(FRONTEND_DEVELOPER_ROLE)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [saveSuccess, setSaveSuccess] = useState(false)
@@ -43,9 +40,8 @@ export function RoleSkillSelectionPage() {
 
   // UI state
   const [searchQuery, setSearchQuery] = useState('')
-  const [expandedCategories, setExpandedCategories] = useState(new Set())
 
-  // Initial load: fetch taxonomy and existing student selection
+  // Initial load
   useEffect(() => {
     let isMounted = true
 
@@ -54,32 +50,23 @@ export function RoleSkillSelectionPage() {
         setLoading(true)
         setErrorMessage(null)
 
-        // 1. Fetch official role skills taxonomy
+        // 1. Fetch official role skills
         try {
-          const taxData = await fetchRoleSkills(roleId)
-          if (isMounted && taxData?.categories) {
-            setTaxonomy(taxData)
-            // By default expand first 3 categories
-            const initialExpanded = new Set(
-              taxData.categories.slice(0, 3).map((c) => c.categoryId),
-            )
-            setExpandedCategories(initialExpanded)
+          const fetchedData = await fetchRoleSkills(roleId)
+          if (isMounted && fetchedData?.skills) {
+            setRoleData(fetchedData)
           }
         } catch (err) {
-          console.warn('Falling back to local skill taxonomy:', err)
-          if (isMounted) {
-            const initialExpanded = new Set(
-              FRONTEND_DEVELOPER_SKILL_TAXONOMY.categories.slice(0, 3).map((c) => c.categoryId),
-            )
-            setExpandedCategories(initialExpanded)
-          }
+          console.warn('Falling back to local skills list:', err)
         }
 
-        // 2. Fetch student's existing saved selection if authenticated
+        // 2. Fetch student's existing saved selection
         try {
           const selectionData = await fetchStudentSkillSelection(roleId)
           if (isMounted && selectionData?.exists) {
-            const savedIds = new Set(selectionData.selectedSkills.map((s) => s.skillId))
+            const savedIds = new Set(
+              selectionData.selectedSkills.map((s) => s.skillId || s.id || s.name.toLowerCase()),
+            )
             setSelectedSkillIds(savedIds)
             setCustomSkills(selectionData.customSkills.map((c) => c.name))
           }
@@ -101,83 +88,26 @@ export function RoleSkillSelectionPage() {
     }
   }, [roleId])
 
-  // Flat lookup of all official skills in current taxonomy
-  const allSkillsFlat = useMemo(() => {
-    const list = []
-    if (!taxonomy?.categories) return list
-    for (const cat of taxonomy.categories) {
-      for (const skill of cat.skills) {
-        list.push({
-          ...skill,
-          categoryId: cat.categoryId,
-          categoryName: cat.categoryName,
-        })
-      }
-    }
-    return list
-  }, [taxonomy])
-
-  const skillLookupMap = useMemo(() => {
+  // Lookup map for quick name resolution
+  const skillLookup = useMemo(() => {
     const map = new Map()
-    for (const skill of allSkillsFlat) {
-      map.set(skill.skillId, skill)
+    if (!roleData?.skills) return map
+    for (const skill of roleData.skills) {
+      map.set(skill.id, skill.name)
     }
     return map
-  }, [allSkillsFlat])
+  }, [roleData])
 
-  // Filtered categories based on search query
-  const filteredCategories = useMemo(() => {
-    if (!taxonomy?.categories) return []
+  // Filter skills by search query
+  const filteredSkills = useMemo(() => {
+    if (!roleData?.skills) return []
     const q = searchQuery.trim().toLowerCase()
-    if (!q) return taxonomy.categories
+    if (!q) return roleData.skills
 
-    return taxonomy.categories
-      .map((cat) => {
-        const matchesCategory =
-          cat.categoryName.toLowerCase().includes(q) ||
-          cat.description.toLowerCase().includes(q)
-
-        const matchingSkills = cat.skills.filter((skill) => {
-          return (
-            skill.name.toLowerCase().includes(q) ||
-            skill.description.toLowerCase().includes(q) ||
-            (skill.officialTopicId && skill.officialTopicId.toLowerCase().includes(q)) ||
-            skill.interviewWeight.toLowerCase().includes(q)
-          )
-        })
-
-        if (matchesCategory || matchingSkills.length > 0) {
-          return {
-            ...cat,
-            skills: matchesCategory ? cat.skills : matchingSkills,
-          }
-        }
-        return null
-      })
-      .filter(Boolean)
-  }, [taxonomy, searchQuery])
-
-  // Toggle individual category accordion
-  const toggleCategory = (catId) => {
-    setExpandedCategories((prev) => {
-      const next = new Set(prev)
-      if (next.has(catId)) {
-        next.delete(catId)
-      } else {
-        next.add(catId)
-      }
-      return next
-    })
-  }
-
-  // Expand / Collapse all categories
-  const handleToggleAllCategories = () => {
-    if (expandedCategories.size === taxonomy.categories.length) {
-      setExpandedCategories(new Set())
-    } else {
-      setExpandedCategories(new Set(taxonomy.categories.map((c) => c.categoryId)))
-    }
-  }
+    return roleData.skills.filter((skill) =>
+      skill.name.toLowerCase().includes(q),
+    )
+  }, [roleData, searchQuery])
 
   // Toggle skill selection
   const handleToggleSkill = (skillId) => {
@@ -192,32 +122,11 @@ export function RoleSkillSelectionPage() {
     })
   }
 
-  // Category quick select/deselect
-  const handleToggleAllInCategory = (cat) => {
-    const catSkillIds = cat.skills.map((s) => s.skillId)
-    const allSelected = catSkillIds.every((id) => selectedSkillIds.has(id))
-
-    setSelectedSkillIds((prev) => {
-      const next = new Set(prev)
-      if (allSelected) {
-        catSkillIds.forEach((id) => next.delete(id))
-      } else {
-        catSkillIds.forEach((id) => next.add(id))
-      }
-      return next
-    })
-  }
-
   // Select all visible skills
   const handleSelectAllVisible = () => {
-    const visibleIds = []
-    filteredCategories.forEach((cat) => {
-      cat.skills.forEach((s) => visibleIds.push(s.skillId))
-    })
-
     setSelectedSkillIds((prev) => {
       const next = new Set(prev)
-      visibleIds.forEach((id) => next.add(id))
+      filteredSkills.forEach((s) => next.add(s.id))
       return next
     })
   }
@@ -242,7 +151,7 @@ export function RoleSkillSelectionPage() {
     const lower = trimmed.toLowerCase()
     const alreadyExists =
       customSkills.some((c) => c.toLowerCase() === lower) ||
-      allSkillsFlat.some((s) => s.name.toLowerCase() === lower)
+      roleData.skills.some((s) => s.name.toLowerCase() === lower)
 
     if (alreadyExists) {
       setCustomSkillInput('')
@@ -293,21 +202,8 @@ export function RoleSkillSelectionPage() {
         .slice(0, 2)
     : user?.email?.[0]?.toUpperCase() || 'ST'
 
-  // If in saved confirmation state
+  // Saved Confirmation View
   if (saveSuccess) {
-    // Group selected skills by category for structured summary
-    const selectedGrouped = new Map()
-
-    selectedSkillIds.forEach((id) => {
-      const skill = skillLookupMap.get(id)
-      if (skill) {
-        if (!selectedGrouped.has(skill.categoryName)) {
-          selectedGrouped.set(skill.categoryName, [])
-        }
-        selectedGrouped.get(skill.categoryName).push(skill)
-      }
-    })
-
     return (
       <div className="skill-sel-page">
         <header className="skill-sel-topbar">
@@ -316,7 +212,7 @@ export function RoleSkillSelectionPage() {
             <span>CareerLaunch</span>
             <span className="skill-sel-topbar__role-pill">
               <Sparkles size={12} />
-              <span>{taxonomy.roleTitle}</span>
+              <span>{roleData.roleTitle}</span>
             </span>
           </div>
 
@@ -337,59 +233,44 @@ export function RoleSkillSelectionPage() {
               </div>
               <div>
                 <h2 className="skill-sel-saved-card__banner-title">
-                  Preparation Skills Saved Successfully!
+                  Skills Selected Successfully!
                 </h2>
                 <p className="skill-sel-saved-card__banner-desc">
-                  Your personalized skill focus for <strong>{taxonomy.roleTitle}</strong> has
-                  been saved. You selected {totalSelected} skill{totalSelected > 1 ? 's' : ''}.
+                  You selected {totalSelected} skill{totalSelected > 1 ? 's' : ''} for{' '}
+                  <strong>{roleData.roleTitle}</strong>.
                 </p>
               </div>
             </div>
 
-            <div className="skill-sel-saved-groups">
-              {Array.from(selectedGrouped.entries()).map(([catName, skills]) => (
-                <div key={catName} className="skill-sel-saved-group">
-                  <h3 className="skill-sel-saved-group__title">{catName}</h3>
-                  <div className="skill-sel-saved-group__chips">
-                    {skills.map((s) => (
-                      <span key={s.skillId} className="skill-sel-saved-chip">
-                        <CheckCircle2 size={12} color="var(--color-sage)" />
-                        <span>{s.name}</span>
-                        {s.officialTopicId && (
-                          <span className="skill-tag skill-tag--topic">
-                            {s.officialTopicId}
-                          </span>
-                        )}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              ))}
+            <div className="skill-sel-saved-group">
+              <div className="skill-sel-saved-group__chips">
+                {Array.from(selectedSkillIds).map((id) => {
+                  const name = skillLookup.get(id) || id
+                  return (
+                    <span key={id} className="skill-sel-saved-chip">
+                      <CheckCircle2 size={14} color="var(--color-sage)" />
+                      <span>{name}</span>
+                    </span>
+                  )
+                })}
 
-              {customSkills.length > 0 && (
-                <div className="skill-sel-saved-group">
-                  <h3 className="skill-sel-saved-group__title">Custom Selected Skills</h3>
-                  <div className="skill-sel-saved-group__chips">
-                    {customSkills.map((c) => (
-                      <span key={c} className="skill-sel-saved-chip">
-                        <Sparkles size={12} color="var(--color-terracotta)" />
-                        <span>{c}</span>
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
+                {customSkills.map((c) => (
+                  <span key={c} className="skill-sel-saved-chip">
+                    <Sparkles size={14} color="var(--color-terracotta)" />
+                    <span>{c}</span>
+                  </span>
+                ))}
+              </div>
             </div>
 
             <div className="skill-sel-next-box">
               <h4 className="skill-sel-next-box__title">
-                Next Stage: Dedicated AI Learning Assistant (Phase 3)
+                Next Stage: One Dedicated AI Chatbot (Phase 3)
               </h4>
               <p className="skill-sel-next-box__desc">
-                In the upcoming Phase 3, your AI learning assistant will conduct conversational,
-                deep-dive sessions focused specifically on these {totalSelected} technical
-                skills. Your selections will guide your dynamic curriculum, interview questions,
-                and hands-on exercises.
+                Your AI tutor will conduct one continuous conversation tailored around these{' '}
+                {totalSelected} selected skills. You can ask questions, inspect code examples,
+                review prerequisites, and switch between skills seamlessly.
               </p>
             </div>
 
@@ -427,7 +308,7 @@ export function RoleSkillSelectionPage() {
           <span>CareerLaunch</span>
           <span className="skill-sel-topbar__role-pill">
             <Sparkles size={12} />
-            <span>{taxonomy.roleTitle}</span>
+            <span>{roleData.roleTitle}</span>
           </span>
         </div>
 
@@ -448,28 +329,37 @@ export function RoleSkillSelectionPage() {
             <Sparkles size={12} />
             <span>Pilot Preparation Track</span>
           </div>
-          <h1 className="skill-sel-hero__title">What would you like to prepare?</h1>
+          <h1 className="skill-sel-hero__title">What skills do you want to learn?</h1>
           <p className="skill-sel-hero__desc">
-            Choose the skills you want to learn or improve. You can select one or multiple
-            skills across the 12 core domains of modern frontend engineering.
+            Select the technologies you want to prepare for {roleData.roleTitle}. You can select one
+            or multiple skills.
           </p>
         </div>
 
         {/* Error Alert */}
         {errorMessage && (
-          <div className="skill-sel-error-banner" style={{ marginBottom: '1.5rem', padding: '1rem', backgroundColor: '#FDF2F0', border: '1px solid #F5C6CB', borderRadius: '8px', color: '#721C24' }}>
+          <div
+            style={{
+              marginBottom: '1.5rem',
+              padding: '1rem',
+              backgroundColor: '#FDF2F0',
+              border: '1px solid #F5C6CB',
+              borderRadius: '8px',
+              color: '#721C24',
+            }}
+          >
             <span>{errorMessage}</span>
           </div>
         )}
 
-        {/* Toolbar: Search & Global Actions */}
+        {/* Toolbar: Search & Actions */}
         <div className="skill-sel-toolbar">
           <div className="skill-sel-search">
             <Search size={16} className="skill-sel-search__icon" />
             <input
               type="text"
               className="skill-sel-search__input"
-              placeholder="Filter skills by name, topic, or keyword (e.g. React, Box Model, Async)..."
+              placeholder="Filter skills (e.g. React, CSS, JavaScript)..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -489,20 +379,9 @@ export function RoleSkillSelectionPage() {
             <button
               type="button"
               className="skill-sel-actions__btn"
-              onClick={handleToggleAllCategories}
-            >
-              <Layers size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
-              {expandedCategories.size === taxonomy.categories.length
-                ? 'Collapse All'
-                : 'Expand All'}
-            </button>
-
-            <button
-              type="button"
-              className="skill-sel-actions__btn"
               onClick={handleSelectAllVisible}
             >
-              Select Visible
+              Select All
             </button>
 
             {totalSelected > 0 && (
@@ -522,133 +401,30 @@ export function RoleSkillSelectionPage() {
         {loading ? (
           <div className="skill-sel-loading">
             <div className="skill-sel-spinner" />
-            <p>Loading {taxonomy.roleTitle} technical taxonomy...</p>
+            <p>Loading skills...</p>
           </div>
         ) : (
           <>
-            {/* Categories Accordion */}
-            <div className="skill-sel-categories">
-              {filteredCategories.map((cat) => {
-                const isExpanded =
-                  Boolean(searchQuery.trim()) || expandedCategories.has(cat.categoryId)
-                const catSkillIds = cat.skills.map((s) => s.skillId)
-                const selectedInCat = catSkillIds.filter((id) => selectedSkillIds.has(id))
-                const isAllSelected =
-                  catSkillIds.length > 0 && selectedInCat.length === catSkillIds.length
+            {/* Direct Skill Grid (Skill Name + Select Box Only) */}
+            <div className="skill-grid">
+              {filteredSkills.map((skill) => {
+                const isChecked = selectedSkillIds.has(skill.id)
 
                 return (
-                  <section
-                    key={cat.categoryId}
-                    className={`skill-cat-card ${isExpanded ? 'skill-cat-card--expanded' : ''}`}
+                  <div
+                    key={skill.id}
+                    className={`skill-card ${isChecked ? 'skill-card--selected' : ''}`}
+                    onClick={() => handleToggleSkill(skill.id)}
                   >
-                    <header
-                      className="skill-cat-header"
-                      onClick={() => toggleCategory(cat.categoryId)}
-                    >
-                      <div className="skill-cat-header__left">
-                        <ChevronDown
-                          size={18}
-                          className="skill-cat-header__toggle-icon"
-                        />
-                        <div className="skill-cat-header__title-group">
-                          <div className="skill-cat-header__title-row">
-                            <h2 className="skill-cat-header__name">{cat.categoryName}</h2>
-                            <span
-                              className={`skill-cat-header__badge ${
-                                selectedInCat.length > 0
-                                  ? 'skill-cat-header__badge--active'
-                                  : ''
-                              }`}
-                            >
-                              {selectedInCat.length} of {cat.skills.length} selected
-                            </span>
-                          </div>
-                          <p className="skill-cat-header__desc">{cat.description}</p>
-                        </div>
-                      </div>
-
-                      <div
-                        className="skill-cat-header__right"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <button
-                          type="button"
-                          className="skill-cat-header__quick-toggle"
-                          onClick={() => handleToggleAllInCategory(cat)}
-                        >
-                          {isAllSelected ? 'Deselect All' : 'Select All'}
-                        </button>
-                      </div>
-                    </header>
-
-                    {isExpanded && (
-                      <div className="skill-cat-body">
-                        {cat.skills.map((skill) => {
-                          const isChecked = selectedSkillIds.has(skill.skillId)
-
-                          return (
-                            <div
-                              key={skill.skillId}
-                              className={`skill-item ${
-                                isChecked ? 'skill-item--selected' : ''
-                              }`}
-                              onClick={() => handleToggleSkill(skill.skillId)}
-                            >
-                              <input
-                                type="checkbox"
-                                className="skill-item__checkbox"
-                                checked={isChecked}
-                                onChange={() => {}} // handled by parent onClick
-                                aria-label={skill.name}
-                              />
-
-                              <div className="skill-item__content">
-                                <div className="skill-item__header-row">
-                                  <h3 className="skill-item__name">{skill.name}</h3>
-
-                                  <div className="skill-item__tags">
-                                    {skill.interviewWeight === 'critical' && (
-                                      <span className="skill-tag skill-tag--critical">
-                                        Critical Weight
-                                      </span>
-                                    )}
-                                    {skill.interviewWeight === 'high' && (
-                                      <span className="skill-tag skill-tag--high">
-                                        High Relevance
-                                      </span>
-                                    )}
-                                    {skill.interviewWeight === 'medium' && (
-                                      <span className="skill-tag skill-tag--medium">
-                                        Medium Relevance
-                                      </span>
-                                    )}
-
-                                    {skill.officialTopicId && (
-                                      <span
-                                        className="skill-tag skill-tag--topic"
-                                        title={`Mapped to syllabus topic ${skill.officialTopicId}`}
-                                      >
-                                        <BookOpen
-                                          size={10}
-                                          style={{
-                                            marginRight: '2px',
-                                            display: 'inline-block',
-                                          }}
-                                        />
-                                        {skill.officialTopicId}
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
-
-                                <p className="skill-item__desc">{skill.description}</p>
-                              </div>
-                            </div>
-                          )
-                        })}
-                      </div>
-                    )}
-                  </section>
+                    <input
+                      type="checkbox"
+                      className="skill-card__checkbox"
+                      checked={isChecked}
+                      onChange={() => {}} // handled by parent onClick
+                      aria-label={skill.name}
+                    />
+                    <span className="skill-card__name">{skill.name}</span>
+                  </div>
                 )
               })}
             </div>
@@ -659,8 +435,8 @@ export function RoleSkillSelectionPage() {
                 Other — Add Your Own Technical Skills
               </h2>
               <p className="skill-custom-section__desc">
-                Have specific tools, libraries, or concepts you want to include (e.g. Three.js,
-                GraphQL, Tailwind CSS, WebGL)? Add them here.
+                Want to prepare specific libraries or tools (e.g. Tailwind CSS, Three.js, Docker,
+                GraphQL)? Add them here.
               </p>
 
               <form onSubmit={handleAddCustomSkill} className="skill-custom-input-row">
@@ -714,16 +490,15 @@ export function RoleSkillSelectionPage() {
 
               <div className="skill-sel-tray__chips-scroll">
                 {Array.from(selectedSkillIds).map((id) => {
-                  const s = skillLookupMap.get(id)
-                  if (!s) return null
+                  const name = skillLookup.get(id) || id
                   return (
                     <span key={id} className="skill-sel-tray__chip">
-                      <span>{s.name}</span>
+                      <span>{name}</span>
                       <button
                         type="button"
                         className="skill-sel-tray__chip-remove"
                         onClick={() => handleToggleSkill(id)}
-                        aria-label={`Remove ${s.name}`}
+                        aria-label={`Remove ${name}`}
                       >
                         <X size={12} />
                       </button>
@@ -766,7 +541,7 @@ export function RoleSkillSelectionPage() {
                   <span>Saving...</span>
                 ) : (
                   <>
-                    <span>Save & Continue</span>
+                    <span>Start Learning Assistant</span>
                     <ArrowRight size={16} />
                   </>
                 )}

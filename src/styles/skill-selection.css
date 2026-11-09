@@ -1,6 +1,7 @@
 /* ==========================================================================
-   CareerLaunch - Role-Specific Skill Selection Styles (Phase 2)
+   CareerLaunch - Simplified Skill Selection Styles (Revised Phase 2)
    Palette: Warm Ivory, Deep Forest, Muted Terracotta, Soft Sage, Charcoal, Sand
+   Zero subtopics, zero descriptions, zero roadmaps — Skill names only with checkbox.
    ========================================================================== */
 
 .skill-sel-page {
@@ -92,7 +93,7 @@
 /* Main Layout */
 .skill-sel-main {
   flex: 1;
-  max-width: 1040px;
+  max-width: 920px;
   width: 100%;
   margin: 0 auto;
   padding: 2.5rem 1.5rem 8rem;
@@ -134,7 +135,7 @@
   color: var(--color-charcoal-muted);
   line-height: 1.5;
   margin: 0;
-  max-width: 720px;
+  max-width: 680px;
 }
 
 /* Filter Toolbar */
@@ -142,7 +143,7 @@
   background-color: var(--color-white);
   border: 1px solid var(--color-sand);
   border-radius: 12px;
-  padding: 1rem 1.25rem;
+  padding: 0.875rem 1.25rem;
   margin-bottom: 1.75rem;
   display: flex;
   flex-wrap: wrap;
@@ -155,7 +156,7 @@
 .skill-sel-search {
   position: relative;
   flex: 1;
-  min-width: 260px;
+  min-width: 240px;
 }
 
 .skill-sel-search__icon {
@@ -227,169 +228,44 @@
   background-color: var(--color-sand-light);
 }
 
-/* Category Accordion / Card */
-.skill-sel-categories {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
-
-.skill-cat-card {
-  background-color: var(--color-white);
-  border: 1px solid var(--color-sand);
-  border-radius: 12px;
-  overflow: hidden;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-}
-
-.skill-cat-card:hover {
-  border-color: var(--color-sand-dark);
-}
-
-.skill-cat-card--expanded {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-}
-
-.skill-cat-header {
-  padding: 1.125rem 1.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  cursor: pointer;
-  user-select: none;
-  background-color: var(--color-white);
-  border-bottom: 1px solid transparent;
-  transition: background-color 0.15s ease;
-}
-
-.skill-cat-header:hover {
-  background-color: #FCFAF6;
-}
-
-.skill-cat-card--expanded .skill-cat-header {
-  border-bottom-color: var(--color-sand);
-}
-
-.skill-cat-header__left {
-  display: flex;
-  align-items: flex-start;
+/* Simplified Skill Grid (Direct Skill Names + Select Box Only) */
+.skill-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 0.875rem;
-  flex: 1;
 }
 
-.skill-cat-header__toggle-icon {
-  margin-top: 0.25rem;
-  color: var(--color-charcoal-muted);
-  transition: transform 0.2s ease;
-}
-
-.skill-cat-card--expanded .skill-cat-header__toggle-icon {
-  transform: rotate(180deg);
-}
-
-.skill-cat-header__title-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.skill-cat-header__title-row {
-  display: flex;
-  align-items: center;
-  gap: 0.625rem;
-}
-
-.skill-cat-header__name {
-  font-family: var(--font-serif);
-  font-size: 1.1875rem;
-  font-weight: 600;
-  color: var(--color-forest);
-  margin: 0;
-}
-
-.skill-cat-header__badge {
-  font-size: 0.6875rem;
-  font-weight: 700;
-  padding: 0.2rem 0.5rem;
-  border-radius: 9999px;
-  background-color: var(--color-sand-light);
-  color: var(--color-charcoal-muted);
-  border: 1px solid var(--color-sand);
-}
-
-.skill-cat-header__badge--active {
-  background-color: var(--color-sage-light);
-  color: var(--color-forest);
-  border-color: rgba(135, 148, 119, 0.35);
-}
-
-.skill-cat-header__desc {
-  font-size: 0.8125rem;
-  color: var(--color-charcoal-muted);
-  margin: 0;
-  line-height: 1.4;
-}
-
-.skill-cat-header__right {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.skill-cat-header__quick-toggle {
-  background: none;
-  border: none;
-  color: var(--color-terracotta);
-  font-size: 0.75rem;
-  font-weight: 600;
-  cursor: pointer;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-}
-
-.skill-cat-header__quick-toggle:hover {
-  background-color: var(--color-terracotta-light);
-}
-
-/* Skills List inside Category */
-.skill-cat-body {
+.skill-card {
+  background-color: var(--color-white);
+  border: 1.5px solid var(--color-sand);
+  border-radius: 10px;
   padding: 1rem 1.25rem;
   display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  background-color: #FAF8F5;
-}
-
-.skill-item {
-  background-color: var(--color-white);
-  border: 1px solid var(--color-sand);
-  border-radius: 8px;
-  padding: 0.875rem 1rem;
-  display: flex;
-  align-items: flex-start;
-  gap: 0.875rem;
+  align-items: center;
+  gap: 1rem;
   cursor: pointer;
+  user-select: none;
   transition: all 0.15s ease;
 }
 
-.skill-item:hover {
+.skill-card:hover {
   border-color: var(--color-forest);
-  background-color: #FFFEFD;
+  background-color: #FAF6EF;
+  transform: translateY(-1px);
 }
 
-.skill-item--selected {
+.skill-card--selected {
   border-color: var(--color-forest);
   background-color: #F8F9F7;
-  box-shadow: 0 1px 3px rgba(36, 55, 47, 0.05);
+  box-shadow: 0 2px 6px rgba(36, 55, 47, 0.06);
 }
 
-.skill-item__checkbox {
-  margin-top: 0.2rem;
+.skill-card__checkbox {
   appearance: none;
-  width: 1.125rem;
-  height: 1.125rem;
+  width: 1.25rem;
+  height: 1.25rem;
   border: 1.5px solid var(--color-charcoal-subtle);
-  border-radius: 4px;
+  border-radius: 5px;
   background-color: var(--color-white);
   cursor: pointer;
   display: grid;
@@ -398,10 +274,10 @@
   transition: all 0.15s ease;
 }
 
-.skill-item__checkbox::before {
+.skill-card__checkbox::before {
   content: "";
-  width: 0.625rem;
-  height: 0.625rem;
+  width: 0.6875rem;
+  height: 0.6875rem;
   transform: scale(0);
   transition: 120ms transform ease-in-out;
   box-shadow: inset 1em 1em var(--color-white);
@@ -409,81 +285,26 @@
   clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
 }
 
-.skill-item__checkbox:checked {
+.skill-card__checkbox:checked {
   background-color: var(--color-forest);
   border-color: var(--color-forest);
 }
 
-.skill-item__checkbox:checked::before {
+.skill-card__checkbox:checked::before {
   transform: scale(1);
 }
 
-.skill-item__content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.skill-item__header-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-}
-
-.skill-item__name {
-  font-size: 0.9375rem;
+.skill-card__name {
+  font-size: 1.0625rem;
   font-weight: 600;
   color: var(--color-charcoal);
   margin: 0;
+  flex: 1;
+  letter-spacing: -0.01em;
 }
 
-.skill-item__tags {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-}
-
-.skill-tag {
-  font-size: 0.6875rem;
-  font-weight: 600;
-  padding: 0.125rem 0.4375rem;
-  border-radius: 4px;
-}
-
-.skill-tag--critical {
-  background-color: var(--color-terracotta-light);
-  color: var(--color-terracotta);
-  border: 1px solid rgba(198, 106, 74, 0.2);
-}
-
-.skill-tag--high {
-  background-color: var(--color-sage-light);
+.skill-card--selected .skill-card__name {
   color: var(--color-forest);
-  border: 1px solid rgba(135, 148, 119, 0.25);
-}
-
-.skill-tag--medium {
-  background-color: var(--color-sand-light);
-  color: var(--color-charcoal-muted);
-  border: 1px solid var(--color-sand);
-}
-
-.skill-tag--topic {
-  background-color: #EBF3F0;
-  color: var(--color-forest);
-  font-family: var(--font-mono);
-  font-size: 0.625rem;
-  border: 1px solid #C4D9D0;
-}
-
-.skill-item__desc {
-  font-size: 0.8125rem;
-  color: var(--color-charcoal-muted);
-  line-height: 1.45;
-  margin: 0;
 }
 
 /* Custom Skills Section ("Other") */
@@ -512,7 +333,7 @@
 .skill-custom-input-row {
   display: flex;
   gap: 0.75rem;
-  max-width: 580px;
+  max-width: 540px;
 }
 
 .skill-custom-input {
@@ -599,7 +420,7 @@
 }
 
 .skill-sel-tray__inner {
-  max-width: 1040px;
+  max-width: 920px;
   margin: 0 auto;
   display: flex;
   align-items: center;
@@ -756,24 +577,8 @@
   margin: 0;
 }
 
-.skill-sel-saved-groups {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  margin-bottom: 2.5rem;
-}
-
 .skill-sel-saved-group {
-  border-bottom: 1px solid var(--color-sand);
-  padding-bottom: 1.25rem;
-}
-
-.skill-sel-saved-group__title {
-  font-family: var(--font-serif);
-  font-size: 1.0625rem;
-  font-weight: 600;
-  color: var(--color-forest);
-  margin: 0 0 0.75rem;
+  margin-bottom: 2rem;
 }
 
 .skill-sel-saved-group__chips {
@@ -789,10 +594,10 @@
   background-color: var(--color-ivory);
   border: 1px solid var(--color-sand);
   border-radius: 6px;
-  padding: 0.375rem 0.75rem;
-  font-size: 0.8125rem;
-  font-weight: 500;
-  color: var(--color-charcoal);
+  padding: 0.5rem 0.875rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-forest);
 }
 
 .skill-sel-next-box {
@@ -889,7 +694,11 @@
 }
 
 /* Mobile Responsive */
-@media (max-width: 768px) {
+@media (max-width: 640px) {
+  .skill-grid {
+    grid-template-columns: 1fr;
+  }
+
   .skill-sel-topbar {
     padding: 0.75rem 1rem;
   }

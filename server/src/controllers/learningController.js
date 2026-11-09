@@ -1,6 +1,6 @@
 import { StudentSkillSelection } from '../models/StudentSkillSelection.js'
 import {
-  getSkillsTaxonomyByRoleId,
+  getSkillsByRoleId,
   validateSkillIds,
 } from '../data/roleSkillTaxonomy.js'
 
@@ -17,7 +17,7 @@ const VALID_ROLE_IDS = [
 
 /**
  * GET /api/learning/skills/:roleId
- * Returns the official hierarchical skill taxonomy for a specific role.
+ * Returns the simplified top-level skill names for a role (no subtopics, no descriptions).
  */
 export async function getRoleSkills(req, res) {
   try {
@@ -29,27 +29,29 @@ export async function getRoleSkills(req, res) {
       })
     }
 
-    const taxonomy = getSkillsTaxonomyByRoleId(roleId)
+    const roleData = getSkillsByRoleId(roleId)
 
-    if (!taxonomy) {
+    if (!roleData) {
       return res.status(404).json({
-        error: `Skill taxonomy is not yet available for role '${roleId}'. Frontend Developer is currently the primary pilot role.`,
+        error: `Skill definitions not found for role '${roleId}'. Frontend Developer is currently the pilot role.`,
       })
     }
 
     return res.status(200).json({
       success: true,
-      roleId: taxonomy.roleId,
-      roleTitle: taxonomy.roleTitle,
-      subtitle: taxonomy.subtitle,
-      categories: taxonomy.categories,
-      totalCategories: taxonomy.categories.length,
-      totalSkills: taxonomy.categories.reduce((acc, cat) => acc + cat.skills.length, 0),
+      roleId: roleData.roleId,
+      roleTitle: roleData.roleTitle,
+      subtitle: roleData.subtitle,
+      skills: roleData.skills.map((s) => ({
+        id: s.id,
+        name: s.name,
+      })),
+      totalSkills: roleData.skills.length,
     })
   } catch (error) {
     console.error('[LearningController] getRoleSkills error:', error)
     return res.status(500).json({
-      error: 'Failed to retrieve role skills taxonomy.',
+      error: 'Failed to retrieve role skills.',
       details: error.message,
     })
   }
@@ -57,7 +59,7 @@ export async function getRoleSkills(req, res) {
 
 /**
  * GET /api/learning/selection/:roleId
- * Retrieves the authenticated student's saved skill selection for a role.
+ * Retrieves the student's saved skill selection for a role.
  */
 export async function getStudentSkillSelection(req, res) {
   try {
@@ -126,7 +128,7 @@ export async function saveStudentSkillSelection(req, res) {
 
     if (!Array.isArray(selectedSkillIds)) {
       return res.status(400).json({
-        error: 'Invalid payload: selectedSkillIds must be an array of skill ID strings.',
+        error: 'Invalid payload: selectedSkillIds must be an array of skill IDs or names.',
       })
     }
 
@@ -140,12 +142,12 @@ export async function saveStudentSkillSelection(req, res) {
     const { validSkills, invalidIds } = validateSkillIds(roleId, selectedSkillIds)
 
     const mappedSkills = validSkills.map((s) => ({
-      skillId: s.skillId,
+      skillId: s.id,
       name: s.name,
-      categoryId: s.categoryId,
-      categoryName: s.categoryName,
-      officialTopicId: s.officialTopicId || null,
-      knowledgeSupportStatus: s.knowledgeSupportStatus || 'roadmap_topic',
+      categoryId: s.id,
+      categoryName: s.name,
+      officialTopicId: s.canonicalTopics?.[0] || null,
+      knowledgeSupportStatus: 'verified',
     }))
 
     // Clean and deduplicate custom skills
@@ -157,7 +159,7 @@ export async function saveStudentSkillSelection(req, res) {
       if (!name) continue
       if (name.length > 100) {
         return res.status(400).json({
-          error: `Custom skill name '${name.substring(0, 20)}...' exceeds the maximum length of 100 characters.`,
+          error: `Custom skill name '${name.substring(0, 20)}...' exceeds maximum length of 100 characters.`,
         })
       }
 

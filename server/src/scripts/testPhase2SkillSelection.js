@@ -78,7 +78,7 @@ function request(method, path, body = null, token = tokenA) {
 
 async function runTests() {
   console.log('='.repeat(70))
-  console.log('CAREERLAUNCH PHASE 2: ROLE-SPECIFIC SKILL SELECTION TEST SUITE')
+  console.log('CAREERLAUNCH PHASE 2 (SIMPLIFIED): SKILL SELECTION TEST SUITE')
   console.log('='.repeat(70))
 
   let passed = 0
@@ -100,24 +100,34 @@ async function runTests() {
 
   try {
     // ----------------------------------------------------
-    // TEST GROUP 1: Taxonomy Retrieval & Validation
+    // TEST GROUP 1: Simplified Skills Retrieval & Validation
     // ----------------------------------------------------
-    console.log('\n[1] Testing Taxonomy Retrieval (/api/learning/skills/:roleId)...')
+    console.log('\n[1] Testing Simplified Skills Retrieval (/api/learning/skills/:roleId)...')
     const taxRes = await request('GET', '/api/learning/skills/frontend-developer', null, null)
     assert(taxRes.status === 200, 'GET /api/learning/skills/frontend-developer returns HTTP 200')
     assert(taxRes.data.success === true, 'Response indicates success: true')
     assert(taxRes.data.roleId === 'frontend-developer', 'Returns correct roleId')
     assert(taxRes.data.roleTitle === 'Frontend Developer', 'Returns correct roleTitle')
-    assert(taxRes.data.totalCategories === 12, 'Includes exactly 12 technical categories')
-    assert(taxRes.data.totalSkills >= 27, `Includes expected skill count (received ${taxRes.data.totalSkills})`)
+    assert(taxRes.data.totalSkills === 12, 'Includes exactly 12 top-level skills')
+    assert(Array.isArray(taxRes.data.skills), 'skills is an array of objects')
 
-    // Verify first category structure
-    const firstCat = taxRes.data.categories[0]
-    assert(firstCat.categoryId === 'html-accessibility', 'Category 1 is html-accessibility')
-    assert(firstCat.skills.length >= 2, 'Category 1 has skills array')
-    assert(Boolean(firstCat.skills[0].skillId), 'Skill has skillId')
-    assert(Boolean(firstCat.skills[0].name), 'Skill has name')
-    assert(Boolean(firstCat.skills[0].knowledgeSupportStatus), 'Skill has knowledgeSupportStatus')
+    // Verify first skill structure (names only, no subtopics/descriptions)
+    const firstSkill = taxRes.data.skills[0]
+    assert(firstSkill.id === 'html', 'First skill id is "html"')
+    assert(firstSkill.name === 'HTML', 'First skill name is "HTML"')
+    assert(firstSkill.subtopics === undefined, 'Zero subtopics on skill object')
+    assert(firstSkill.description === undefined, 'Zero description on skill object')
+
+    // Verify all 12 expected skill names are present
+    const names = taxRes.data.skills.map((s) => s.name)
+    assert(names.includes('HTML'), 'Includes "HTML"')
+    assert(names.includes('CSS'), 'Includes "CSS"')
+    assert(names.includes('JavaScript'), 'Includes "JavaScript"')
+    assert(names.includes('TypeScript'), 'Includes "TypeScript"')
+    assert(names.includes('React'), 'Includes "React"')
+    assert(names.includes('Next.js'), 'Includes "Next.js"')
+    assert(names.includes('State Management'), 'Includes "State Management"')
+    assert(names.includes('Git & GitHub'), 'Includes "Git & GitHub"')
 
     // Test invalid role
     const invRoleRes = await request('GET', '/api/learning/skills/quantum-computing', null, null)
@@ -133,7 +143,7 @@ async function runTests() {
     const unauthPut = await request(
       'PUT',
       '/api/learning/selection/frontend-developer',
-      { selectedSkillIds: ['fe-skill-html-semantics'] },
+      { selectedSkillIds: ['html'] },
       null,
     )
     assert(unauthPut.status === 401, 'PUT /api/learning/selection without token returns HTTP 401')
@@ -141,17 +151,12 @@ async function runTests() {
     // ----------------------------------------------------
     // TEST GROUP 3: Save and Retrieve Student Skill Selection
     // ----------------------------------------------------
-    console.log('\n[3] Testing Student Skill Selection Persistence...')
+    console.log('\n[3] Testing Simplified Skill Selection Persistence...')
     const payload = {
-      selectedSkillIds: [
-        'fe-skill-html-semantics',
-        'fe-skill-css-layout',
-        'fe-skill-js-execution-scope',
-        'fe-skill-react-hooks-core',
-      ],
+      selectedSkillIds: ['html', 'css', 'javascript', 'react'],
       customSkills: [
         'Tailwind CSS',
-        'Docker for frontend',
+        'Docker',
         'Tailwind CSS', // duplicate to verify deduplication
         '   ',          // blank to verify filtering
       ],
@@ -163,8 +168,8 @@ async function runTests() {
     assert(saveRes.data.selection.selectedSkills.length === 4, 'Saved exactly 4 official skills')
     assert(saveRes.data.selection.customSkills.length === 2, 'Custom skills deduplicated and trimmed to 2')
     assert(
-      saveRes.data.selection.selectedSkills[0].officialTopicId === 'fe-top-1',
-      'fe-skill-html-semantics correctly mapped to curriculum fe-top-1',
+      saveRes.data.selection.selectedSkills[0].name === 'HTML',
+      'First saved skill name is "HTML"',
     )
     assert(
       saveRes.data.selection.totalSelected === 6,
@@ -195,8 +200,8 @@ async function runTests() {
 
     // Graceful handling of invalid skill IDs
     const mixedPayload = {
-      selectedSkillIds: ['fe-skill-html-semantics', 'non-existent-skill-id-12345'],
-      customSkills: ['Zustand state management'],
+      selectedSkillIds: ['html', 'non-existent-skill-id-12345'],
+      customSkills: ['Zustand'],
     }
     const mixedRes = await request('PUT', '/api/learning/selection/frontend-developer', mixedPayload, tokenA)
     assert(mixedRes.status === 200, 'Mixed valid and invalid skill IDs returns HTTP 200')
