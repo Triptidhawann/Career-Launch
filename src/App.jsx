@@ -13,6 +13,7 @@ import { RoleSkillSelectionPage } from '@/pages/RoleSkillSelectionPage'
 import { PreparationSetupPage } from '@/pages/PreparationSetupPage'
 import { DiagnosticPage } from '@/pages/DiagnosticPage'
 import { PreparationPlanPage } from '@/pages/PreparationPlanPage'
+import { LearningAssistantPage } from '@/pages/LearningAssistantPage'
 import { VerifyEmailPage } from '@/pages/VerifyEmailPage'
 
 function ScrollToTop() {
@@ -70,6 +71,23 @@ export default function App() {
             element={
               <ProtectedRoute requireVerifiedEmail={true} requireOnboarding={false}>
                 <RoleSkillSelectionPage />
+              </ProtectedRoute>
+            }
+          />
+          {/* Phase 3: Dedicated AI Learning Assistant Routes */}
+          <Route
+            path="/interview-preparation/:roleId/assistant"
+            element={
+              <ProtectedRoute requireVerifiedEmail={true} requireOnboarding={false}>
+                <LearningAssistantPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/interview-preparation/:roleId/assistant/:sessionId"
+            element={
+              <ProtectedRoute requireVerifiedEmail={true} requireOnboarding={false}>
+                <LearningAssistantPage />
               </ProtectedRoute>
             }
           />

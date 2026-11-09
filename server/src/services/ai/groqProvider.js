@@ -40,11 +40,22 @@ export class GroqProvider extends BaseAIProvider {
    * @param {object} [params.options]
    * @returns {Promise<{ content: object, rawText: string, tokenUsage: object, durationMs: number }>}
    */
-  async generateLesson({ systemPrompt, userPrompt, options = {} }) {
+  /**
+   * Executes Groq chat completion with customizable messages and response format.
+   *
+   * @param {object} params
+   * @param {Array<{ role: string, content: string }>} params.messages
+   * @param {object} [params.responseFormat={ type: 'json_object' }]
+   * @param {number} [params.temperature]
+   * @param {number} [params.maxTokens]
+   * @param {object} [params.options]
+   * @returns {Promise<{ content: object | string, rawText: string, tokenUsage: object, durationMs: number, model: string }>}
+   */
+  async chatCompletion({ messages, responseFormat = { type: 'json_object' }, temperature, maxTokens, options = {} }) {
     const url = AI_CONFIG.groq.baseUrl
     const model = options.model || this.modelId
-    const temperature = options.temperature ?? AI_CONFIG.groq.temperature
-    const maxTokens = options.maxTokens ?? AI_CONFIG.groq.maxTokens
+    const temp = temperature ?? (options.temperature ?? AI_CONFIG.groq.temperature)
+    const tokens = maxTokens ?? (options.maxTokens ?? AI_CONFIG.groq.maxTokens)
 
     let lastError = null
     const maxRetries = AI_CONFIG.groq.maxRetries
@@ -55,22 +66,23 @@ export class GroqProvider extends BaseAIProvider {
       const startTime = performance.now()
 
       try {
+        const bodyPayload = {
+          model,
+          messages,
+          temperature: temp,
+          max_tokens: tokens,
+        }
+        if (responseFormat) {
+          bodyPayload.response_format = responseFormat
+        }
+
         const response = await fetch(url, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${this.apiKey}`,
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            model,
-            messages: [
-              { role: 'system', content: systemPrompt },
-              { role: 'user', content: userPrompt },
-            ],
-            response_format: { type: 'json_object' },
-            temperature,
-            max_tokens: maxTokens,
-          }),
+          body: JSON.stringify(bodyPayload),
           signal: controller.signal,
         })
 
@@ -92,7 +104,7 @@ export class GroqProvider extends BaseAIProvider {
                 if (!isNaN(sec)) waitMs = Math.ceil(sec * 1000) + 2000
               }
             }
-            console.warn(`[GroqProvider] Rate limit (429) on attempt ${attempt}. Waiting ${Math.ceil(waitMs / 1000)}s before retry...`)
+            console.warn(`[GroqProvider] Rate limit (429) on attempt ${attempt}. Waiting ${Math.ceil(waitMs / 1000)}s...`)
             lastError = new Error(`Groq Rate Limit Exceeded (429): ${errBody}`)
             await new Promise((r) => setTimeout(r, waitMs))
             continue
@@ -107,15 +119,17 @@ export class GroqProvider extends BaseAIProvider {
           throw new Error('Groq returned empty completion content.')
         }
 
-        let parsed
-        try {
-          parsed = JSON.parse(rawText)
-        } catch (jsonErr) {
-          throw new Error(`Failed to parse Groq response as JSON: ${jsonErr.message}. Raw text: ${rawText.substring(0, 200)}...`)
+        let parsed = null
+        if (responseFormat?.type === 'json_object') {
+          try {
+            parsed = JSON.parse(rawText)
+          } catch (jsonErr) {
+            throw new Error(`Failed to parse Groq response as JSON: ${jsonErr.message}. Raw text: ${rawText.substring(0, 200)}...`)
+          }
         }
 
         return {
-          content: parsed,
+          content: parsed !== null ? parsed : rawText,
           rawText,
           tokenUsage: {
             promptTokens: data?.usage?.prompt_tokens || 0,
@@ -123,6 +137,7 @@ export class GroqProvider extends BaseAIProvider {
             totalTokens: data?.usage?.total_tokens || 0,
           },
           durationMs,
+          model,
         }
       } catch (err) {
         clearTimeout(timeout)
@@ -136,6 +151,20 @@ export class GroqProvider extends BaseAIProvider {
     }
 
     throw lastError || new Error('Groq generation failed after maximum retries.')
+  }
+
+  /**
+   * Executes Groq chat completion with JSON Object formatting for lessons.
+   */
+  async generateLesson({ systemPrompt, userPrompt, options = {} }) {
+    return this.chatCompletion({
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt },
+      ],
+      responseFormat: { type: 'json_object' },
+      options,
+    })
   }
 }
 

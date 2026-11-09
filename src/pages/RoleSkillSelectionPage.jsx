@@ -17,6 +17,7 @@ import {
   fetchRoleSkills,
   fetchStudentSkillSelection,
   saveStudentSkillSelection,
+  startOrGetLearningSession,
 } from '@/lib/api'
 import { FRONTEND_DEVELOPER_ROLE } from '@/data/roleSkillTaxonomy'
 import '@/styles/skill-selection.css'
@@ -182,8 +183,13 @@ export function RoleSkillSelectionPage() {
       }
 
       await saveStudentSkillSelection(roleId, payload)
-      setSaveSuccess(true)
-      window.scrollTo({ top: 0, behavior: 'smooth' })
+      const sessionRes = await startOrGetLearningSession(roleId)
+      if (sessionRes?.session?.sessionId) {
+        navigate(`/interview-preparation/${roleId}/assistant/${sessionRes.session.sessionId}`)
+      } else {
+        setSaveSuccess(true)
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+      }
     } catch (err) {
       console.error('Failed to save selection:', err)
       setErrorMessage(err.message || 'Failed to save skill selection. Please try again.')

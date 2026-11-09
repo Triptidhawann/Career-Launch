@@ -490,3 +490,88 @@ export async function saveStudentSkillSelection(roleId, payload) {
 
   return data
 }
+
+/**
+ * Starts or retrieves the active continuous learning session for a role.
+ *
+ * @param {string} [roleId='frontend-developer']
+ * @returns {Promise<{ success: boolean, isNew: boolean, session: object }>}
+ */
+export async function startOrGetLearningSession(roleId = 'frontend-developer') {
+  const headers = await getAuthHeader()
+  const res = await fetch(`${API_BASE}/learning/sessions`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ roleId }),
+  })
+
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) {
+    throw new Error(data.error || `Failed to initialize learning session (HTTP ${res.status})`)
+  }
+
+  return data
+}
+
+/**
+ * Fetches learning session metadata.
+ *
+ * @param {string} sessionId
+ * @returns {Promise<{ success: boolean, session: object }>}
+ */
+export async function fetchLearningSession(sessionId) {
+  const headers = await getAuthHeader()
+  const res = await fetch(`${API_BASE}/learning/sessions/${encodeURIComponent(sessionId)}`, {
+    headers,
+  })
+
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) {
+    throw new Error(data.error || `Failed to retrieve learning session (HTTP ${res.status})`)
+  }
+
+  return data
+}
+
+/**
+ * Fetches the ordered message history for a learning session.
+ *
+ * @param {string} sessionId
+ * @returns {Promise<{ success: boolean, messages: Array }>}
+ */
+export async function fetchLearningMessages(sessionId) {
+  const headers = await getAuthHeader()
+  const res = await fetch(`${API_BASE}/learning/sessions/${encodeURIComponent(sessionId)}/messages`, {
+    headers,
+  })
+
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) {
+    throw new Error(data.error || `Failed to retrieve conversation messages (HTTP ${res.status})`)
+  }
+
+  return data
+}
+
+/**
+ * Sends a student message to the learning assistant and receives the AI response.
+ *
+ * @param {string} sessionId
+ * @param {string} content
+ * @returns {Promise<{ success: boolean, userMessage: object, assistantMessage: object, sessionContext: object }>}
+ */
+export async function sendLearningMessage(sessionId, content) {
+  const headers = await getAuthHeader()
+  const res = await fetch(`${API_BASE}/learning/sessions/${encodeURIComponent(sessionId)}/messages`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ content }),
+  })
+
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) {
+    throw new Error(data.error || `Failed to send message (HTTP ${res.status})`)
+  }
+
+  return data
+}
