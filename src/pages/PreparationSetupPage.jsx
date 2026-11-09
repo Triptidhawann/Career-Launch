@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   AlertCircle,
@@ -7,12 +7,14 @@ import {
   BookOpen,
   Check,
   CheckCircle2,
+  ChevronDown,
   Clock,
   Compass,
   Edit3,
-  Layers,
+  Plus,
+  Search,
   Sparkles,
-  Target,
+  X,
 } from 'lucide-react'
 import { getRoadmapByRoleId } from '@/data/interviewRoadmaps'
 import { useAuth } from '@/hooks/useAuth'
@@ -39,18 +41,40 @@ const GOAL_OPTIONS = [
 const EXAMPLE_PROMPT =
   'I want to prepare React.js for a frontend interview. I know HTML, CSS and JavaScript, but I need help with React Hooks, state management and performance.'
 
+// Extract all 17 Frontend Curriculum Topics from authoritative roadmap at module load
+const frontendRoadmap = getRoadmapByRoleId(ROLE_ID)
+const allCurriculumTopics = []
+if (frontendRoadmap?.levels) {
+  frontendRoadmap.levels.forEach((lvl) => {
+    lvl.modules?.forEach((mod) => {
+      mod.topics?.forEach((t) => {
+        allCurriculumTopics.push({
+          topicId: t.id,
+          title: t.title,
+          moduleTitle: mod.title,
+          source: 'curriculum',
+        })
+      })
+    })
+  })
+}
+
 export function PreparationSetupPage() {
   const { user } = useAuth()
 
   // Form State
   const [goalPrompt, setGoalPrompt] = useState('')
   const [experienceLevel, setExperienceLevel] = useState('intermediate')
-  const [knownTopics, setKnownTopics] = useState(new Set(['fe-top-1', 'fe-top-2']))
-  const [weakTopics, setWeakTopics] = useState(new Set(['fe-top-4']))
   const [preparationTimeline, setPreparationTimeline] = useState('2_4_weeks')
   const [primaryGoal, setPrimaryGoal] = useState('placement')
-  const [selectedDirectTopicId, setSelectedDirectTopicId] = useState(null)
-  const [showTopicPicker, setShowTopicPicker] = useState(false)
+
+  // Searchable Multi-Select Topics State
+  const [officialTopics, setOfficialTopics] = useState([])
+  const [customTopics, setCustomTopics] = useState([])
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [customTopicInput, setCustomTopicInput] = useState('')
+  const [customTopicError, setCustomTopicError] = useState(null)
 
   // Status & Validation State
   const [submitting, setSubmitting] = useState(false)
@@ -59,23 +83,9 @@ export function PreparationSetupPage() {
   const [isEditing, setIsEditing] = useState(false)
   const [profile, setProfile] = useState(null)
 
-  // Load Frontend Curriculum Topics
-  const roadmap = getRoadmapByRoleId(ROLE_ID)
-  const frontendTopics = []
-  if (roadmap?.levels) {
-    roadmap.levels.forEach((lvl) => {
-      lvl.modules?.forEach((mod) => {
-        mod.topics?.forEach((t) => {
-          frontendTopics.push({
-            id: t.id,
-            title: t.title,
-            moduleTitle: mod.title,
-            estimatedHours: t.estimatedHours || '2-3h',
-          })
-        })
-      })
-    })
-  }
+  const dropdownRef = useRef(null)
+
+
 
   // Pre-load student profile and previous session on mount
   useEffect(() => {
@@ -99,12 +109,29 @@ export function PreparationSetupPage() {
           const s = latestSessionData.session
           setGoalPrompt(s.goalPrompt || '')
           setExperienceLevel(s.experienceLevel || 'intermediate')
-          setKnownTopics(new Set(s.knownTopics || []))
-          setWeakTopics(new Set(s.weakTopics || []))
           setPreparationTimeline(s.preparationTimeline || '2_4_weeks')
           setPrimaryGoal(s.primaryGoal || 'placement')
-          setSelectedDirectTopicId(s.selectedDirectTopicId || null)
+
+          // Restore official & custom topics
+          if (Array.isArray(s.officialTopics) && s.officialTopics.length > 0) {
+            setOfficialTopics(s.officialTopics)
+          } else if (Array.isArray(s.knownTopics) && s.knownTopics.length > 0) {
+            // Backward-compatibility: map legacy knownTopics
+            const mapped = allCurriculumTopics.filter((ct) => s.knownTopics.includes(ct.topicId))
+            setOfficialTopics(mapped)
+          }
+
+          if (Array.isArray(s.customTopics)) {
+            setCustomTopics(s.customTopics)
+          }
+
           setSavedSession(s)
+        } else {
+          // Default selection if no previous session: first two core topics
+          setOfficialTopics([
+            allCurriculumTopics[0] || { topicId: 'fe-top-1', title: 'Semantic Markup & Accessibility Outlines', source: 'curriculum' },
+            allCurriculumTopics[1] || { topicId: 'fe-top-2', title: 'CSS Box Model, Flexbox & Grid Systems', source: 'curriculum' },
+          ])
         }
       } catch (err) {
         console.warn('Note: Could not preload previous session context:', err)
@@ -117,52 +144,105 @@ export function PreparationSetupPage() {
     }
   }, [])
 
-  // Toggle known topics
-  const toggleKnownTopic = (topicId) => {
-    setKnownTopics((prev) => {
-      const next = new Set(prev)
-      if (next.has(topicId)) {
-        next.delete(topicId)
-      } else {
-        next.add(topicId)
-        // If it was in weak topics, remove from weak
-        setWeakTopics((wPrev) => {
-          const wNext = new Set(wPrev)
-          wNext.delete(topicId)
-          return wNext
-        })
+  // Close dropdown on outside click or Escape key
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false)
       }
-      return next
+    }
+
+    function handleKeyDown(event) {
+      if (event.key === 'Escape') {
+        setIsDropdownOpen(false)
+      }
+    }
+
+    if (isDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+      document.addEventListener('keydown', handleKeyDown)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [isDropdownOpen])
+
+  // Filter curriculum topics based on search query
+  const filteredCurriculumTopics = allCurriculumTopics.filter((t) =>
+    t.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    t.moduleTitle.toLowerCase().includes(searchQuery.toLowerCase())
+  )
+
+  // Toggle official curriculum topic
+  const toggleOfficialTopic = (topic) => {
+    setOfficialTopics((prev) => {
+      const exists = prev.some((t) => t.topicId === topic.topicId)
+      if (exists) {
+        return prev.filter((t) => t.topicId !== topic.topicId)
+      } else {
+        return [...prev, { topicId: topic.topicId, title: topic.title, source: 'curriculum' }]
+      }
     })
   }
 
-  // Toggle weak topics
-  const toggleWeakTopic = (topicId) => {
-    setWeakTopics((prev) => {
-      const next = new Set(prev)
-      if (next.has(topicId)) {
-        next.delete(topicId)
-      } else {
-        next.add(topicId)
-        // If it was in known topics, remove from known
-        setKnownTopics((kPrev) => {
-          const kNext = new Set(kPrev)
-          kNext.delete(topicId)
-          return kNext
-        })
-      }
-      return next
-    })
+  // Remove official topic
+  const removeOfficialTopic = (topicId) => {
+    setOfficialTopics((prev) => prev.filter((t) => t.topicId !== topicId))
   }
 
-  // Direct Topic Selection shortcut
-  const handleSelectDirectTopic = (topic) => {
-    setSelectedDirectTopicId(topic.id)
-    setShowTopicPicker(false)
-    setWeakTopics((prev) => new Set([...prev, topic.id]))
-    setGoalPrompt(
-      `I want an intensive, interview-calibrated preparation focus on "${topic.title}". I want to master its core mechanisms, edge cases, and typical interview questions.`
-    )
+  // Remove custom topic
+  const removeCustomTopic = (title) => {
+    setCustomTopics((prev) => prev.filter((t) => t.title.toLowerCase() !== title.toLowerCase()))
+  }
+
+  // Clear all selected topics
+  const handleClearAllTopics = () => {
+    setOfficialTopics([])
+    setCustomTopics([])
+  }
+
+  // Add custom student topic ("Other — Add my own topic")
+  const handleAddCustomTopic = (e) => {
+    if (e) e.preventDefault()
+    setCustomTopicError(null)
+
+    const trimmed = customTopicInput.trim()
+    if (!trimmed) {
+      setCustomTopicError('Please enter a topic name.')
+      return
+    }
+
+    if (trimmed.length > 100) {
+      setCustomTopicError('Topic name must be 100 characters or fewer.')
+      return
+    }
+
+    const lower = trimmed.toLowerCase()
+
+    // Duplicate check in official curriculum
+    const existsInOfficial = allCurriculumTopics.some((t) => t.title.toLowerCase() === lower)
+    if (existsInOfficial) {
+      // Auto-select in official topics instead of adding as custom
+      const matched = allCurriculumTopics.find((t) => t.title.toLowerCase() === lower)
+      if (!officialTopics.some((t) => t.topicId === matched.topicId)) {
+        setOfficialTopics((prev) => [...prev, matched])
+      }
+      setCustomTopicInput('')
+      return
+    }
+
+    // Duplicate check in existing custom topics
+    const existsInCustom = customTopics.some((t) => t.title.toLowerCase() === lower)
+    if (existsInCustom) {
+      setCustomTopicError('This topic has already been added.')
+      return
+    }
+
+    // Add new custom topic
+    setCustomTopics((prev) => [...prev, { title: trimmed, source: 'student_custom' }])
+    setCustomTopicInput('')
   }
 
   // Form submission
@@ -183,11 +263,12 @@ export function PreparationSetupPage() {
         roleId: ROLE_ID,
         goalPrompt: trimmed,
         experienceLevel,
-        knownTopics: Array.from(knownTopics),
-        weakTopics: Array.from(weakTopics),
+        officialTopics,
+        customTopics,
+        knownTopics: officialTopics.map((t) => t.topicId),
+        weakTopics: [],
         preparationTimeline,
         primaryGoal,
-        selectedDirectTopicId,
       }
 
       const res = await savePreparationSetup(payload)
@@ -207,6 +288,7 @@ export function PreparationSetupPage() {
 
   const displayName = profile?.fullName || user?.displayName || user?.email?.split('@')[0] || 'Candidate'
   const userInitials = displayName.charAt(0).toUpperCase()
+  const totalSelectedCount = officialTopics.length + customTopics.length
 
   // ---------------------------------------------------------------------------
   // RENDER: Saved Confirmation View (Phase B1 Specific)
@@ -216,6 +298,9 @@ export function PreparationSetupPage() {
       TIMELINE_OPTIONS.find((t) => t.value === savedSession.preparationTimeline)?.label || savedSession.preparationTimeline
     const selectedGoalLabel =
       GOAL_OPTIONS.find((g) => g.value === savedSession.primaryGoal)?.label || savedSession.primaryGoal
+
+    const savedOfficial = savedSession.officialTopics || []
+    const savedCustom = savedSession.customTopics || []
 
     return (
       <div className="prep-setup-container">
@@ -252,7 +337,7 @@ export function PreparationSetupPage() {
 
             <h1 className="prep-setup-saved-title">Your Preparation Setup is Saved!</h1>
             <p className="prep-setup-saved-desc">
-              Your personalized goals and technical baseline have been securely recorded. In the upcoming Phase B2,
+              Your personalized goals and targeted topics have been securely recorded. In the upcoming Phase B2,
               CareerLaunch&apos;s AI curriculum orchestrator will synthesize these preferences into an interactive milestone schedule.
             </p>
 
@@ -290,16 +375,20 @@ export function PreparationSetupPage() {
               </div>
 
               <div className="prep-setup-summary-item">
-                <div className="prep-setup-summary-item__label">Known Topics Baseline</div>
-                <div className="prep-setup-summary-item__value">
-                  {savedSession.knownTopics?.length || 0} topics marked familiar
+                <div className="prep-setup-summary-item__label">Curriculum Topics ({savedOfficial.length})</div>
+                <div className="prep-setup-summary-item__value" style={{ fontSize: '0.8125rem', fontWeight: 500, lineHeight: 1.4 }}>
+                  {savedOfficial.length > 0
+                    ? savedOfficial.map((t) => t.title).join(', ')
+                    : 'None selected'}
                 </div>
               </div>
 
               <div className="prep-setup-summary-item">
-                <div className="prep-setup-summary-item__label">Priority Challenge Areas</div>
-                <div className="prep-setup-summary-item__value">
-                  {savedSession.weakTopics?.length || 0} topics flagged for mastery
+                <div className="prep-setup-summary-item__label">Custom Topics ({savedCustom.length})</div>
+                <div className="prep-setup-summary-item__value" style={{ fontSize: '0.8125rem', fontWeight: 500, lineHeight: 1.4 }}>
+                  {savedCustom.length > 0
+                    ? savedCustom.map((t) => t.title).join(', ')
+                    : 'None added'}
                 </div>
               </div>
 
@@ -378,59 +467,10 @@ export function PreparationSetupPage() {
           </span>
           <h1 className="prep-setup-hero__title">Let&apos;s build your interview preparation plan.</h1>
           <p className="prep-setup-hero__desc">
-            Tell us about your upcoming interview targets, existing background, and challenge areas.
+            Tell us about your upcoming interview targets, existing background, and specific topics you want to prepare.
             We will calibrate an optimal learning itinerary tailored specifically to your timeline and goals.
           </p>
         </section>
-
-        {/* Shortcut: Choose a Topic Instead */}
-        <div className="prep-setup-shortcut">
-          <div className="prep-setup-shortcut__left">
-            <div className="prep-setup-shortcut__icon">
-              <Layers size={18} />
-            </div>
-            <div className="prep-setup-shortcut__text">
-              <h4>Want to prepare for a single specific topic instead?</h4>
-              <p>Skip the broad track setup and jump directly into an intensive topic session.</p>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={() => setShowTopicPicker((prev) => !prev)}
-            className="prep-setup-shortcut__btn"
-          >
-            <BookOpen size={13} />
-            <span>{showTopicPicker ? 'Hide Topics' : 'Choose a topic instead'}</span>
-          </button>
-        </div>
-
-        {/* Topic Picker Drawer (Conditional) */}
-        {showTopicPicker && (
-          <div className="prep-setup-topic-picker" role="region" aria-label="Frontend Curriculum Topic Picker">
-            <div className="prep-setup-topic-picker__header">
-              <h4 className="prep-setup-topic-picker__title">Select a Frontend Topic to Anchor Your Setup</h4>
-              <span style={{ fontSize: '0.75rem', color: 'var(--color-charcoal-muted)' }}>
-                17 Topics Available
-              </span>
-            </div>
-            <div className="prep-setup-topic-picker__grid">
-              {frontendTopics.map((topic) => {
-                const isSelected = selectedDirectTopicId === topic.id
-                return (
-                  <button
-                    key={topic.id}
-                    type="button"
-                    onClick={() => handleSelectDirectTopic(topic)}
-                    className={`prep-setup-topic-item ${isSelected ? 'prep-setup-topic-item--selected' : ''}`}
-                  >
-                    <span>{topic.title}</span>
-                    {isSelected && <Check size={13} />}
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-        )}
 
         {/* Error Alert */}
         {errorMessage && (
@@ -484,9 +524,228 @@ export function PreparationSetupPage() {
             </div>
           </div>
 
-          {/* Field 2: Experience Level */}
+          {/* Field 2: Searchable Multi-Select Topic Dropdown */}
+          <div className="prep-setup-field" ref={dropdownRef}>
+            <label id="topics-dropdown-label" className="prep-setup-label">
+              2. What topics do you want to prepare?
+            </label>
+            <p className="prep-setup-hint">
+              Select one or more topics from the official Frontend Developer curriculum, or add your own custom subjects below.
+            </p>
+
+            <div className="prep-topic-dropdown-wrap">
+              {/* Dropdown Trigger */}
+              <div
+                className={`prep-topic-dropdown-trigger ${isDropdownOpen ? 'prep-topic-dropdown-trigger--open' : ''}`}
+                onClick={() => setIsDropdownOpen((prev) => !prev)}
+                role="combobox"
+                aria-haspopup="listbox"
+                aria-expanded={isDropdownOpen}
+                aria-labelledby="topics-dropdown-label"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault()
+                    setIsDropdownOpen((prev) => !prev)
+                  }
+                }}
+              >
+                <div className="prep-topic-dropdown-trigger__content">
+                  {totalSelectedCount > 0 ? (
+                    <>
+                      <span className="prep-topic-dropdown-trigger__count-badge">
+                        {totalSelectedCount} selected
+                      </span>
+                      <span style={{ fontSize: '0.8125rem', color: 'var(--color-charcoal-muted)' }}>
+                        ({officialTopics.length} official, {customTopics.length} custom)
+                      </span>
+                    </>
+                  ) : (
+                    <span className="prep-topic-dropdown-trigger__placeholder">
+                      Search and select topics to prepare...
+                    </span>
+                  )}
+                </div>
+                <ChevronDown
+                  size={16}
+                  className={`prep-topic-dropdown-trigger__chevron ${isDropdownOpen ? 'prep-topic-dropdown-trigger__chevron--open' : ''}`}
+                />
+              </div>
+
+              {/* Dropdown Menu (Floating Panel) */}
+              {isDropdownOpen && (
+                <div className="prep-topic-dropdown-menu" role="listbox" aria-label="Frontend Curriculum Topics">
+                  {/* Search Header */}
+                  <div className="prep-topic-dropdown-search-wrap">
+                    <Search size={15} className="prep-topic-dropdown-search-icon" />
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Search curriculum topics..."
+                      className="prep-topic-dropdown-search-input"
+                      autoFocus
+                    />
+                    {searchQuery && (
+                      <button
+                        type="button"
+                        onClick={() => setSearchQuery('')}
+                        className="prep-topic-dropdown-search-clear"
+                        aria-label="Clear search query"
+                      >
+                        <X size={13} />
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Scrollable Topic Items List */}
+                  <div className="prep-topic-dropdown-list">
+                    {filteredCurriculumTopics.length > 0 ? (
+                      filteredCurriculumTopics.map((topic) => {
+                        const isSelected = officialTopics.some((t) => t.topicId === topic.topicId)
+                        return (
+                          <div
+                            key={topic.topicId}
+                            onClick={() => toggleOfficialTopic(topic)}
+                            className={`prep-topic-dropdown-item ${isSelected ? 'prep-topic-dropdown-item--selected' : ''}`}
+                            role="option"
+                            aria-selected={isSelected}
+                            tabIndex={0}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault()
+                                toggleOfficialTopic(topic)
+                              }
+                            }}
+                          >
+                            <div className={`prep-topic-dropdown-item__checkbox ${isSelected ? 'prep-topic-dropdown-item__checkbox--checked' : ''}`}>
+                              {isSelected && <Check size={11} strokeWidth={3} />}
+                            </div>
+                            <div className="prep-topic-dropdown-item__info">
+                              <div className="prep-topic-dropdown-item__title">{topic.title}</div>
+                              <div className="prep-topic-dropdown-item__module">{topic.moduleTitle}</div>
+                            </div>
+                          </div>
+                        )
+                      })
+                    ) : (
+                      <div className="prep-topic-dropdown-empty">
+                        No official topics matching &ldquo;{searchQuery}&rdquo;.
+                      </div>
+                    )}
+                  </div>
+
+                  {/* "Other — Add my own topic" Section */}
+                  <div className="prep-topic-dropdown-other">
+                    <button
+                      type="button"
+                      className="prep-topic-dropdown-other__title-btn"
+                      onClick={() => {
+                        const inputEl = document.querySelector('.prep-topic-dropdown-other__input')
+                        if (inputEl) inputEl.focus()
+                      }}
+                    >
+                      <Plus size={14} />
+                      <span>Other — Add my own topic</span>
+                    </button>
+
+                    <div className="prep-topic-dropdown-other__form">
+                      <input
+                        type="text"
+                        value={customTopicInput}
+                        onChange={(e) => {
+                          setCustomTopicInput(e.target.value)
+                          if (customTopicError) setCustomTopicError(null)
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault()
+                            handleAddCustomTopic()
+                          }
+                        }}
+                        placeholder="e.g. Next.js, TypeScript, Redux Toolkit..."
+                        className="prep-topic-dropdown-other__input"
+                        maxLength={100}
+                      />
+                      <button
+                        type="button"
+                        onClick={handleAddCustomTopic}
+                        className="prep-topic-dropdown-other__add-btn"
+                      >
+                        Add
+                      </button>
+                    </div>
+
+                    {customTopicError && (
+                      <div className="prep-topic-dropdown-other__error">{customTopicError}</div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Selected Topics Display Tray (Removable Chips) */}
+            {totalSelectedCount > 0 && (
+              <div className="prep-selected-topics-tray">
+                <div className="prep-selected-topics-header">
+                  <span className="prep-selected-topics-count">
+                    Selected Topics ({totalSelectedCount})
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleClearAllTopics}
+                    className="prep-selected-topics-clear-btn"
+                  >
+                    Clear all
+                  </button>
+                </div>
+
+                <div className="prep-selected-chips-grid">
+                  {/* Official Topics Chips */}
+                  {officialTopics.map((topic) => (
+                    <span
+                      key={topic.topicId}
+                      className="prep-topic-chip prep-topic-chip--official"
+                    >
+                      <span className="prep-topic-chip__badge">Curriculum</span>
+                      <span className="prep-topic-chip__text">{topic.title}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeOfficialTopic(topic.topicId)}
+                        className="prep-topic-chip__remove-btn"
+                        aria-label={`Remove ${topic.title}`}
+                      >
+                        <X size={12} />
+                      </button>
+                    </span>
+                  ))}
+
+                  {/* Custom Student Topics Chips */}
+                  {customTopics.map((topic) => (
+                    <span
+                      key={topic.title}
+                      className="prep-topic-chip prep-topic-chip--custom"
+                    >
+                      <span className="prep-topic-chip__badge">Custom</span>
+                      <span className="prep-topic-chip__text">{topic.title}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeCustomTopic(topic.title)}
+                        className="prep-topic-chip__remove-btn"
+                        aria-label={`Remove custom topic ${topic.title}`}
+                      >
+                        <X size={12} />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Field 3: Experience Level */}
           <div className="prep-setup-field">
-            <span className="prep-setup-label">2. Current Experience Level</span>
+            <span className="prep-setup-label">3. Current Experience Level</span>
             <p className="prep-setup-hint">
               Helps calibrate foundational explanations vs deep architectural trade-offs.
             </p>
@@ -532,63 +791,11 @@ export function PreparationSetupPage() {
             </div>
           </div>
 
-          {/* Field 3: Topics Already Known */}
-          <div className="prep-setup-field">
-            <span className="prep-setup-label">
-              3. Topics You Already Know (Select all that apply)
-            </span>
-            <p className="prep-setup-hint">
-              Topics marked here will be condensed into quick revision milestones.
-            </p>
-            <div className="prep-setup-chips-container">
-              {frontendTopics.map((topic) => {
-                const isKnown = knownTopics.has(topic.id)
-                return (
-                  <button
-                    key={topic.id}
-                    type="button"
-                    onClick={() => toggleKnownTopic(topic.id)}
-                    className={`prep-setup-chip ${isKnown ? 'prep-setup-chip--selected-known' : ''}`}
-                  >
-                    {isKnown && <Check size={12} />}
-                    <span>{topic.title}</span>
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-
-          {/* Field 4: Topics Struggling With */}
-          <div className="prep-setup-field">
-            <span className="prep-setup-label">
-              4. Weak Areas / Topics to Emphasize (Select all that apply)
-            </span>
-            <p className="prep-setup-hint">
-              We will allocate extra practice, cross-questioning, and deep-dive examples here.
-            </p>
-            <div className="prep-setup-chips-container">
-              {frontendTopics.map((topic) => {
-                const isWeak = weakTopics.has(topic.id)
-                return (
-                  <button
-                    key={topic.id}
-                    type="button"
-                    onClick={() => toggleWeakTopic(topic.id)}
-                    className={`prep-setup-chip ${isWeak ? 'prep-setup-chip--selected-weak' : ''}`}
-                  >
-                    {isWeak && <Target size={12} />}
-                    <span>{topic.title}</span>
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-
-          {/* Fields 5 & 6: Timeline & Primary Goal (Split Row) */}
+          {/* Fields 4 & 5: Timeline & Primary Goal (Split Row) */}
           <div className="prep-setup-split-row prep-setup-field">
             <div>
               <label htmlFor="timelineSelect" className="prep-setup-label">
-                5. Preparation Timeline
+                4. Preparation Timeline
               </label>
               <select
                 id="timelineSelect"
@@ -606,7 +813,7 @@ export function PreparationSetupPage() {
 
             <div>
               <label htmlFor="goalSelect" className="prep-setup-label">
-                6. Primary Goal
+                5. Primary Goal
               </label>
               <select
                 id="goalSelect"

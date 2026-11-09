@@ -16,6 +16,32 @@ const ALLOWED_EXPERIENCE = ['beginner', 'intermediate', 'advanced']
 const ALLOWED_TIMELINES = ['1_week', '2_4_weeks', '1_2_months', 'custom']
 const ALLOWED_GOALS = ['internship', 'placement', 'technical_interview', 'skill_improvement']
 
+function formatSessionPayload(session) {
+  return {
+    sessionId: session._id.toString(),
+    roleId: session.roleId,
+    goalPrompt: session.goalPrompt,
+    experienceLevel: session.experienceLevel,
+    officialTopics: (session.officialTopics || []).map((t) => ({
+      topicId: t.topicId,
+      title: t.title,
+      source: t.source || 'curriculum',
+    })),
+    customTopics: (session.customTopics || []).map((t) => ({
+      title: t.title,
+      source: t.source || 'student_custom',
+    })),
+    knownTopics: session.knownTopics || [],
+    weakTopics: session.weakTopics || [],
+    preparationTimeline: session.preparationTimeline,
+    primaryGoal: session.primaryGoal,
+    selectedDirectTopicId: session.selectedDirectTopicId,
+    status: session.status,
+    createdAt: session.createdAt,
+    updatedAt: session.updatedAt,
+  }
+}
+
 /**
  * POST /api/prep/setup
  * Validates and saves personal preparation setup.
@@ -35,6 +61,8 @@ export async function savePreparationSetup(req, res) {
       roleId,
       goalPrompt,
       experienceLevel = 'intermediate',
+      officialTopics = [],
+      customTopics = [],
       knownTopics = [],
       weakTopics = [],
       preparationTimeline = '2_4_weeks',
@@ -95,35 +123,79 @@ export async function savePreparationSetup(req, res) {
       })
     }
 
-    // 4. Validate topic arrays
-    if (!Array.isArray(knownTopics) || !Array.isArray(weakTopics)) {
+    // 4. Validate official curriculum topics
+    if (!Array.isArray(officialTopics)) {
       return res.status(400).json({
         success: false,
-        error: 'knownTopics and weakTopics must be arrays of topic strings.',
+        error: 'officialTopics must be an array.',
       })
     }
 
-    if (knownTopics.length > 50 || weakTopics.length > 50) {
+    if (officialTopics.length > 50) {
       return res.status(400).json({
         success: false,
-        error: 'Exceeded maximum of 50 topics in knownTopics or weakTopics.',
+        error: 'Exceeded maximum of 50 topics in officialTopics.',
       })
     }
 
-    const sanitizedKnownTopics = knownTopics
-      .filter((t) => typeof t === 'string' && t.trim().length > 0)
-      .map((t) => t.trim().slice(0, 100))
+    const seenOfficial = new Set()
+    const sanitizedOfficialTopics = []
+    for (const t of officialTopics) {
+      const topicId = typeof t === 'string' ? t.trim() : String(t?.topicId || '').trim()
+      const title = typeof t === 'object' && t?.title ? String(t.title).trim() : topicId
+      if (!topicId || seenOfficial.has(topicId)) continue
+      seenOfficial.add(topicId)
+      sanitizedOfficialTopics.push({
+        topicId: topicId.slice(0, 50),
+        title: title.slice(0, 150),
+        source: 'curriculum',
+      })
+    }
 
-    const sanitizedWeakTopics = weakTopics
-      .filter((t) => typeof t === 'string' && t.trim().length > 0)
-      .map((t) => t.trim().slice(0, 100))
+    // 5. Validate custom student topics
+    if (!Array.isArray(customTopics)) {
+      return res.status(400).json({
+        success: false,
+        error: 'customTopics must be an array.',
+      })
+    }
+
+    if (customTopics.length > 50) {
+      return res.status(400).json({
+        success: false,
+        error: 'Exceeded maximum of 50 topics in customTopics.',
+      })
+    }
+
+    const seenCustom = new Set()
+    const sanitizedCustomTopics = []
+    for (const item of customTopics) {
+      const title = typeof item === 'string' ? item.trim() : String(item?.title || '').trim()
+      if (!title) continue
+      const lower = title.toLowerCase()
+      if (seenCustom.has(lower)) continue
+      seenCustom.add(lower)
+      sanitizedCustomTopics.push({
+        title: title.slice(0, 100),
+        source: 'student_custom',
+      })
+    }
+
+    // 6. Validate legacy topic arrays (for backward compatibility)
+    const sanitizedKnownTopics = Array.isArray(knownTopics)
+      ? knownTopics.filter((t) => typeof t === 'string' && t.trim().length > 0).map((t) => t.trim().slice(0, 100))
+      : []
+
+    const sanitizedWeakTopics = Array.isArray(weakTopics)
+      ? weakTopics.filter((t) => typeof t === 'string' && t.trim().length > 0).map((t) => t.trim().slice(0, 100))
+      : []
 
     const cleanDirectTopic =
       typeof selectedDirectTopicId === 'string' && selectedDirectTopicId.trim().length > 0
         ? selectedDirectTopicId.trim().slice(0, 100)
         : null
 
-    // 5. Upsert active/saved session for this student and role
+    // 7. Upsert active/saved session for this student and role
     let session = await PreparationSession.findOne({
       firebaseUid,
       roleId: roleId.trim(),
@@ -133,6 +205,8 @@ export async function savePreparationSetup(req, res) {
     if (session) {
       session.goalPrompt = trimmedPrompt
       session.experienceLevel = experienceLevel
+      session.officialTopics = sanitizedOfficialTopics
+      session.customTopics = sanitizedCustomTopics
       session.knownTopics = sanitizedKnownTopics
       session.weakTopics = sanitizedWeakTopics
       session.preparationTimeline = preparationTimeline
@@ -146,6 +220,8 @@ export async function savePreparationSetup(req, res) {
         roleId: roleId.trim(),
         goalPrompt: trimmedPrompt,
         experienceLevel,
+        officialTopics: sanitizedOfficialTopics,
+        customTopics: sanitizedCustomTopics,
         knownTopics: sanitizedKnownTopics,
         weakTopics: sanitizedWeakTopics,
         preparationTimeline,
@@ -158,20 +234,7 @@ export async function savePreparationSetup(req, res) {
     return res.status(200).json({
       success: true,
       message: 'Preparation setup saved successfully.',
-      session: {
-        sessionId: session._id.toString(),
-        roleId: session.roleId,
-        goalPrompt: session.goalPrompt,
-        experienceLevel: session.experienceLevel,
-        knownTopics: session.knownTopics,
-        weakTopics: session.weakTopics,
-        preparationTimeline: session.preparationTimeline,
-        primaryGoal: session.primaryGoal,
-        selectedDirectTopicId: session.selectedDirectTopicId,
-        status: session.status,
-        createdAt: session.createdAt,
-        updatedAt: session.updatedAt,
-      },
+      session: formatSessionPayload(session),
     })
   } catch (error) {
     console.error('[PrepController] Error saving preparation setup:', error.message)
@@ -223,20 +286,7 @@ export async function getPreparationSetup(req, res) {
 
     return res.status(200).json({
       success: true,
-      session: {
-        sessionId: session._id.toString(),
-        roleId: session.roleId,
-        goalPrompt: session.goalPrompt,
-        experienceLevel: session.experienceLevel,
-        knownTopics: session.knownTopics,
-        weakTopics: session.weakTopics,
-        preparationTimeline: session.preparationTimeline,
-        primaryGoal: session.primaryGoal,
-        selectedDirectTopicId: session.selectedDirectTopicId,
-        status: session.status,
-        createdAt: session.createdAt,
-        updatedAt: session.updatedAt,
-      },
+      session: formatSessionPayload(session),
     })
   } catch (error) {
     console.error('[PrepController] Error retrieving preparation setup:', error.message)
@@ -278,20 +328,7 @@ export async function getLatestPreparationSession(req, res) {
 
     return res.status(200).json({
       success: true,
-      session: {
-        sessionId: session._id.toString(),
-        roleId: session.roleId,
-        goalPrompt: session.goalPrompt,
-        experienceLevel: session.experienceLevel,
-        knownTopics: session.knownTopics,
-        weakTopics: session.weakTopics,
-        preparationTimeline: session.preparationTimeline,
-        primaryGoal: session.primaryGoal,
-        selectedDirectTopicId: session.selectedDirectTopicId,
-        status: session.status,
-        createdAt: session.createdAt,
-        updatedAt: session.updatedAt,
-      },
+      session: formatSessionPayload(session),
     })
   } catch (error) {
     console.error('[PrepController] Error retrieving latest preparation session:', error.message)

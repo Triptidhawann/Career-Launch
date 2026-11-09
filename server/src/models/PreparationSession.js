@@ -3,6 +3,7 @@ import mongoose, { Schema } from 'mongoose'
 /**
  * PreparationSession Schema
  * Stores student-scoped personal interview preparation setups and sessions.
+ * Preserves clear distinction between official curriculum topics and custom student topics.
  * Enforces ownership by verified Firebase UID.
  */
 const PreparationSessionSchema = new Schema(
@@ -38,6 +39,22 @@ const PreparationSessionSchema = new Schema(
       enum: ['beginner', 'intermediate', 'advanced'],
       default: 'intermediate',
     },
+    // Official curriculum topics selected from syllabus
+    officialTopics: [
+      {
+        topicId: { type: String, required: true, trim: true },
+        title: { type: String, required: true, trim: true },
+        source: { type: String, default: 'curriculum' },
+      },
+    ],
+    // Custom topics added by student (e.g. Next.js, Redux Toolkit, TypeScript)
+    customTopics: [
+      {
+        title: { type: String, required: true, trim: true },
+        source: { type: String, default: 'student_custom' },
+      },
+    ],
+    // Legacy topic arrays preserved for backward compatibility
     knownTopics: {
       type: [String],
       default: [],
