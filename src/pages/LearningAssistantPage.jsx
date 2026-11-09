@@ -2,18 +2,25 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import {
   ArrowLeft,
-  ArrowUp,
-  Check,
-  CheckCircle2,
+  ChevronDown,
+  Code,
   Compass,
   Copy,
+  Check,
+  CheckCircle2,
+  HelpCircle,
+  Hexagon,
   Lightbulb,
   MapPin,
+  Plus,
   RotateCcw,
+  Send,
   Sparkles,
+  Zap,
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import {
+  clearLearningMessages,
   fetchLearningMessages,
   fetchLearningSession,
   sendLearningMessage,
@@ -37,12 +44,12 @@ function CodeBlock({ code, language = 'javascript' }) {
   }
 
   return (
-    <div className="assistant-codeblock">
-      <div className="assistant-codeblock__header">
-        <span className="assistant-codeblock__lang">{language || 'code'}</span>
+    <div className="bolt-codeblock">
+      <div className="bolt-codeblock__header">
+        <span className="bolt-codeblock__lang">{language || 'code'}</span>
         <button
           type="button"
-          className="assistant-codeblock__copy"
+          className="bolt-codeblock__copy"
           onClick={handleCopy}
           aria-label="Copy code"
         >
@@ -68,12 +75,10 @@ function CodeBlock({ code, language = 'javascript' }) {
 
 /**
  * Minimalist Markdown Renderer
- * Handles headings, paragraphs, lists, bold text, inline code, and fenced code blocks without external bloated libraries.
  */
 function MarkdownRenderer({ content = '' }) {
   if (!content) return null
 
-  // Split by fenced code blocks (```lang ... ```)
   const segments = []
   const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g
   let lastIndex = 0
@@ -102,13 +107,12 @@ function MarkdownRenderer({ content = '' }) {
   }
 
   return (
-    <div className="assistant-markdown">
+    <div className="bolt-markdown">
       {segments.map((seg, idx) => {
         if (seg.type === 'code') {
           return <CodeBlock key={idx} code={seg.data} language={seg.language} />
         }
 
-        // Render markdown text lines
         const lines = seg.data.split('\n')
         const elements = []
         let currentList = []
@@ -160,7 +164,6 @@ function MarkdownRenderer({ content = '' }) {
 }
 
 function formatInline(text = '') {
-  // Format bold (**text**), inline code (`code`), and italics (*text*)
   const parts = []
   const tokenRegex = /(\*\*[^*]+\*\*|`[^`]+`|\*[^*]+\*)/g
   let lastIndex = 0
@@ -209,7 +212,6 @@ export function LearningAssistantPage() {
   const threadEndRef = useRef(null)
   const textareaRef = useRef(null)
 
-  // Scroll to bottom
   const scrollToBottom = (behavior = 'smooth') => {
     threadEndRef.current?.scrollIntoView({ behavior })
   }
@@ -225,7 +227,6 @@ export function LearningAssistantPage() {
 
         let activeSessionId = routeSessionId
 
-        // If no sessionId in route or placeholder, resolve active session
         if (!activeSessionId) {
           const sessionRes = await startOrGetLearningSession(roleId)
           if (sessionRes?.session?.sessionId) {
@@ -276,7 +277,6 @@ export function LearningAssistantPage() {
     setErrorMessage(null)
     setSending(true)
 
-    // Optimistically add user message to UI
     const tempUserMsg = {
       id: `temp-${Date.now()}`,
       role: 'user',
@@ -312,7 +312,19 @@ export function LearningAssistantPage() {
     }
   }
 
-  // Handle enter key in textarea
+  // Handle New Chat (Clear Messages back to empty Bolt hero)
+  const handleNewChat = async () => {
+    if (!session?.sessionId || messages.length === 0) return
+    try {
+      setErrorMessage(null)
+      await clearLearningMessages(session.sessionId)
+      setMessages([])
+    } catch (err) {
+      console.error('Failed to clear conversation:', err)
+      setErrorMessage(err.message || 'Failed to reset chat.')
+    }
+  }
+
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
@@ -320,7 +332,6 @@ export function LearningAssistantPage() {
     }
   }
 
-  // Toggle milestone expand
   const toggleMilestone = (index) => {
     setExpandedMilestones((prev) => {
       const next = new Set(prev)
@@ -343,60 +354,235 @@ export function LearningAssistantPage() {
   const customSkills = session?.customSkills || []
   const allSkills = [...selectedSkills.map((s) => s.name), ...customSkills.map((c) => c.name)]
 
+  const hasMessages = messages.length > 0
+
+  if (loadingSession) {
+    return (
+      <div className="bolt-page">
+        <header className="bolt-topbar">
+          <Link to="/interview-preparation" className="bolt-topbar__brand">
+            <Compass size={20} className="bolt-topbar__brand-icon" />
+            <span>CareerLaunch</span>
+          </Link>
+        </header>
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className="bolt-typing">
+            <div className="bolt-typing__dots">
+              <span className="bolt-typing__dot" />
+              <span className="bolt-typing__dot" />
+              <span className="bolt-typing__dot" />
+            </div>
+            <span className="bolt-typing__text">Loading learning space...</span>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="assistant-page">
-      {/* Header Topbar */}
-      <header className="assistant-topbar">
-        <div className="assistant-topbar__left">
-          <Link to="/interview-preparation" className="assistant-topbar__brand">
-            <Compass size={22} color="var(--color-terracotta)" />
+    <div className="bolt-page">
+      {/* Top Bar */}
+      <header className="bolt-topbar">
+        <div className="bolt-topbar__left">
+          <Link to="/interview-preparation" className="bolt-topbar__brand">
+            <Compass size={20} className="bolt-topbar__brand-icon" />
             <span>CareerLaunch</span>
           </Link>
 
-          <span className="assistant-topbar__role-pill">
-            <Sparkles size={12} />
+          <span className="bolt-topbar__role-pill">
+            <Sparkles size={11} />
             <span>{session?.roleTitle || 'Frontend Developer'}</span>
           </span>
 
-          {/* Unobtrusive Skill Pills Strip */}
           {allSkills.length > 0 && (
-            <div className="assistant-topbar__skills" aria-label="Selected technologies">
-              {allSkills.map((skillName) => (
-                <span key={skillName} className="assistant-skill-pill">
-                  {skillName}
+            <div className="bolt-topbar__skills" aria-label="Selected skills">
+              {allSkills.map((name) => (
+                <span key={name} className="bolt-skill-pill">
+                  {name}
                 </span>
               ))}
             </div>
           )}
         </div>
 
-        <div className="assistant-topbar__right">
+        <div className="bolt-topbar__right">
+          {hasMessages && (
+            <button
+              type="button"
+              className="bolt-topbar__action-btn"
+              onClick={handleNewChat}
+              title="Start a new blank chat"
+            >
+              <RotateCcw size={13} />
+              <span>New Chat</span>
+            </button>
+          )}
+
           <Link
             to={`/interview-preparation/${roleId}/skills`}
-            className="assistant-topbar__skills-link"
+            className="bolt-topbar__action-btn"
+            title="Change selected skills"
           >
-            <ArrowLeft size={14} />
+            <ArrowLeft size={13} />
             <span>Change Skills</span>
           </Link>
-          <div className="assistant-topbar__avatar">{userInitials}</div>
+
+          <div className="bolt-topbar__avatar">{userInitials}</div>
         </div>
       </header>
 
-      {/* Main Conversation Workspace */}
-      <main className="assistant-container">
-        {loadingSession ? (
-          <div style={{ textAlign: 'center', padding: '4rem 1rem' }}>
-            <div className="assistant-typing" style={{ margin: '0 auto' }}>
-              <div className="assistant-typing__dots">
-                <span className="assistant-typing__dot" />
-                <span className="assistant-typing__dot" />
-                <span className="assistant-typing__dot" />
+      {/* Main Area: Render either Bolt Hero (empty state) OR Conversation Mode */}
+      {!hasMessages ? (
+        /* ================================================================
+           BOLT V2 / CHATGPT HERO (EMPTY STATE — ZERO MESSAGES PRE-WRITTEN)
+           ================================================================ */
+        <main className="bolt-hero-wrapper">
+          {/* Curved Celestial Horizon Background Glow */}
+          <div className="bolt-horizon-glow" aria-hidden="true" />
+
+          <div className="bolt-hero-content">
+            {/* Top Pill */}
+            <div className="bolt-pill">
+              <Hexagon size={14} className="bolt-pill__icon" />
+              <span>Introducing CareerLaunch AI</span>
+            </div>
+
+            {/* Headline with glowing italic 'learn' */}
+            <h1 className="bolt-title">
+              What will you <em>learn</em> today?
+            </h1>
+
+            {/* Subtitle */}
+            <p className="bolt-subtitle">
+              Master frontend engineering & ace your technical interviews by chatting with AI.
+            </p>
+
+            {/* Centered Large Input Card */}
+            <div className="bolt-card">
+              <textarea
+                ref={textareaRef}
+                className="bolt-textarea"
+                placeholder="What do you want to learn?"
+                value={inputContent}
+                onChange={(e) => setInputContent(e.target.value)}
+                onKeyDown={handleKeyDown}
+                rows={2}
+                disabled={sending}
+              />
+
+              <div className="bolt-card__toolbar">
+                <div className="bolt-card__left">
+                  <button
+                    type="button"
+                    className="bolt-icon-btn"
+                    title="Add context or custom skill"
+                    onClick={() => navigate(`/interview-preparation/${roleId}/skills`)}
+                  >
+                    <Plus size={15} />
+                  </button>
+
+                  <div className="bolt-model-pill" title="Active Groq reasoning model">
+                    <Zap size={13} color="#38bdf8" />
+                    <span>Groq 120B</span>
+                    <ChevronDown size={12} color="#94a3b8" />
+                  </div>
+                </div>
+
+                <div className="bolt-card__right">
+                  <button
+                    type="button"
+                    className="bolt-plan-btn"
+                    title="Create structured roadmap"
+                    onClick={() =>
+                      handleSendMessage(
+                        'Create a personalised roadmap to learn frontend development for technical interviews',
+                      )
+                    }
+                  >
+                    <Lightbulb size={14} />
+                    <span>Roadmap</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    className="bolt-send-btn"
+                    onClick={() => handleSendMessage()}
+                    disabled={!inputContent.trim() || sending}
+                  >
+                    <span>Start learning</span>
+                    <Send size={13} />
+                  </button>
+                </div>
               </div>
-              <span className="assistant-typing__text">Loading conversation...</span>
+            </div>
+
+            {/* Prompt Chips Row Below Card */}
+            <div className="bolt-chips-row">
+              <span className="bolt-chips-label">or explore</span>
+
+              <button
+                type="button"
+                className="bolt-chip"
+                onClick={() =>
+                  handleSendMessage(
+                    'Create a personalised roadmap to learn React for frontend technical interviews',
+                  )
+                }
+              >
+                <MapPin size={13} color="#38bdf8" />
+                <span>React Roadmap</span>
+              </button>
+
+              <button
+                type="button"
+                className="bolt-chip"
+                onClick={() =>
+                  handleSendMessage(
+                    'Teach me JavaScript closures with practical code examples and interview focal points',
+                  )
+                }
+              >
+                <Code size={13} color="#fbbf24" />
+                <span>JS Closures</span>
+              </button>
+
+              <button
+                type="button"
+                className="bolt-chip"
+                onClick={() =>
+                  handleSendMessage(
+                    'Explain CSS Grid vs Flexbox with code examples for layout interview questions',
+                  )
+                }
+              >
+                <Sparkles size={13} color="#a855f7" />
+                <span>CSS Grid vs Flexbox</span>
+              </button>
+
+              <button
+                type="button"
+                className="bolt-chip"
+                onClick={() =>
+                  handleSendMessage(
+                    'Ask me 3 challenging frontend interview questions on my selected technologies',
+                  )
+                }
+              >
+                <HelpCircle size={13} color="#4ade80" />
+                <span>Interview Quiz</span>
+              </button>
             </div>
           </div>
-        ) : (
-          <div className="assistant-thread">
+
+          {/* Watermark preview badge */}
+          <div className="bolt-preview-badge">Bolt Style Chat preview</div>
+        </main>
+      ) : (
+        /* ================================================================
+           CONVERSATION VIEW (ACTIVE CHAT)
+           ================================================================ */
+        <main className="bolt-chat-container">
+          <div className="bolt-thread">
             {messages.map((msg) => {
               const isUser = msg.role === 'user'
               const roadmap = msg.structuredData?.roadmap
@@ -405,68 +591,69 @@ export function LearningAssistantPage() {
               return (
                 <div
                   key={msg.id || msg._id}
-                  className={`assistant-msg ${isUser ? 'assistant-msg--user' : 'assistant-msg--assistant'}`}
+                  className={`bolt-msg ${isUser ? 'bolt-msg--user' : 'bolt-msg--assistant'}`}
                 >
                   {!isUser && (
-                    <div className="assistant-msg__avatar">
-                      <Sparkles size={14} />
+                    <div className="bolt-msg__avatar">
+                      <Sparkles size={13} />
                     </div>
                   )}
 
-                  <div className="assistant-msg__bubble">
-                    {/* Conversational Text */}
+                  <div className="bolt-msg__bubble">
                     <MarkdownRenderer content={msg.content} />
 
                     {/* Interactive Roadmap Card */}
                     {roadmap && (
-                      <div className="assistant-roadmap-card">
-                        <div className="assistant-roadmap-card__banner">
-                          <div className="assistant-roadmap-card__badge">
-                            <MapPin size={12} />
-                            <span>In-Conversation Personalised Roadmap</span>
+                      <div className="bolt-roadmap-card">
+                        <div className="bolt-roadmap-card__banner">
+                          <div className="bolt-roadmap-card__badge">
+                            <MapPin size={11} />
+                            <span>Personalised Roadmap</span>
                           </div>
-                          <h3 className="assistant-roadmap-card__title">{roadmap.title}</h3>
-                          <p className="assistant-roadmap-card__obj">{roadmap.objective}</p>
+                          <h3 className="bolt-roadmap-card__title">{roadmap.title}</h3>
+                          <p className="bolt-roadmap-card__obj">{roadmap.objective}</p>
                         </div>
 
-                        <div className="assistant-roadmap-card__body">
+                        <div className="bolt-roadmap-card__body">
                           {roadmap.milestones?.map((milestone, mIdx) => {
                             const isExpanded = expandedMilestones.has(mIdx)
 
                             return (
-                              <div key={milestone.milestoneId || mIdx} className="assistant-milestone-item">
+                              <div
+                                key={milestone.milestoneId || mIdx}
+                                className="bolt-milestone-item"
+                              >
                                 <div
-                                  className="assistant-milestone-item__header"
+                                  className="bolt-milestone-item__header"
                                   onClick={() => toggleMilestone(mIdx)}
                                   style={{ cursor: 'pointer' }}
                                 >
-                                  <h4 className="assistant-milestone-item__title">
-                                    {milestone.title}
-                                  </h4>
-                                  <span className="assistant-milestone-item__hours">
+                                  <h4 className="bolt-milestone-item__title">{milestone.title}</h4>
+                                  <span className="bolt-milestone-item__hours">
                                     ~{milestone.estimatedHours}h
                                   </span>
                                 </div>
 
                                 {isExpanded && (
                                   <>
-                                    <div className="assistant-topic-list">
+                                    <div className="bolt-topic-list">
                                       {milestone.topics?.map((topic, tIdx) => (
-                                        <div key={topic.topicId || tIdx} className="assistant-topic-row">
-                                          <div className="assistant-topic-row__info">
-                                            <h5 className="assistant-topic-row__name">
-                                              {topic.title}
-                                            </h5>
-                                            <p className="assistant-topic-row__desc">
+                                        <div
+                                          key={topic.topicId || tIdx}
+                                          className="bolt-topic-row"
+                                        >
+                                          <div className="bolt-topic-row__info">
+                                            <h5 className="bolt-topic-row__name">{topic.title}</h5>
+                                            <p className="bolt-topic-row__desc">
                                               {topic.description}
                                             </p>
                                           </div>
                                           <button
                                             type="button"
-                                            className="assistant-topic-row__btn"
+                                            className="bolt-topic-row__btn"
                                             onClick={() =>
                                               handleSendMessage(
-                                                `Teach me ${topic.title} from scratch with practical examples.`,
+                                                `Teach me ${topic.title} from scratch with practical code examples.`,
                                               )
                                             }
                                           >
@@ -477,7 +664,7 @@ export function LearningAssistantPage() {
                                     </div>
 
                                     {milestone.practicalExercise && (
-                                      <div className="assistant-milestone-item__exercise">
+                                      <div className="bolt-milestone-item__exercise">
                                         <strong>Exercise:</strong> {milestone.practicalExercise}
                                       </div>
                                     )}
@@ -492,39 +679,42 @@ export function LearningAssistantPage() {
 
                     {/* Interactive Prerequisite Card */}
                     {prereqCheck && (
-                      <div className="assistant-prereq-card">
-                        <div className="assistant-prereq-card__title">
+                      <div className="bolt-prereq-card">
+                        <div className="bolt-prereq-card__title">
                           <Lightbulb size={16} />
                           <span>Prerequisite Knowledge Check: {prereqCheck.targetTopic}</span>
                         </div>
-                        <p className="assistant-prereq-card__desc">{prereqCheck.question}</p>
+                        <p className="bolt-prereq-card__desc">{prereqCheck.question}</p>
 
                         {Array.isArray(prereqCheck.prerequisites) && (
-                          <div className="assistant-prereq-card__list">
+                          <div className="bolt-prereq-card__list">
                             {prereqCheck.prerequisites.map((p) => (
-                              <span key={p} className="assistant-prereq-chip">
+                              <span key={p} className="bolt-prereq-chip">
                                 {p}
                               </span>
                             ))}
                           </div>
                         )}
 
-                        <div className="assistant-prereq-card__actions">
+                        <div className="bolt-prereq-card__actions">
                           <button
                             type="button"
-                            className="assistant-prereq-btn-primary"
+                            className="bolt-prereq-btn-primary"
                             onClick={() =>
                               handleSendMessage(
                                 `I already know the prerequisites for ${prereqCheck.targetTopic}. Let's jump straight in!`,
                               )
                             }
                           >
-                            <CheckCircle2 size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
+                            <CheckCircle2
+                              size={14}
+                              style={{ marginRight: '4px', verticalAlign: 'middle' }}
+                            />
                             I know these — start {prereqCheck.targetTopic}
                           </button>
                           <button
                             type="button"
-                            className="assistant-prereq-btn-secondary"
+                            className="bolt-prereq-btn-secondary"
                             onClick={() =>
                               handleSendMessage(
                                 `Give me a concise 5-minute refresher on the key prerequisites before we start ${prereqCheck.targetTopic}.`,
@@ -537,14 +727,14 @@ export function LearningAssistantPage() {
                       </div>
                     )}
 
-                    {/* Suggested Action Chips */}
+                    {/* Follow-up Action Chips */}
                     {Array.isArray(msg.suggestedActions) && msg.suggestedActions.length > 0 && (
-                      <div className="assistant-msg__actions">
+                      <div className="bolt-msg__actions">
                         {msg.suggestedActions.map((action, aIdx) => (
                           <button
                             key={aIdx}
                             type="button"
-                            className="assistant-msg-action-chip"
+                            className="bolt-msg-action-chip"
                             onClick={() => handleSendMessage(action)}
                           >
                             {action} →
@@ -554,42 +744,37 @@ export function LearningAssistantPage() {
                     )}
                   </div>
 
-                  {isUser && (
-                    <div className="assistant-msg__avatar">{userInitials}</div>
-                  )}
+                  {isUser && <div className="bolt-msg__avatar">{userInitials}</div>}
                 </div>
               )
             })}
 
             {/* Thinking Indicator */}
             {sending && (
-              <div className="assistant-msg assistant-msg--assistant">
-                <div className="assistant-msg__avatar">
-                  <Sparkles size={14} />
+              <div className="bolt-msg bolt-msg--assistant">
+                <div className="bolt-msg__avatar">
+                  <Sparkles size={13} />
                 </div>
-                <div className="assistant-typing">
-                  <div className="assistant-typing__dots">
-                    <span className="assistant-typing__dot" />
-                    <span className="assistant-typing__dot" />
-                    <span className="assistant-typing__dot" />
+                <div className="bolt-typing">
+                  <div className="bolt-typing__dots">
+                    <span className="bolt-typing__dot" />
+                    <span className="bolt-typing__dot" />
+                    <span className="bolt-typing__dot" />
                   </div>
-                  <span className="assistant-typing__text">
-                    Thinking with Groq (gpt-oss-120b)...
-                  </span>
+                  <span className="bolt-typing__text">Thinking with Groq (gpt-oss-120b)...</span>
                 </div>
               </div>
             )}
 
-            {/* Error Message */}
+            {/* Error Banner */}
             {errorMessage && (
-              <div className="assistant-error">
+              <div className="bolt-error">
                 <span>{errorMessage}</span>
                 <button
                   type="button"
-                  className="assistant-error__retry-btn"
+                  className="bolt-error__retry-btn"
                   onClick={() => handleSendMessage(inputContent)}
                 >
-                  <RotateCcw size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
                   Retry
                 </button>
               </div>
@@ -597,40 +782,47 @@ export function LearningAssistantPage() {
 
             <div ref={threadEndRef} />
           </div>
-        )}
-      </main>
 
-      {/* Fixed Bottom Input Area */}
-      <footer className="assistant-input-tray">
-        <div className="assistant-input-inner">
-          <div className="assistant-input-box">
-            <textarea
-              ref={textareaRef}
-              className="assistant-textarea"
-              placeholder="Ask anything (e.g. teach a concept, create a roadmap, explain code line-by-line)..."
-              value={inputContent}
-              onChange={(e) => setInputContent(e.target.value)}
-              onKeyDown={handleKeyDown}
-              disabled={sending}
-              rows={1}
-            />
-            <button
-              type="button"
-              className="assistant-send-btn"
-              onClick={() => handleSendMessage()}
-              disabled={!inputContent.trim() || sending}
-              aria-label="Send message"
-            >
-              <ArrowUp size={18} />
-            </button>
-          </div>
+          {/* Docked Bottom Input Card in Active Chat */}
+          <footer className="bolt-chat-dock">
+            <div className="bolt-chat-dock__inner">
+              <div className="bolt-card">
+                <textarea
+                  ref={textareaRef}
+                  className="bolt-textarea"
+                  placeholder="Ask a follow-up or explore a new concept..."
+                  value={inputContent}
+                  onChange={(e) => setInputContent(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  disabled={sending}
+                  rows={1}
+                />
 
-          <div className="assistant-input-footer">
-            <span>Press Enter to send, Shift + Enter for new line</span>
-            <span>{inputContent.length} / 2000</span>
-          </div>
-        </div>
-      </footer>
+                <div className="bolt-card__toolbar">
+                  <div className="bolt-card__left">
+                    <div className="bolt-model-pill">
+                      <Zap size={12} color="#38bdf8" />
+                      <span>Groq 120B</span>
+                    </div>
+                  </div>
+
+                  <div className="bolt-card__right">
+                    <button
+                      type="button"
+                      className="bolt-send-btn"
+                      onClick={() => handleSendMessage()}
+                      disabled={!inputContent.trim() || sending}
+                    >
+                      <span>Send</span>
+                      <Send size={13} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </footer>
+        </main>
+      )}
     </div>
   )
 }

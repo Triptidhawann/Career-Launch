@@ -575,3 +575,24 @@ export async function sendLearningMessage(sessionId, content) {
 
   return data
 }
+
+/**
+ * Clears message history for a learning session (resets to empty hero).
+ *
+ * @param {string} sessionId
+ * @returns {Promise<{ success: boolean, message: string }>}
+ */
+export async function clearLearningMessages(sessionId) {
+  const headers = await getAuthHeader()
+  const res = await fetch(`${API_BASE}/learning/sessions/${encodeURIComponent(sessionId)}/messages`, {
+    method: 'DELETE',
+    headers,
+  })
+
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) {
+    throw new Error(data.error || `Failed to clear messages (HTTP ${res.status})`)
+  }
+
+  return data
+}

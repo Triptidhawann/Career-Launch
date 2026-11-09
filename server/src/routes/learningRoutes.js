@@ -9,6 +9,7 @@ import {
   getLearningSession,
   getLearningMessages,
   sendLearningMessage,
+  clearLearningMessages,
 } from '../controllers/learningController.js'
 
 const router = Router()
@@ -28,5 +29,6 @@ router.post('/sessions', requireAuth, startOrGetLearningSession)
 router.get('/sessions/:sessionId', requireAuth, getLearningSession)
 router.get('/sessions/:sessionId/messages', requireAuth, getLearningMessages)
 router.post('/sessions/:sessionId/messages', requireAuth, messageLimiter, sendLearningMessage)
+router.delete('/sessions/:sessionId/messages', requireAuth, clearLearningMessages)
 
 export default router

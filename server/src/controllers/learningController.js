@@ -277,29 +277,7 @@ export async function startOrGetLearningSession(req, res) {
         },
       })
 
-      // Create initial welcome message
-      const skillNames = [
-        ...selectedSkills.map((s) => s.name),
-        ...customSkills.map((c) => c.name),
-      ].join(', ')
-
-      await LearningMessage.create({
-        sessionId: session._id,
-        firebaseUid,
-        role: 'assistant',
-        type: 'welcome',
-        content: `Welcome to your **Frontend Development** learning space!\n\nYou've selected: **${skillNames}**.\n\nWhat would you like to learn first?\n\nYou can ask me to teach a concept from scratch, generate a personalised interview roadmap, explain code line-by-line, or test your readiness with technical interview questions.`,
-        suggestedActions: [
-          'Create a personalised interview roadmap',
-          'Teach me JavaScript closures with examples',
-          'Explain React state batching and reconciliation',
-          'Ask me interview questions on my selected skills',
-        ],
-        providerMetadata: {
-          provider: 'system',
-          model: 'welcome-onboarding',
-        },
-      })
+      // Session starts clean with zero pre-written messages (ChatGPT / Bolt style hero)
     }
 
     return res.status(200).json({
@@ -518,6 +496,52 @@ export async function sendLearningMessage(req, res) {
     console.error('[LearningController] sendLearningMessage error:', error)
     return res.status(500).json({
       error: 'Failed to process message.',
+      details: error.message,
+    })
+  }
+}
+
+/**
+ * DELETE /api/learning/sessions/:sessionId/messages
+ * Clears conversation messages to reset back to clean hero screen (New Chat).
+ */
+export async function clearLearningMessages(req, res) {
+  try {
+    const firebaseUid = req.user?.uid
+    const { sessionId } = req.params
+
+    if (!firebaseUid) {
+      return res.status(401).json({ error: 'Unauthorized: Missing user authentication.' })
+    }
+
+    const session = await LearningSession.findById(sessionId)
+    if (!session) {
+      return res.status(404).json({ error: 'Learning session not found.' })
+    }
+
+    if (session.firebaseUid !== firebaseUid) {
+      return res.status(403).json({ error: 'Forbidden: You do not have access to this conversation.' })
+    }
+
+    await LearningMessage.deleteMany({ sessionId: session._id })
+
+    // Reset currentLearningContext
+    session.currentLearningContext = {
+      activeSkill: session.selectedSkills[0]?.name || 'Frontend Fundamentals',
+      statedKnowledge: [],
+      demonstratedCompetencies: [],
+      generatedRoadmap: null,
+    }
+    await session.save()
+
+    return res.status(200).json({
+      success: true,
+      message: 'Conversation cleared successfully.',
+    })
+  } catch (error) {
+    console.error('[LearningController] clearLearningMessages error:', error)
+    return res.status(500).json({
+      error: 'Failed to clear conversation.',
       details: error.message,
     })
   }

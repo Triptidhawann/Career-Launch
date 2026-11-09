@@ -79,7 +79,7 @@ async function run() {
 
   const sessionId = startData.session.sessionId
 
-  console.log('\n[2] Testing Initial Welcoming Conversation (GET /api/learning/sessions/:sessionId/messages)...')
+  console.log('\n[2] Testing Clean Initial State (Zero Messages Pre-Written - Bolt / ChatGPT Hero)...')
   const msgRes = await fetch(`${BASE_URL}/learning/sessions/${sessionId}/messages`, {
     headers: { 'Authorization': `Bearer ${studentAToken}` },
   })
@@ -87,12 +87,7 @@ async function run() {
   assert(msgRes.status === 200, 'GET messages returns HTTP 200')
   const msgData = await msgRes.json()
   assert(msgData.success === true, 'Messages retrieval success is true')
-  assert(msgData.messages.length === 1, 'Initial session has exactly 1 welcome message')
-  const welcome = msgData.messages[0]
-  assert(welcome.role === 'assistant', 'Initial message role is assistant')
-  assert(welcome.type === 'welcome', 'Initial message type is welcome')
-  assert(welcome.content.includes('Welcome to your **Frontend Development**'), 'Welcome message includes role greeting')
-  assert(Array.isArray(welcome.suggestedActions) && welcome.suggestedActions.length > 0, 'Welcome message includes suggested prompts')
+  assert(msgData.messages.length === 0, 'Initial session starts completely clean with 0 pre-written messages (Bolt / ChatGPT hero mode)')
 
   console.log('\n[3] Testing Real Groq Conversational Inference (Teaching Concept)...')
   console.log('    Sending: "I am confident with functions and scope. Teach me JavaScript closures with practical code examples and interview focal points."')
@@ -215,12 +210,24 @@ async function run() {
     'Assistant smoothly switches to Tailwind CSS within the same conversation'
   )
 
-  console.log('\n[8] Testing Conversation History Restoration...')
+  console.log('\n[8] Testing Conversation History Restoration & New Chat Reset...')
   const historyRes = await fetch(`${BASE_URL}/learning/sessions/${sessionId}/messages`, {
     headers: { 'Authorization': `Bearer ${studentAToken}` },
   })
   const historyData = await historyRes.json()
   assert(historyData.messages.length >= 6, `Complete conversation history preserved (found ${historyData.messages.length} messages)`)
+
+  // Test New Chat / Clear Messages endpoint
+  const clearRes = await fetch(`${BASE_URL}/learning/sessions/${sessionId}/messages`, {
+    method: 'DELETE',
+    headers: { 'Authorization': `Bearer ${studentAToken}` },
+  })
+  assert(clearRes.status === 200, 'DELETE /api/learning/sessions/:sessionId/messages returns HTTP 200')
+  const checkEmpty = await fetch(`${BASE_URL}/learning/sessions/${sessionId}/messages`, {
+    headers: { 'Authorization': `Bearer ${studentAToken}` },
+  })
+  const checkEmptyData = await checkEmpty.json()
+  assert(checkEmptyData.messages.length === 0, 'Conversation reset back to clean hero screen (0 messages)')
 
   console.log('\n[9] Testing Security, Validation & Student Isolation...')
   // Student B attempting to access Student A's session
