@@ -17,7 +17,7 @@ import {
   fetchRoleSkills,
   fetchStudentSkillSelection,
   saveStudentSkillSelection,
-  startOrGetLearningSession,
+  createLearningConversation,
 } from '@/lib/api'
 import { FRONTEND_DEVELOPER_ROLE } from '@/data/roleSkillTaxonomy'
 import '@/styles/skill-selection.css'
@@ -183,9 +183,10 @@ export function RoleSkillSelectionPage() {
       }
 
       await saveStudentSkillSelection(roleId, payload)
-      const sessionRes = await startOrGetLearningSession(roleId)
-      if (sessionRes?.session?.sessionId) {
-        navigate(`/interview-preparation/${roleId}/assistant/${sessionRes.session.sessionId}`)
+      // Phase 3.3: Fresh Entry creates an independent conversation with snapshot of selected skills
+      const convRes = await createLearningConversation(roleId, payload)
+      if (convRes?.conversation?.sessionId) {
+        navigate(`/interview-preparation/${roleId}/assistant/${convRes.conversation.sessionId}`)
       } else {
         setSaveSuccess(true)
         window.scrollTo({ top: 0, behavior: 'smooth' })

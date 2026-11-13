@@ -653,3 +653,97 @@ export async function clearLearningMessages(sessionId) {
 
   return data
 }
+
+
+/**
+ * Phase 3.3: Creates a brand new, independent conversation snapshotting selected skills.
+ *
+ * @param {string} roleId
+ * @param {{ selectedSkillIds?: string[], customSkills?: object[], initialTitle?: string }} [payload={}]
+ * @returns {Promise<{ success: boolean, conversation: object }>}
+ */
+export async function createLearningConversation(roleId = 'frontend-developer', payload = {}) {
+  const headers = await getAuthHeader()
+  const res = await fetch(`${API_BASE}/learning/conversations`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ roleId, ...payload }),
+  })
+
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) {
+    throw new Error(data.error || `Failed to create conversation (HTTP ${res.status})`)
+  }
+
+  return data
+}
+
+/**
+ * Phase 3.3: Lists the student's saved conversations for a role.
+ *
+ * @param {string} [roleId='frontend-developer']
+ * @param {{ search?: string, limit?: number }} [options={}]
+ * @returns {Promise<{ success: boolean, conversations: Array<object> }>}
+ */
+export async function fetchStudentConversations(roleId = 'frontend-developer', options = {}) {
+  const headers = await getAuthHeader()
+  const queryParams = new URLSearchParams()
+  if (roleId) queryParams.set('roleId', roleId)
+  if (options.search) queryParams.set('search', options.search)
+  if (options.limit) queryParams.set('limit', String(options.limit))
+
+  const res = await fetch(`${API_BASE}/learning/conversations?${queryParams.toString()}`, {
+    headers,
+  })
+
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) {
+    throw new Error(data.error || `Failed to retrieve conversations (HTTP ${res.status})`)
+  }
+
+  return data
+}
+
+/**
+ * Phase 3.3: Renames an existing conversation.
+ *
+ * @param {string} sessionId
+ * @param {string} title
+ * @returns {Promise<{ success: boolean, conversation: object, message: string }>}
+ */
+export async function renameLearningConversation(sessionId, title) {
+  const headers = await getAuthHeader()
+  const res = await fetch(`${API_BASE}/learning/conversations/${encodeURIComponent(sessionId)}`, {
+    method: 'PATCH',
+    headers,
+    body: JSON.stringify({ title }),
+  })
+
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) {
+    throw new Error(data.error || `Failed to rename conversation (HTTP ${res.status})`)
+  }
+
+  return data
+}
+
+/**
+ * Phase 3.3: Soft deletes a conversation.
+ *
+ * @param {string} sessionId
+ * @returns {Promise<{ success: boolean, message: string }>}
+ */
+export async function deleteLearningConversation(sessionId) {
+  const headers = await getAuthHeader()
+  const res = await fetch(`${API_BASE}/learning/conversations/${encodeURIComponent(sessionId)}`, {
+    method: 'DELETE',
+    headers,
+  })
+
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) {
+    throw new Error(data.error || `Failed to delete conversation (HTTP ${res.status})`)
+  }
+
+  return data
+}

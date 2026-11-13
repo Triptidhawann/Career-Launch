@@ -2,9 +2,9 @@ import mongoose, { Schema } from 'mongoose'
 
 /**
  * LearningSession Schema
- * Represents a student's continuous learning workspace for a selected career role.
- * Grounded in the CareerLaunch Architecture Blueprint (docs/CAREERLAUNCH_NEW_PRODUCT_ARCHITECTURE_BLUEPRINT.md).
- * Maintains role alignment, active/selected skill references, and evolving learning context.
+ * Represents an independent, persistent conversation in CareerLaunch.
+ * Grounded in the CareerLaunch Architecture Blueprint and Phase 3.3 ChatGPT-style workspace.
+ * Maintains role alignment, independent selected skill references, and evolving learning context.
  */
 const LearningSessionSchema = new Schema(
   {
@@ -31,6 +31,26 @@ const LearningSessionSchema = new Schema(
     roleTitle: {
       type: String,
       default: 'Frontend Developer',
+    },
+    // Phase 3.3: Concise, human-readable conversation title
+    title: {
+      type: String,
+      default: 'New Chat',
+      trim: true,
+      maxlength: 120,
+    },
+    // Phase 3.3: Explicit conversation lifecycle status
+    status: {
+      type: String,
+      enum: ['active', 'archived', 'deleted'],
+      default: 'active',
+      index: true,
+    },
+    // Phase 3.3: High-resolution timestamp for date grouping & sidebar sorting
+    lastActivityAt: {
+      type: Date,
+      default: Date.now,
+      index: true,
     },
     selectedSkills: [
       {
@@ -65,6 +85,8 @@ const LearningSessionSchema = new Schema(
 )
 
 LearningSessionSchema.index({ firebaseUid: 1, roleId: 1, active: 1 })
+LearningSessionSchema.index({ firebaseUid: 1, roleId: 1, status: 1, lastActivityAt: -1 })
+LearningSessionSchema.index({ firebaseUid: 1, status: 1, lastActivityAt: -1 })
 
 export const LearningSession =
   mongoose.models.LearningSession ||

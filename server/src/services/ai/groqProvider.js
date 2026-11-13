@@ -91,7 +91,8 @@ export class GroqProvider extends BaseAIProvider {
 
         if (!response.ok) {
           const errBody = await response.text()
-          if (response.status === 429) {
+          const isTpmOverflow = response.status === 413 && (errBody.includes('tokens per minute') || errBody.includes('rate_limit_exceeded'))
+          if (response.status === 429 || isTpmOverflow) {
             let waitMs = AI_CONFIG.groq.retryDelayMs * Math.pow(2, attempt)
             const headerRetry = response.headers.get('retry-after')
             if (headerRetry) {
@@ -104,7 +105,8 @@ export class GroqProvider extends BaseAIProvider {
                 if (!isNaN(sec)) waitMs = Math.ceil(sec * 1000) + 2000
               }
             }
-            console.warn(`[GroqProvider] Rate limit (429) on attempt ${attempt}. Waiting ${Math.ceil(waitMs / 1000)}s...`)
+            if (isTpmOverflow) waitMs = Math.max(waitMs, 12000)
+            console.warn(`[GroqProvider] Rate/TPM limit (${response.status}) on attempt ${attempt}. Waiting ${Math.ceil(waitMs / 1000)}s...`)
             lastError = new Error(`Groq Rate Limit Exceeded (429): ${errBody}`)
             await new Promise((r) => setTimeout(r, waitMs))
             continue
