@@ -50,7 +50,9 @@ export function findSkillById(roleId, skillId) {
  */
 export function validateSkillIds(roleId, skillIds) {
   const role = getSkillsByRoleId(roleId)
-  if (!role || !Array.isArray(skillIds)) return { validSkills: [], invalidIds: [] }
+  if (!role || !Array.isArray(skillIds)) {
+    return { valid: false, validSkills: [], invalidIds: [] }
+  }
 
   const validSkills = []
   const invalidIds = []
@@ -64,5 +66,9 @@ export function validateSkillIds(roleId, skillIds) {
     }
   }
 
-  return { validSkills, invalidIds }
+  return {
+    valid: invalidIds.length === 0,
+    validSkills,
+    invalidIds,
+  }
 }

@@ -1,72 +1,80 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import {
   ArrowLeft,
+  ArrowRight,
+  Check,
   ChevronDown,
+  ChevronRight,
   Code,
   Compass,
   Copy,
-  Check,
-  CheckCircle2,
+  Edit2,
   HelpCircle,
   Hexagon,
   Lightbulb,
   MapPin,
+  Menu,
+  MessageSquare,
+  PanelLeftClose,
+  PanelLeftOpen,
   Plus,
-  RotateCcw,
+  Search,
   Send,
   Sparkles,
+  Trash2,
+  X,
   Zap,
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import {
-  clearLearningMessages,
+  createLearningConversation,
+  deleteLearningConversation,
   fetchLearningMessages,
   fetchLearningSession,
+  fetchStudentConversations,
+  renameLearningConversation,
   sendLearningMessage,
   startOrGetLearningSession,
 } from '@/lib/api'
 import '@/styles/learning-assistant.css'
 
 /**
- * CodeBlock Component with Copy to Clipboard functionality
+ * CodeBlock Component with Language Tag & Copy to Clipboard
  */
 function CodeBlock({ code, language = 'javascript' }) {
   const [copied, setCopied] = useState(false)
 
   const handleCopy = () => {
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(code).then(() => {
-        setCopied(true)
-        setTimeout(() => setCopied(false), 2000)
-      })
-    }
+    navigator.clipboard.writeText(code)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
   }
 
   return (
-    <div className="bolt-codeblock">
-      <div className="bolt-codeblock__header">
-        <span className="bolt-codeblock__lang">{language || 'code'}</span>
+    <div className="cl-codeblock">
+      <div className="cl-codeblock__header">
+        <span className="cl-codeblock__lang">{language}</span>
         <button
           type="button"
-          className="bolt-codeblock__copy"
+          className="cl-codeblock__copy"
           onClick={handleCopy}
-          aria-label="Copy code"
+          aria-label="Copy code to clipboard"
         >
           {copied ? (
             <>
-              <Check size={13} color="#4ade80" />
+              <Check size={13} color="#879477" />
               <span>Copied!</span>
             </>
           ) : (
             <>
               <Copy size={13} />
-              <span>Copy</span>
+              <span>Copy code</span>
             </>
           )}
         </button>
       </div>
-      <pre>
+      <pre className="cl-codeblock__pre">
         <code>{code}</code>
       </pre>
     </div>
@@ -74,118 +82,12 @@ function CodeBlock({ code, language = 'javascript' }) {
 }
 
 /**
- * Minimalist Markdown Renderer
+ * Inline text parser for bold, italic, inline code, and links
  */
-function MarkdownRenderer({ content = '' }) {
-  if (!content) return null
-
-  const segments = []
-  const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g
-  let lastIndex = 0
-  let match
-
-  while ((match = codeBlockRegex.exec(content)) !== null) {
-    if (match.index > lastIndex) {
-      segments.push({
-        type: 'text',
-        data: content.substring(lastIndex, match.index),
-      })
-    }
-    segments.push({
-      type: 'code',
-      language: match[1] || 'javascript',
-      data: match[2].trim(),
-    })
-    lastIndex = match.index + match[0].length
-  }
-
-  if (lastIndex < content.length) {
-    segments.push({
-      type: 'text',
-      data: content.substring(lastIndex),
-    })
-  }
-
-  return (
-    <div className="bolt-markdown">
-      {segments.map((seg, idx) => {
-        if (seg.type === 'code') {
-          return <CodeBlock key={idx} code={seg.data} language={seg.language} />
-        }
-
-        const lines = seg.data.split('\n')
-        const elements = []
-        let currentList = []
-        let listType = 'ul'
-
-        const flushList = () => {
-          if (currentList.length > 0) {
-            if (listType === 'ol') {
-              elements.push(
-                <ol key={`ol-${elements.length}`} className="bolt-ol">
-                  {currentList.map((li, lIdx) => (
-                    <li key={lIdx}>{formatInline(li)}</li>
-                  ))}
-                </ol>,
-              )
-            } else {
-              elements.push(
-                <ul key={`ul-${elements.length}`} className="bolt-ul">
-                  {currentList.map((li, lIdx) => (
-                    <li key={lIdx}>{formatInline(li)}</li>
-                  ))}
-                </ul>,
-              )
-            }
-            currentList = []
-            listType = 'ul'
-          }
-        }
-
-        for (let i = 0; i < lines.length; i++) {
-          const line = lines[i]
-          const trimmed = line.trim()
-
-          if (!trimmed) {
-            flushList()
-            continue
-          }
-
-          const olMatch = trimmed.match(/^(\d+)\.\s+(.*)/)
-
-          if (trimmed.startsWith('#### ')) {
-            flushList()
-            elements.push(<h4 key={`h4-${i}`}>{formatInline(trimmed.substring(5))}</h4>)
-          } else if (trimmed.startsWith('### ')) {
-            flushList()
-            elements.push(<h3 key={`h3-${i}`}>{formatInline(trimmed.substring(4))}</h3>)
-          } else if (trimmed.startsWith('## ')) {
-            flushList()
-            elements.push(<h2 key={`h2-${i}`}>{formatInline(trimmed.substring(3))}</h2>)
-          } else if (trimmed.startsWith('* ') || trimmed.startsWith('- ')) {
-            if (listType === 'ol') flushList()
-            listType = 'ul'
-            currentList.push(trimmed.substring(2))
-          } else if (olMatch) {
-            if (listType === 'ul') flushList()
-            listType = 'ol'
-            currentList.push(olMatch[2])
-          } else {
-            flushList()
-            elements.push(<p key={`p-${i}`}>{formatInline(trimmed)}</p>)
-          }
-        }
-
-        flushList()
-        return <div key={idx}>{elements}</div>
-      })}
-    </div>
-  )
-}
-
-function formatInline(text = '') {
+function renderInlineStyles(text) {
+  if (!text) return ''
   const parts = []
-  const tokenRegex = /(\*\*[^*]+\*\*|`[^`]+`|\*[^*]+\*)/g
+  const tokenRegex = /(\*\*([^*]+)\*\*|\*([^*]+)\*|`([^`]+)`|\[([^\]]+)\]\(([^)]+)\))/g
   let lastIndex = 0
   let match
 
@@ -193,19 +95,22 @@ function formatInline(text = '') {
     if (match.index > lastIndex) {
       parts.push(text.substring(lastIndex, match.index))
     }
-    const token = match[0]
-    if (token.startsWith('**') && token.endsWith('**')) {
-      parts.push(<strong key={match.index}>{token.slice(2, -2)}</strong>)
-    } else if (token.startsWith('`') && token.endsWith('`')) {
+
+    if (match[2]) {
+      parts.push(<strong key={match.index}>{match[2]}</strong>)
+    } else if (match[3]) {
+      parts.push(<em key={match.index}>{match[3]}</em>)
+    } else if (match[4]) {
+      parts.push(<code key={match.index} className="cl-inline-code">{match[4]}</code>)
+    } else if (match[5] && match[6]) {
       parts.push(
-        <code key={match.index} className="inline-code">
-          {token.slice(1, -1)}
-        </code>,
+        <a key={match.index} href={match[6]} target="_blank" rel="noopener noreferrer" className="cl-link">
+          {match[5]}
+        </a>
       )
-    } else if (token.startsWith('*') && token.endsWith('*')) {
-      parts.push(<em key={match.index}>{token.slice(1, -1)}</em>)
     }
-    lastIndex = match.index + token.length
+
+    lastIndex = match.index + match[0].length
   }
 
   if (lastIndex < text.length) {
@@ -215,12 +120,342 @@ function formatInline(text = '') {
   return parts.length > 0 ? parts : text
 }
 
+/**
+ * ProseBlock parses markdown text into headings, paragraphs, lists, tables, and blockquotes
+ */
+function ProseBlock({ text }) {
+  if (!text) return null
+  const lines = text.split('\n')
+  const elements = []
+  let i = 0
+
+  while (i < lines.length) {
+    const rawLine = lines[i]
+    const trimmed = rawLine.trim()
+
+    if (!trimmed) {
+      i++
+      continue
+    }
+
+    // Markdown Table: | Header | Header | followed by | --- |
+    if (
+      trimmed.startsWith('|') &&
+      trimmed.endsWith('|') &&
+      i + 1 < lines.length &&
+      lines[i + 1].includes('---')
+    ) {
+      const headerLine = trimmed
+      i += 2 // skip header and divider line
+      const bodyRows = []
+      while (i < lines.length && lines[i].trim().startsWith('|') && lines[i].trim().endsWith('|')) {
+        bodyRows.push(lines[i].trim())
+        i++
+      }
+
+      const parseCells = (row) =>
+        row
+          .slice(1, -1)
+          .split('|')
+          .map((c) => c.trim())
+
+      const headers = parseCells(headerLine)
+      const rows = bodyRows.map(parseCells)
+
+      elements.push(
+        <div key={`table-${i}`} className="cl-table-wrapper">
+          <table className="cl-table">
+            <thead>
+              <tr>
+                {headers.map((h, hIdx) => (
+                  <th key={hIdx}>{renderInlineStyles(h)}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((r, rIdx) => (
+                <tr key={rIdx}>
+                  {r.map((c, cIdx) => (
+                    <td key={cIdx}>{renderInlineStyles(c)}</td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )
+      continue
+    }
+
+    // Headings
+    if (trimmed.startsWith('#### ')) {
+      elements.push(<h4 key={`h4-${i}`} className="cl-h4">{renderInlineStyles(trimmed.slice(5))}</h4>)
+      i++
+      continue
+    }
+    if (trimmed.startsWith('### ')) {
+      elements.push(<h3 key={`h3-${i}`} className="cl-h3">{renderInlineStyles(trimmed.slice(4))}</h3>)
+      i++
+      continue
+    }
+    if (trimmed.startsWith('## ')) {
+      elements.push(<h2 key={`h2-${i}`} className="cl-h2">{renderInlineStyles(trimmed.slice(3))}</h2>)
+      i++
+      continue
+    }
+    if (trimmed.startsWith('# ')) {
+      elements.push(<h1 key={`h1-${i}`} className="cl-h1">{renderInlineStyles(trimmed.slice(2))}</h1>)
+      i++
+      continue
+    }
+
+    // Blockquote
+    if (trimmed.startsWith('> ')) {
+      const quoteLines = []
+      while (i < lines.length && lines[i].trim().startsWith('> ')) {
+        quoteLines.push(lines[i].trim().slice(2))
+        i++
+      }
+      elements.push(
+        <blockquote key={`quote-${i}`} className="cl-blockquote">
+          {quoteLines.map((ql, qIdx) => (
+            <p key={qIdx}>{renderInlineStyles(ql)}</p>
+          ))}
+        </blockquote>
+      )
+      continue
+    }
+
+    // Unordered List (- or *)
+    if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+      const items = []
+      while (i < lines.length && (lines[i].trim().startsWith('- ') || lines[i].trim().startsWith('* '))) {
+        items.push(lines[i].trim().slice(2))
+        i++
+      }
+      elements.push(
+        <ul key={`ul-${i}`} className="cl-ul">
+          {items.map((it, itIdx) => (
+            <li key={itIdx}>{renderInlineStyles(it)}</li>
+          ))}
+        </ul>
+      )
+      continue
+    }
+
+    // Ordered List (1. )
+    const numMatch = trimmed.match(/^(\d+)\.\s+(.*)/)
+    if (numMatch) {
+      const items = []
+      while (i < lines.length) {
+        const m = lines[i].trim().match(/^(\d+)\.\s+(.*)/)
+        if (!m) break
+        items.push({ num: m[1], text: m[2] })
+        i++
+      }
+      elements.push(
+        <ol key={`ol-${i}`} className="cl-ol">
+          {items.map((it, itIdx) => (
+            <li key={itIdx}>
+              <span className="cl-ol__num">{it.num}.</span>
+              <span>{renderInlineStyles(it.text)}</span>
+            </li>
+          ))}
+        </ol>
+      )
+      continue
+    }
+
+    // Standard Paragraph
+    elements.push(
+      <p key={`p-${i}`} className="cl-p">
+        {renderInlineStyles(rawLine)}
+      </p>
+    )
+    i++
+  }
+
+  return <>{elements}</>
+}
+
+/**
+ * FormattedMarkdown Component
+ */
+function FormattedMarkdown({ content }) {
+  if (!content) return null
+
+  const parts = []
+  const codeBlockRegex = /```([a-zA-Z0-9_-]*)\n([\s\S]*?)```/g
+  let lastIndex = 0
+  let match
+
+  while ((match = codeBlockRegex.exec(content)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push({
+        type: 'text',
+        content: content.substring(lastIndex, match.index),
+      })
+    }
+    parts.push({
+      type: 'code',
+      language: match[1] || 'javascript',
+      code: match[2].trim(),
+    })
+    lastIndex = match.index + match[0].length
+  }
+
+  if (lastIndex < content.length) {
+    parts.push({
+      type: 'text',
+      content: content.substring(lastIndex),
+    })
+  }
+
+  return (
+    <div className="cl-markdown">
+      {parts.map((p, idx) => {
+        if (p.type === 'code') {
+          return <CodeBlock key={idx} code={p.code} language={p.language} />
+        }
+        return <ProseBlock key={idx} text={p.content} />
+      })}
+    </div>
+  )
+}
+
+/**
+ * Editorial Learning Roadmap Guide (Clean document layout, no nested cards)
+ */
+function RoadmapGuide({ roadmap, expandedMilestones, toggleMilestone, onTeachTopic }) {
+  if (!roadmap || !Array.isArray(roadmap.milestones) || roadmap.milestones.length === 0) {
+    return null
+  }
+
+  return (
+    <section className="cl-roadmap-guide" aria-label="Learning Roadmap">
+      <div className="cl-roadmap-guide__header">
+        <div className="cl-roadmap-guide__badge">
+          <MapPin size={13} />
+          <span>Curriculum Guide</span>
+          {roadmap.estimatedWeeks && (
+            <>
+              <span className="cl-roadmap-guide__dot">•</span>
+              <span>{roadmap.estimatedWeeks} Weeks Track</span>
+            </>
+          )}
+        </div>
+        <h3 className="cl-roadmap-guide__title">{roadmap.title}</h3>
+        {roadmap.objective && (
+          <p className="cl-roadmap-guide__intro">{roadmap.objective}</p>
+        )}
+      </div>
+
+      <div className="cl-roadmap-guide__milestones">
+        {roadmap.milestones.map((milestone, mIdx) => {
+          const isExpanded = expandedMilestones.has(mIdx)
+          const numStr = String(mIdx + 1).padStart(2, '0')
+
+          return (
+            <div
+              key={milestone.milestoneId || mIdx}
+              className={`cl-milestone ${isExpanded ? 'cl-milestone--expanded' : ''}`}
+            >
+              <button
+                type="button"
+                className="cl-milestone__header"
+                onClick={() => toggleMilestone(mIdx)}
+                aria-expanded={isExpanded}
+              >
+                <div className="cl-milestone__header-left">
+                  <span className="cl-milestone__num">{numStr}</span>
+                  <div className="cl-milestone__title-block">
+                    <h4 className="cl-milestone__title">{milestone.title}</h4>
+                    <span className="cl-milestone__meta">
+                      {milestone.topics?.length ? `${milestone.topics.length} topics` : ''}
+                      {milestone.estimatedHours ? ` • ~${milestone.estimatedHours} hrs` : ''}
+                    </span>
+                  </div>
+                </div>
+                <div className="cl-milestone__header-right">
+                  <span className="cl-milestone__toggle-icon">
+                    {isExpanded ? <ChevronDown size={17} /> : <ChevronRight size={17} />}
+                  </span>
+                </div>
+              </button>
+
+              {isExpanded && (
+                <div className="cl-milestone__body">
+                  {Array.isArray(milestone.topics) && milestone.topics.length > 0 && (
+                    <div className="cl-milestone__topics">
+                      {milestone.topics.map((topic, tIdx) => (
+                        <div key={topic.topicId || tIdx} className="cl-topic-row">
+                          <div className="cl-topic-row__info">
+                            <h5 className="cl-topic-row__title">{topic.title}</h5>
+                            <p className="cl-topic-row__desc">{topic.description}</p>
+
+                            {Array.isArray(topic.subtopics) && topic.subtopics.length > 0 && (
+                              <div className="cl-topic-row__subtopics">
+                                <span className="cl-topic-row__label">Covers:</span>
+                                <span>{topic.subtopics.join(', ')}</span>
+                              </div>
+                            )}
+
+                            {Array.isArray(topic.interviewCheckpoints) && topic.interviewCheckpoints.length > 0 && (
+                              <div className="cl-topic-row__interview">
+                                <span className="cl-topic-row__label cl-topic-row__label--interview">
+                                  Interview focus:
+                                </span>
+                                <span>{topic.interviewCheckpoints.join(' • ')}</span>
+                              </div>
+                            )}
+                          </div>
+
+                          <button
+                            type="button"
+                            className="cl-topic-row__teach-btn"
+                            onClick={() => onTeachTopic(topic.title)}
+                            title={`Teach ${topic.title}`}
+                          >
+                            <span>Teach this</span>
+                            <ArrowRight size={12} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {milestone.practicalExercise && (
+                    <div className="cl-milestone__exercise">
+                      <div className="cl-milestone__exercise-tag">Hands-on Challenge</div>
+                      <p className="cl-milestone__exercise-text">{milestone.practicalExercise}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )
+        })}
+      </div>
+    </section>
+  )
+}
+
 export function LearningAssistantPage() {
   const { user } = useAuth()
   const { roleId = 'frontend-developer', sessionId: routeSessionId } = useParams()
   const navigate = useNavigate()
 
-  // State
+  // Sidebar State (Desktop Collapsible + Mobile Drawer)
+  const [conversations, setConversations] = useState([])
+  const [loadingConversations, setLoadingConversations] = useState(true)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [editingSessionId, setEditingSessionId] = useState(null)
+  const [editingTitleText, setEditingTitleText] = useState('')
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null)
+
+  // Active Conversation State
   const [session, setSession] = useState(null)
   const [messages, setMessages] = useState([])
   const [inputContent, setInputContent] = useState('')
@@ -231,12 +466,68 @@ export function LearningAssistantPage() {
 
   const threadEndRef = useRef(null)
   const textareaRef = useRef(null)
+  const renameInputRef = useRef(null)
 
   const scrollToBottom = (behavior = 'smooth') => {
     threadEndRef.current?.scrollIntoView({ behavior })
   }
 
-  // Initial load
+  // Load conversation list for the sidebar
+  const loadConversations = useCallback(async () => {
+    try {
+      setLoadingConversations(true)
+      const data = await fetchStudentConversations(roleId)
+      if (data?.conversations) {
+        setConversations(data.conversations)
+      }
+    } catch (err) {
+      console.warn('[LearningAssistant] Failed to load conversations:', err)
+    } finally {
+      setLoadingConversations(false)
+    }
+  }, [roleId])
+
+  useEffect(() => {
+    loadConversations()
+  }, [loadConversations])
+
+  // Date grouping for sidebar: Today, Yesterday, Previous 7 Days, Older
+  const groupedConversations = useMemo(() => {
+    const now = new Date()
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
+    const startOfYesterday = startOfToday - 86400000
+    const startOf7DaysAgo = startOfToday - 7 * 86400000
+
+    const query = searchQuery.trim().toLowerCase()
+    const filtered = conversations.filter((c) => {
+      if (!query) return true
+      return (c.title || '').toLowerCase().includes(query)
+    })
+
+    const groups = {
+      today: [],
+      yesterday: [],
+      last7Days: [],
+      older: [],
+    }
+
+    filtered.forEach((c) => {
+      const time = new Date(c.lastActivityAt || c.updatedAt || c.createdAt).getTime()
+      if (time >= startOfToday) {
+        groups.today.push(c)
+      } else if (time >= startOfYesterday) {
+        groups.yesterday.push(c)
+      } else if (time >= startOf7DaysAgo) {
+        groups.last7Days.push(c)
+      } else {
+        groups.older.push(c)
+      }
+    })
+
+    return groups
+  }, [conversations, searchQuery])
+
+  // Load active session and messages
   useEffect(() => {
     let isMounted = true
 
@@ -247,31 +538,72 @@ export function LearningAssistantPage() {
 
         let activeSessionId = routeSessionId
 
+        // If no sessionId in URL, create a fresh conversation
         if (!activeSessionId) {
-          const sessionRes = await startOrGetLearningSession(roleId)
-          if (sessionRes?.session?.sessionId) {
-            activeSessionId = sessionRes.session.sessionId
-            navigate(`/interview-preparation/${roleId}/assistant/${activeSessionId}`, {
-              replace: true,
-            })
+          const createRes = await createLearningConversation(roleId)
+          if (createRes?.conversation?.sessionId) {
+            activeSessionId = createRes.conversation.sessionId
+            if (isMounted) {
+              setConversations((prev) => [createRes.conversation, ...prev])
+              navigate(`/interview-preparation/${roleId}/assistant/${activeSessionId}`, {
+                replace: true,
+              })
+            }
           }
         }
 
         if (activeSessionId) {
-          const [sessionData, messagesData] = await Promise.all([
-            fetchLearningSession(activeSessionId),
-            fetchLearningMessages(activeSessionId),
-          ])
+          try {
+            const [sessionData, messagesData] = await Promise.all([
+              fetchLearningSession(activeSessionId),
+              fetchLearningMessages(activeSessionId),
+            ])
 
-          if (isMounted) {
-            setSession(sessionData.session)
-            setMessages(messagesData.messages || [])
+            if (isMounted) {
+              setSession(sessionData.session)
+              setMessages(messagesData.messages || [])
+            }
+          } catch (sessionErr) {
+            console.warn('[LearningAssistant] Session not found, creating fresh conversation:', sessionErr?.message)
+            try {
+              const freshRes = await createLearningConversation(roleId)
+              if (freshRes?.conversation?.sessionId && isMounted) {
+                const freshId = freshRes.conversation.sessionId
+                setConversations((prev) => [
+                  freshRes.conversation,
+                  ...prev.filter((c) => c.sessionId !== freshId && c.sessionId !== activeSessionId),
+                ])
+                setSession(freshRes.conversation)
+                setMessages([])
+                navigate(`/interview-preparation/${roleId}/assistant/${freshId}`, {
+                  replace: true,
+                })
+                return
+              }
+            } catch (fallbackErr) {
+              console.warn('[LearningAssistant] Fallback to startOrGetLearningSession:', fallbackErr?.message)
+              try {
+                const fallbackRes = await startOrGetLearningSession(roleId)
+                if (fallbackRes?.session?.sessionId && isMounted) {
+                  const fallbackId = fallbackRes.session.sessionId
+                  setSession(fallbackRes.session)
+                  setMessages(fallbackRes.messages || [])
+                  navigate(`/interview-preparation/${roleId}/assistant/${fallbackId}`, {
+                    replace: true,
+                  })
+                  return
+                }
+              } catch (innerErr) {
+                console.error('[LearningAssistant] Auto-heal fallback failed:', innerErr)
+              }
+            }
+            throw sessionErr
           }
         }
       } catch (err) {
         if (isMounted) {
-          console.error('Failed to initialize learning assistant session:', err)
-          setErrorMessage(err.message || 'Failed to load learning session.')
+          console.error('[LearningAssistant] Failed to init session:', err)
+          setErrorMessage(err.message || 'Failed to load conversation.')
         }
       } finally {
         if (isMounted) {
@@ -288,7 +620,97 @@ export function LearningAssistantPage() {
     }
   }, [roleId, routeSessionId, navigate])
 
-  // Handle send message
+  // Focus rename input when editing starts
+  useEffect(() => {
+    if (editingSessionId && renameInputRef.current) {
+      renameInputRef.current.focus()
+      renameInputRef.current.select()
+    }
+  }, [editingSessionId])
+
+  // Start fresh conversation
+  const handleNewChat = async () => {
+    try {
+      setErrorMessage(null)
+      setSending(false)
+      const res = await createLearningConversation(roleId)
+      if (res?.conversation?.sessionId) {
+        const newConv = res.conversation
+        setConversations((prev) => [newConv, ...prev])
+        setSession(newConv)
+        setMessages([])
+        setMobileDrawerOpen(false)
+        navigate(`/interview-preparation/${roleId}/assistant/${newConv.sessionId}`)
+      }
+    } catch (err) {
+      console.error('Failed to create new chat:', err)
+      setErrorMessage('Failed to start a new chat. Please try again.')
+    }
+  }
+
+  // Switch conversation
+  const handleSelectConversation = (targetSessionId) => {
+    if (targetSessionId === session?.sessionId) {
+      setMobileDrawerOpen(false)
+      return
+    }
+    setMessages([])
+    setSession(null)
+    setMobileDrawerOpen(false)
+    navigate(`/interview-preparation/${roleId}/assistant/${targetSessionId}`)
+  }
+
+  // Rename conversation
+  const handleStartRename = (e, conv) => {
+    e.stopPropagation()
+    setEditingSessionId(conv.sessionId)
+    setEditingTitleText(conv.title || 'Untitled Chat')
+    setConfirmDeleteId(null)
+  }
+
+  const handleSaveRename = async (sessionId) => {
+    const trimmed = editingTitleText.trim()
+    if (!trimmed) {
+      setEditingSessionId(null)
+      return
+    }
+    try {
+      await renameLearningConversation(sessionId, trimmed)
+      setConversations((prev) =>
+        prev.map((c) => (c.sessionId === sessionId ? { ...c, title: trimmed } : c)),
+      )
+      if (session?.sessionId === sessionId) {
+        setSession((prev) => (prev ? { ...prev, title: trimmed } : null))
+      }
+    } catch (err) {
+      console.error('Failed to rename conversation:', err)
+    } finally {
+      setEditingSessionId(null)
+    }
+  }
+
+  // Soft delete conversation
+  const handleDeleteConversation = async (sessionId) => {
+    try {
+      await deleteLearningConversation(sessionId)
+      setConversations((prev) => prev.filter((c) => c.sessionId !== sessionId))
+      setConfirmDeleteId(null)
+
+      if (session?.sessionId === sessionId) {
+        const remaining = conversations.filter((c) => c.sessionId !== sessionId)
+        if (remaining.length > 0) {
+          navigate(`/interview-preparation/${roleId}/assistant/${remaining[0].sessionId}`)
+        } else {
+          handleNewChat()
+        }
+      }
+    } catch (err) {
+      console.error('Failed to delete conversation:', err)
+      setErrorMessage('Failed to delete conversation.')
+    }
+  }
+
+  // Send message
   const handleSendMessage = async (textToSend) => {
     const content = (textToSend || inputContent).trim()
     if (!content || sending || !session?.sessionId) return
@@ -308,40 +730,37 @@ export function LearningAssistantPage() {
     setTimeout(() => scrollToBottom(), 100)
 
     try {
-      const response = await sendLearningMessage(session.sessionId, content)
+      const res = await sendLearningMessage(session.sessionId, content)
 
-      if (response?.assistantMessage) {
-        setMessages((prev) => [
-          ...prev.filter((m) => m.id !== tempUserMsg.id),
-          response.userMessage || tempUserMsg,
-          response.assistantMessage,
-        ])
-        if (response.sessionContext) {
-          setSession((prev) =>
-            prev ? { ...prev, currentLearningContext: response.sessionContext } : prev,
+      if (res?.assistantMessage) {
+        setMessages((prev) => {
+          const filtered = prev.filter((m) => m.id !== tempUserMsg.id)
+          return [
+            ...filtered,
+            res.userMessage || tempUserMsg,
+            res.assistantMessage,
+          ]
+        })
+
+        if (res.conversationTitle) {
+          setSession((prev) => (prev ? { ...prev, title: res.conversationTitle } : null))
+          setConversations((prev) =>
+            prev.map((c) =>
+              c.sessionId === session.sessionId
+                ? { ...c, title: res.conversationTitle, lastActivityAt: new Date().toISOString() }
+                : c,
+            ),
           )
         }
       }
     } catch (err) {
-      console.error('Send message error:', err)
-      setErrorMessage(err.message || 'Failed to generate response. Please try again.')
+      console.error('[LearningAssistant] send message error:', err)
+      setErrorMessage(
+        err.message || 'The learning assistant is temporarily unavailable. Please try again.',
+      )
     } finally {
       setSending(false)
-      setTimeout(() => scrollToBottom(), 150)
-      textareaRef.current?.focus()
-    }
-  }
-
-  // Handle New Chat (Clear Messages back to empty Bolt hero)
-  const handleNewChat = async () => {
-    if (!session?.sessionId || messages.length === 0) return
-    try {
-      setErrorMessage(null)
-      await clearLearningMessages(session.sessionId)
-      setMessages([])
-    } catch (err) {
-      console.error('Failed to clear conversation:', err)
-      setErrorMessage(err.message || 'Failed to reset chat.')
+      setTimeout(() => scrollToBottom(), 200)
     }
   }
 
@@ -352,11 +771,14 @@ export function LearningAssistantPage() {
     }
   }
 
-  const toggleMilestone = (index) => {
+  const toggleMilestone = (idx) => {
     setExpandedMilestones((prev) => {
       const next = new Set(prev)
-      if (next.has(index)) next.delete(index)
-      else next.add(index)
+      if (next.has(idx)) {
+        next.delete(idx)
+      } else {
+        next.add(idx)
+      }
       return next
     })
   }
@@ -370,479 +792,585 @@ export function LearningAssistantPage() {
         .slice(0, 2)
     : user?.email?.[0]?.toUpperCase() || 'ST'
 
-  const selectedSkills = session?.selectedSkills || []
-  const customSkills = session?.customSkills || []
-  const allSkills = [...selectedSkills.map((s) => s.name), ...customSkills.map((c) => c.name)]
-
   const hasMessages = messages.length > 0
+  const activeSkills = session?.selectedSkills || []
 
-  if (loadingSession) {
+  // Helper to render conversation items in the sidebar
+  const renderConversationItem = (conv) => {
+    const isActive = session?.sessionId === conv.sessionId
+    const isEditing = editingSessionId === conv.sessionId
+    const isConfirmingDelete = confirmDeleteId === conv.sessionId
+
     return (
-      <div className="bolt-page">
-        <header className="bolt-topbar">
-          <Link to="/interview-preparation" className="bolt-topbar__brand">
-            <Compass size={20} className="bolt-topbar__brand-icon" />
-            <span>CareerLaunch</span>
-          </Link>
-        </header>
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div className="bolt-typing">
-            <div className="bolt-typing__dots">
-              <span className="bolt-typing__dot" />
-              <span className="bolt-typing__dot" />
-              <span className="bolt-typing__dot" />
-            </div>
-            <span className="bolt-typing__text">Loading learning space...</span>
+      <div
+        key={conv.sessionId}
+        className={`cl-sidebar-item ${isActive ? 'cl-sidebar-item--active' : ''}`}
+        onClick={() => !isEditing && handleSelectConversation(conv.sessionId)}
+        role="button"
+        tabIndex={0}
+      >
+        <MessageSquare size={14} className="cl-sidebar-item__icon" />
+
+        {isEditing ? (
+          <div className="cl-sidebar-item__edit" onClick={(e) => e.stopPropagation()}>
+            <input
+              ref={renameInputRef}
+              type="text"
+              className="cl-sidebar-item__edit-input"
+              value={editingTitleText}
+              onChange={(e) => setEditingTitleText(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleSaveRename(conv.sessionId)
+                if (e.key === 'Escape') setEditingSessionId(null)
+              }}
+              maxLength={100}
+            />
+            <button
+              type="button"
+              className="cl-sidebar-item__edit-btn"
+              onClick={() => handleSaveRename(conv.sessionId)}
+              title="Save"
+            >
+              <Check size={13} color="#16a34a" />
+            </button>
+            <button
+              type="button"
+              className="cl-sidebar-item__edit-btn"
+              onClick={() => setEditingSessionId(null)}
+              title="Cancel"
+            >
+              <X size={13} color="#dc2626" />
+            </button>
           </div>
-        </div>
+        ) : (
+          <span className="cl-sidebar-item__title">{conv.title || 'New Chat'}</span>
+        )}
+
+        {!isEditing && (
+          <div className="cl-sidebar-item__actions" onClick={(e) => e.stopPropagation()}>
+            {isConfirmingDelete ? (
+              <div className="cl-sidebar-item__confirm">
+                <span className="cl-sidebar-item__confirm-text">Delete?</span>
+                <button
+                  type="button"
+                  className="cl-sidebar-item__confirm-btn"
+                  onClick={() => handleDeleteConversation(conv.sessionId)}
+                  title="Confirm delete"
+                >
+                  <Check size={12} color="#dc2626" />
+                </button>
+                <button
+                  type="button"
+                  className="cl-sidebar-item__cancel-btn"
+                  onClick={() => setConfirmDeleteId(null)}
+                  title="Cancel"
+                >
+                  <X size={12} />
+                </button>
+              </div>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  className="cl-sidebar-item__action-btn"
+                  onClick={(e) => handleStartRename(e, conv)}
+                  title="Rename chat"
+                >
+                  <Edit2 size={13} />
+                </button>
+                <button
+                  type="button"
+                  className="cl-sidebar-item__action-btn cl-sidebar-item__action-btn--delete"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setConfirmDeleteId(conv.sessionId)
+                    setEditingSessionId(null)
+                  }}
+                  title="Delete chat"
+                >
+                  <Trash2 size={13} />
+                </button>
+              </>
+            )}
+          </div>
+        )}
       </div>
     )
   }
 
   return (
-    <div className="bolt-page">
-      {/* Top Bar */}
-      <header className="bolt-topbar">
-        <div className="bolt-topbar__left">
-          <Link to="/interview-preparation" className="bolt-topbar__brand">
-            <Compass size={20} className="bolt-topbar__brand-icon" />
+    <div className={`cl-workspace ${sidebarCollapsed ? 'cl-workspace--sidebar-collapsed' : ''}`}>
+      {/* Mobile Drawer Backdrop */}
+      {mobileDrawerOpen && (
+        <div
+          className="cl-backdrop"
+          onClick={() => setMobileDrawerOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* ================================================================
+         LEFT SIDEBAR (COLLAPSIBLE ON DESKTOP, DRAWER ON MOBILE)
+         ================================================================ */}
+      <aside className={`cl-sidebar ${mobileDrawerOpen ? 'cl-sidebar--mobile-open' : ''}`}>
+        {/* Brand & Desktop Collapse Button */}
+        <div className="cl-sidebar__header">
+          <Link to="/interview-preparation" className="cl-sidebar__brand">
+            <Compass size={18} className="cl-sidebar__brand-icon" />
             <span>CareerLaunch</span>
           </Link>
+          <div className="cl-sidebar__header-actions">
+            <button
+              type="button"
+              className="cl-sidebar__collapse-btn"
+              onClick={() => setSidebarCollapsed(true)}
+              title="Collapse sidebar"
+              aria-label="Collapse sidebar"
+            >
+              <PanelLeftClose size={17} />
+            </button>
+            <button
+              type="button"
+              className="cl-sidebar__mobile-close-btn"
+              onClick={() => setMobileDrawerOpen(false)}
+              aria-label="Close sidebar drawer"
+            >
+              <X size={18} />
+            </button>
+          </div>
+        </div>
 
-          <span className="bolt-topbar__role-pill">
-            <Sparkles size={11} />
-            <span>{session?.roleTitle || 'Frontend Developer'}</span>
-          </span>
+        {/* New Chat Button */}
+        <div className="cl-sidebar__new-chat-wrap">
+          <button
+            type="button"
+            className="cl-sidebar__new-chat-btn"
+            onClick={handleNewChat}
+            disabled={sending}
+          >
+            <Plus size={15} />
+            <span>New Chat</span>
+          </button>
+        </div>
 
-          {allSkills.length > 0 && (
-            <div className="bolt-topbar__skills" aria-label="Selected skills">
-              {allSkills.map((name) => (
-                <span key={name} className="bolt-skill-pill">
-                  {name}
+        {/* Search Input */}
+        <div className="cl-sidebar__search-wrap">
+          <Search size={13} className="cl-sidebar__search-icon" />
+          <input
+            type="text"
+            className="cl-sidebar__search-input"
+            placeholder="Search conversations..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              className="cl-sidebar__search-clear"
+              onClick={() => setSearchQuery('')}
+            >
+              <X size={12} />
+            </button>
+          )}
+        </div>
+
+        {/* Conversation List Grouped by Date */}
+        <div className="cl-sidebar__list">
+          {loadingConversations ? (
+            <div className="cl-sidebar__loading">Loading chats...</div>
+          ) : conversations.length === 0 ? (
+            <div className="cl-sidebar__empty">
+              <Sparkles size={18} color="var(--color-terracotta)" />
+              <p>No chats yet.</p>
+              <button
+                type="button"
+                className="cl-sidebar__empty-btn"
+                onClick={handleNewChat}
+              >
+                Start your first chat
+              </button>
+            </div>
+          ) : (
+            <>
+              {groupedConversations.today.length > 0 && (
+                <div className="cl-sidebar__group">
+                  <div className="cl-sidebar__group-title">Today</div>
+                  {groupedConversations.today.map(renderConversationItem)}
+                </div>
+              )}
+
+              {groupedConversations.yesterday.length > 0 && (
+                <div className="cl-sidebar__group">
+                  <div className="cl-sidebar__group-title">Yesterday</div>
+                  {groupedConversations.yesterday.map(renderConversationItem)}
+                </div>
+              )}
+
+              {groupedConversations.last7Days.length > 0 && (
+                <div className="cl-sidebar__group">
+                  <div className="cl-sidebar__group-title">Previous 7 Days</div>
+                  {groupedConversations.last7Days.map(renderConversationItem)}
+                </div>
+              )}
+
+              {groupedConversations.older.length > 0 && (
+                <div className="cl-sidebar__group">
+                  <div className="cl-sidebar__group-title">Older</div>
+                  {groupedConversations.older.map(renderConversationItem)}
+                </div>
+              )}
+
+              {searchQuery &&
+                groupedConversations.today.length === 0 &&
+                groupedConversations.yesterday.length === 0 &&
+                groupedConversations.last7Days.length === 0 &&
+                groupedConversations.older.length === 0 && (
+                  <div className="cl-sidebar__no-results">
+                    No conversations matching "{searchQuery}"
+                  </div>
+                )}
+            </>
+          )}
+        </div>
+
+        {/* Student Profile Footer */}
+        <div className="cl-sidebar__footer">
+          <div className="cl-sidebar__user">
+            <div className="cl-sidebar__avatar">{userInitials}</div>
+            <div className="cl-sidebar__user-details">
+              <span className="cl-sidebar__user-name">
+                {user?.displayName || user?.email?.split('@')[0] || 'Student'}
+              </span>
+              <span className="cl-sidebar__user-sub">{session?.roleTitle || 'Frontend Developer'}</span>
+            </div>
+          </div>
+          <Link
+            to="/interview-preparation"
+            className="cl-sidebar__exit-btn"
+            title="Return to Target Roles"
+          >
+            <ArrowLeft size={13} />
+            <span>Roles</span>
+          </Link>
+        </div>
+      </aside>
+
+      {/* ================================================================
+         MAIN CONVERSATION AREA (EXPANDS WHEN SIDEBAR IS COLLAPSED)
+         ================================================================ */}
+      <main className="cl-main">
+        {/* Workspace Topbar */}
+        <header className="cl-topbar">
+          <div className="cl-topbar__left">
+            {/* Sidebar Toggle for Desktop / Mobile */}
+            <button
+              type="button"
+              className="cl-topbar__toggle-btn"
+              onClick={() => {
+                if (window.innerWidth < 1024) {
+                  setMobileDrawerOpen(true)
+                } else {
+                  setSidebarCollapsed((prev) => !prev)
+                }
+              }}
+              title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+              aria-label="Toggle sidebar"
+            >
+              {sidebarCollapsed ? <PanelLeftOpen size={18} /> : <Menu size={18} />}
+            </button>
+
+            <div className="cl-topbar__role-badge">
+              <Sparkles size={12} />
+              <span>{session?.roleTitle || 'Frontend Developer'}</span>
+            </div>
+
+            {/* Active Skills Pills */}
+            <div className="cl-topbar__skills">
+              {activeSkills.map((s) => (
+                <span key={s.skillId || s.name} className="cl-topbar__skill-pill">
+                  {s.name}
                 </span>
               ))}
             </div>
-          )}
-        </div>
+          </div>
 
-        <div className="bolt-topbar__right">
-          {hasMessages && (
+          <div className="cl-topbar__right">
+            <Link
+              to={`/interview-preparation/${roleId}/skills`}
+              className="cl-topbar__change-skills-btn"
+            >
+              <span>Change Skills</span>
+            </Link>
+
             <button
               type="button"
-              className="bolt-topbar__action-btn"
+              className="cl-topbar__new-chat-btn"
               onClick={handleNewChat}
-              title="Start a new blank chat"
+              title="Start a new conversation"
             >
-              <RotateCcw size={13} />
+              <Plus size={14} />
               <span>New Chat</span>
             </button>
-          )}
 
-          <Link
-            to={`/interview-preparation/${roleId}/skills`}
-            className="bolt-topbar__action-btn"
-            title="Change selected skills"
-          >
-            <ArrowLeft size={13} />
-            <span>Change Skills</span>
-          </Link>
-
-          <div className="bolt-topbar__avatar">{userInitials}</div>
-        </div>
-      </header>
-
-      {/* Main Area: Render either Bolt Hero (empty state) OR Conversation Mode */}
-      {!hasMessages ? (
-        /* ================================================================
-           BOLT V2 / CHATGPT HERO (EMPTY STATE — ZERO MESSAGES PRE-WRITTEN)
-           ================================================================ */
-        <main className="bolt-hero-wrapper">
-          {/* Curved Celestial Horizon Background Glow */}
-          <div className="bolt-horizon-glow" aria-hidden="true" />
-
-          <div className="bolt-hero-content">
-            {/* Top Pill */}
-            <div className="bolt-pill">
-              <Hexagon size={14} className="bolt-pill__icon" />
-              <span>Introducing CareerLaunch AI</span>
-            </div>
-
-            {/* Headline with glowing italic 'learn' */}
-            <h1 className="bolt-title">
-              What will you <em>learn</em> today?
-            </h1>
-
-            {/* Subtitle */}
-            <p className="bolt-subtitle">
-              Master frontend engineering & ace your technical interviews by chatting with AI.
-            </p>
-
-            {/* Centered Large Input Card */}
-            <div className="bolt-card">
-              <textarea
-                ref={textareaRef}
-                className="bolt-textarea"
-                placeholder="What do you want to learn?"
-                value={inputContent}
-                onChange={(e) => setInputContent(e.target.value)}
-                onKeyDown={handleKeyDown}
-                rows={2}
-                disabled={sending}
-              />
-
-              <div className="bolt-card__toolbar">
-                <div className="bolt-card__left">
-                  <button
-                    type="button"
-                    className="bolt-icon-btn"
-                    title="Add context or custom skill"
-                    onClick={() => navigate(`/interview-preparation/${roleId}/skills`)}
-                  >
-                    <Plus size={15} />
-                  </button>
-
-                  <div className="bolt-model-pill" title="Active Groq reasoning model">
-                    <Zap size={13} color="var(--color-terracotta)" />
-                    <span>Groq 120B</span>
-                    <ChevronDown size={12} color="var(--color-charcoal-subtle)" />
-                  </div>
-                </div>
-
-                <div className="bolt-card__right">
-                  <button
-                    type="button"
-                    className="bolt-plan-btn"
-                    title="Create structured roadmap"
-                    onClick={() =>
-                      handleSendMessage(
-                        'Create a personalised roadmap to learn frontend development for technical interviews',
-                      )
-                    }
-                  >
-                    <Lightbulb size={14} />
-                    <span>Roadmap</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    className="bolt-send-btn"
-                    onClick={() => handleSendMessage()}
-                    disabled={!inputContent.trim() || sending}
-                  >
-                    <span>Start learning</span>
-                    <Send size={13} />
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Prompt Chips Row Below Card */}
-            <div className="bolt-chips-row">
-              <span className="bolt-chips-label">or explore</span>
-
-              <button
-                type="button"
-                className="bolt-chip"
-                onClick={() =>
-                  handleSendMessage(
-                    'Create a personalised roadmap to learn React for frontend technical interviews',
-                  )
-                }
-              >
-                <MapPin size={13} color="var(--color-terracotta)" />
-                <span>React Roadmap</span>
-              </button>
-
-              <button
-                type="button"
-                className="bolt-chip"
-                onClick={() =>
-                  handleSendMessage(
-                    'Teach me JavaScript closures with practical code examples and interview focal points',
-                  )
-                }
-              >
-                <Code size={13} color="var(--color-forest)" />
-                <span>JS Closures</span>
-              </button>
-
-              <button
-                type="button"
-                className="bolt-chip"
-                onClick={() =>
-                  handleSendMessage(
-                    'Explain CSS Grid vs Flexbox with code examples for layout interview questions',
-                  )
-                }
-              >
-                <Sparkles size={13} color="var(--color-terracotta)" />
-                <span>CSS Grid vs Flexbox</span>
-              </button>
-
-              <button
-                type="button"
-                className="bolt-chip"
-                onClick={() =>
-                  handleSendMessage(
-                    'Ask me 3 challenging frontend interview questions on my selected technologies',
-                  )
-                }
-              >
-                <HelpCircle size={13} color="var(--color-sage-dark)" />
-                <span>Interview Quiz</span>
-              </button>
-            </div>
+            <div className="cl-topbar__avatar">{userInitials}</div>
           </div>
+        </header>
 
-          {/* Watermark preview badge */}
-          <div className="bolt-preview-badge">CareerLaunch AI Assistant</div>
-        </main>
-      ) : (
-        /* ================================================================
-           CONVERSATION VIEW (ACTIVE CHAT)
-           ================================================================ */
-        <main className="bolt-chat-container">
-          <div className="bolt-thread">
-            {messages.map((msg) => {
-              const isUser = msg.role === 'user'
-              const roadmap = msg.structuredData?.roadmap
-              const prereqCheck = msg.structuredData?.prerequisiteCheck
-
-              return (
-                <div
-                  key={msg.id || msg._id}
-                  className={`bolt-msg ${isUser ? 'bolt-msg--user' : 'bolt-msg--assistant'}`}
-                >
-                  {!isUser && (
-                    <div className="bolt-msg__avatar">
-                      <Sparkles size={13} />
-                    </div>
-                  )}
-
-                  <div className="bolt-msg__bubble">
-                    <MarkdownRenderer content={msg.content} />
-
-                    {/* Interactive Roadmap Card */}
-                    {roadmap && (
-                      <div className="bolt-roadmap-card">
-                        <div className="bolt-roadmap-card__banner">
-                          <div className="bolt-roadmap-card__badge">
-                            <MapPin size={11} />
-                            <span>Personalised Roadmap</span>
-                          </div>
-                          <h3 className="bolt-roadmap-card__title">{roadmap.title}</h3>
-                          <p className="bolt-roadmap-card__obj">{roadmap.objective}</p>
-                        </div>
-
-                        <div className="bolt-roadmap-card__body">
-                          {roadmap.milestones?.map((milestone, mIdx) => {
-                            const isExpanded = expandedMilestones.has(mIdx)
-
-                            return (
-                              <div
-                                key={milestone.milestoneId || mIdx}
-                                className="bolt-milestone-item"
-                              >
-                                <div
-                                  className="bolt-milestone-item__header"
-                                  onClick={() => toggleMilestone(mIdx)}
-                                  style={{ cursor: 'pointer' }}
-                                >
-                                  <h4 className="bolt-milestone-item__title">{milestone.title}</h4>
-                                  <span className="bolt-milestone-item__hours">
-                                    ~{milestone.estimatedHours}h
-                                  </span>
-                                </div>
-
-                                {isExpanded && (
-                                  <>
-                                    <div className="bolt-topic-list">
-                                      {milestone.topics?.map((topic, tIdx) => (
-                                        <div
-                                          key={topic.topicId || tIdx}
-                                          className="bolt-topic-row"
-                                        >
-                                          <div className="bolt-topic-row__info">
-                                            <h5 className="bolt-topic-row__name">{topic.title}</h5>
-                                            <p className="bolt-topic-row__desc">
-                                              {topic.description}
-                                            </p>
-                                          </div>
-                                          <button
-                                            type="button"
-                                            className="bolt-topic-row__btn"
-                                            onClick={() =>
-                                              handleSendMessage(
-                                                `Teach me ${topic.title} from scratch with practical code examples.`,
-                                              )
-                                            }
-                                          >
-                                            Teach this topic →
-                                          </button>
-                                        </div>
-                                      ))}
-                                    </div>
-
-                                    {milestone.practicalExercise && (
-                                      <div className="bolt-milestone-item__exercise">
-                                        <strong>Exercise:</strong> {milestone.practicalExercise}
-                                      </div>
-                                    )}
-                                  </>
-                                )}
-                              </div>
-                            )
-                          })}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Interactive Prerequisite Card */}
-                    {prereqCheck && (
-                      <div className="bolt-prereq-card">
-                        <div className="bolt-prereq-card__title">
-                          <Lightbulb size={16} />
-                          <span>Prerequisite Knowledge Check: {prereqCheck.targetTopic}</span>
-                        </div>
-                        <p className="bolt-prereq-card__desc">{prereqCheck.question}</p>
-
-                        {Array.isArray(prereqCheck.prerequisites) && (
-                          <div className="bolt-prereq-card__list">
-                            {prereqCheck.prerequisites.map((p) => (
-                              <span key={p} className="bolt-prereq-chip">
-                                {p}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-
-                        <div className="bolt-prereq-card__actions">
-                          <button
-                            type="button"
-                            className="bolt-prereq-btn-primary"
-                            onClick={() =>
-                              handleSendMessage(
-                                `I already know the prerequisites for ${prereqCheck.targetTopic}. Let's jump straight in!`,
-                              )
-                            }
-                          >
-                            <CheckCircle2
-                              size={14}
-                              style={{ marginRight: '4px', verticalAlign: 'middle' }}
-                            />
-                            I know these — start {prereqCheck.targetTopic}
-                          </button>
-                          <button
-                            type="button"
-                            className="bolt-prereq-btn-secondary"
-                            onClick={() =>
-                              handleSendMessage(
-                                `Give me a concise 5-minute refresher on the key prerequisites before we start ${prereqCheck.targetTopic}.`,
-                              )
-                            }
-                          >
-                            Quick refresher first
-                          </button>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Follow-up Action Chips */}
-                    {Array.isArray(msg.suggestedActions) && msg.suggestedActions.length > 0 && (
-                      <div className="bolt-msg__actions">
-                        {msg.suggestedActions.map((action, aIdx) => (
-                          <button
-                            key={aIdx}
-                            type="button"
-                            className="bolt-msg-action-chip"
-                            onClick={() => handleSendMessage(action)}
-                          >
-                            {action} →
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  {isUser && <div className="bolt-msg__avatar">{userInitials}</div>}
-                </div>
-              )
-            })}
-
-            {/* Thinking Indicator */}
-            {sending && (
-              <div className="bolt-msg bolt-msg--assistant">
-                <div className="bolt-msg__avatar">
-                  <Sparkles size={13} />
-                </div>
-                <div className="bolt-typing">
-                  <div className="bolt-typing__dots">
-                    <span className="bolt-typing__dot" />
-                    <span className="bolt-typing__dot" />
-                    <span className="bolt-typing__dot" />
-                  </div>
-                  <span className="bolt-typing__text">Thinking with Groq (gpt-oss-120b)...</span>
-                </div>
-              </div>
-            )}
-
-            {/* Error Banner */}
-            {errorMessage && (
-              <div className="bolt-error">
-                <span>{errorMessage}</span>
-                <button
-                  type="button"
-                  className="bolt-error__retry-btn"
-                  onClick={() => handleSendMessage(inputContent)}
-                >
-                  Retry
-                </button>
-              </div>
-            )}
-
-            <div ref={threadEndRef} />
+        {/* Content View: Loading / Empty State / Chat Thread */}
+        {loadingSession && !session ? (
+          <div className="cl-loading-view">
+            <Sparkles size={22} color="var(--color-terracotta)" />
+            <span>Loading conversation...</span>
           </div>
+        ) : !hasMessages ? (
+          /* ================================================================
+             EMPTY STATE — EDITORIAL WELCOME HERO
+             ================================================================ */
+          <div className="cl-welcome-view">
+            <div className="cl-welcome-container">
+              <div className="cl-welcome-badge">
+                <Hexagon size={13} />
+                <span>CareerLaunch AI Mentor</span>
+              </div>
 
-          {/* Docked Bottom Input Card in Active Chat */}
-          <footer className="bolt-chat-dock">
-            <div className="bolt-chat-dock__inner">
-              <div className="bolt-card">
+              <h1 className="cl-welcome-title">
+                What will you <em>learn</em> today?
+              </h1>
+
+              <p className="cl-welcome-subtitle">
+                Master frontend engineering & ace technical interviews through conversation with your personal AI mentor.
+              </p>
+
+              {/* Large Centered Hero Card */}
+              <div className="cl-hero-card">
                 <textarea
                   ref={textareaRef}
-                  className="bolt-textarea"
-                  placeholder="Ask a follow-up or explore a new concept..."
+                  className="cl-hero-textarea"
+                  placeholder="What do you want to learn? (e.g. 'Teach me HTML from scratch', 'Explain closures with examples')"
                   value={inputContent}
                   onChange={(e) => setInputContent(e.target.value)}
                   onKeyDown={handleKeyDown}
+                  rows={2}
                   disabled={sending}
-                  rows={1}
+                  autoFocus
                 />
 
-                <div className="bolt-card__toolbar">
-                  <div className="bolt-card__left">
-                    <div className="bolt-model-pill">
-                      <Zap size={12} color="var(--color-terracotta)" />
+                <div className="cl-hero-card__footer">
+                  <div className="cl-hero-card__left">
+                    <div className="cl-model-indicator" title="Active Groq 120B model">
+                      <Zap size={11} color="var(--color-terracotta)" />
                       <span>Groq 120B</span>
                     </div>
                   </div>
 
-                  <div className="bolt-card__right">
+                  <div className="cl-hero-card__right">
                     <button
                       type="button"
-                      className="bolt-send-btn"
+                      className="cl-hero-roadmap-btn"
+                      title="Request a complete structured learning roadmap"
+                      onClick={() =>
+                        handleSendMessage(
+                          `Create a comprehensive ${activeSkills[0]?.name || 'frontend'} learning roadmap from scratch for interviews`,
+                        )
+                      }
+                      disabled={sending}
+                    >
+                      <Lightbulb size={13} />
+                      <span>Roadmap</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      className="cl-hero-send-btn"
                       onClick={() => handleSendMessage()}
                       disabled={!inputContent.trim() || sending}
+                      aria-label="Send message"
                     >
-                      <span>Send</span>
-                      <Send size={13} />
+                      <Send size={14} />
                     </button>
                   </div>
                 </div>
               </div>
+
+              {/* Quick Inspiration Chips */}
+              <div className="cl-inspiration-chips">
+                <button
+                  type="button"
+                  className="cl-inspiration-chip"
+                  onClick={() =>
+                    handleSendMessage(
+                      `I want to learn ${activeSkills[0]?.name || 'HTML'} from scratch.`,
+                    )
+                  }
+                >
+                  <Sparkles size={12} />
+                  <span>Teach me {activeSkills[0]?.name || 'HTML'} from scratch</span>
+                </button>
+
+                <button
+                  type="button"
+                  className="cl-inspiration-chip"
+                  onClick={() =>
+                    handleSendMessage('Explain closures with practical code examples.')
+                  }
+                >
+                  <Code size={12} />
+                  <span>Explain closures with examples</span>
+                </button>
+
+                <button
+                  type="button"
+                  className="cl-inspiration-chip"
+                  onClick={() =>
+                    handleSendMessage(
+                      `Prepare me for ${activeSkills[0]?.name || 'frontend'} technical interviews.`,
+                    )
+                  }
+                >
+                  <HelpCircle size={12} />
+                  <span>Prepare me for technical interviews</span>
+                </button>
+              </div>
             </div>
-          </footer>
-        </main>
-      )}
+          </div>
+        ) : (
+          /* ================================================================
+             CONVERSATION THREAD & DOCKED MESSAGE COMPOSER
+             ================================================================ */
+          <div className="cl-chat-view">
+            <div className="cl-chat-thread">
+              {messages.map((msg) => {
+                const isUser = msg.role === 'user'
+
+                if (isUser) {
+                  return (
+                    <div key={msg.id} className="cl-msg cl-msg--user">
+                      <div className="cl-msg__user-bubble">
+                        <p className="cl-msg__user-text">{msg.content}</p>
+                      </div>
+                    </div>
+                  )
+                }
+
+                // Assistant Message: Unboxed, Natural Reading Flow
+                const roadmap = msg.structuredData?.roadmap
+                return (
+                  <div key={msg.id} className="cl-msg cl-msg--assistant">
+                    <div className="cl-msg__avatar">
+                      <Sparkles size={15} />
+                    </div>
+
+                    <div className="cl-msg__body">
+                      {/* Markdown Content */}
+                      <FormattedMarkdown content={msg.content} />
+
+                      {/* Editorial Roadmap Guide */}
+                      {roadmap && (
+                        <RoadmapGuide
+                          roadmap={roadmap}
+                          expandedMilestones={expandedMilestones}
+                          toggleMilestone={toggleMilestone}
+                          onTeachTopic={(topicTitle) =>
+                            handleSendMessage(
+                              `Teach me ${topicTitle} in detail with practical code examples and interview relevance.`,
+                            )
+                          }
+                        />
+                      )}
+
+                      {/* Follow-up Chips */}
+                      {Array.isArray(msg.suggestedActions) && msg.suggestedActions.length > 0 && (
+                        <div className="cl-followup-chips">
+                          {msg.suggestedActions.map((action, aIdx) => (
+                            <button
+                              key={aIdx}
+                              type="button"
+                              className="cl-followup-chip"
+                              onClick={() => handleSendMessage(action)}
+                            >
+                              <span>{action}</span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
+
+              {/* Typing / Loading Indicator */}
+              {sending && (
+                <div className="cl-msg cl-msg--assistant">
+                  <div className="cl-msg__avatar">
+                    <Sparkles size={15} />
+                  </div>
+                  <div className="cl-msg__body cl-typing">
+                    <span className="cl-typing__dot" />
+                    <span className="cl-typing__dot" />
+                    <span className="cl-typing__dot" />
+                    <span className="cl-typing__label">AI Mentor is thinking...</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Error Banner */}
+              {errorMessage && (
+                <div className="cl-error-banner">
+                  <span>{errorMessage}</span>
+                  <button
+                    type="button"
+                    className="cl-error-retry-btn"
+                    onClick={() => {
+                      setErrorMessage(null)
+                      if (!session?.sessionId) {
+                        handleNewChat()
+                      } else {
+                        handleSendMessage(inputContent)
+                      }
+                    }}
+                  >
+                    Retry
+                  </button>
+                </div>
+              )}
+
+              <div ref={threadEndRef} className="cl-thread-end-anchor" />
+            </div>
+
+            {/* Bottom Docked Message Composer */}
+            <div className="cl-composer-dock">
+              <div className="cl-composer-box">
+                <textarea
+                  className="cl-composer-textarea"
+                  placeholder="Ask a question, request code, or explore a new concept..."
+                  value={inputContent}
+                  onChange={(e) => setInputContent(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  rows={1}
+                  disabled={sending}
+                />
+
+                <div className="cl-composer-footer">
+                  <div className="cl-model-indicator cl-model-indicator--subtle" title="Active Groq reasoning model">
+                    <Zap size={11} color="var(--color-terracotta)" />
+                    <span>Groq 120B</span>
+                  </div>
+
+                  <button
+                    type="button"
+                    className="cl-composer-send-btn"
+                    onClick={() => handleSendMessage()}
+                    disabled={!inputContent.trim() || sending}
+                    aria-label="Send message"
+                  >
+                    <Send size={14} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </main>
     </div>
   )
 }
