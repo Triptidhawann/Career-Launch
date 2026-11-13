@@ -467,6 +467,8 @@ export function LearningAssistantPage() {
   const threadEndRef = useRef(null)
   const textareaRef = useRef(null)
   const renameInputRef = useRef(null)
+  const isSendingRef = useRef(false)
+  const lastFailedPromptRef = useRef(null)
 
   const scrollToBottom = (behavior = 'smooth') => {
     threadEndRef.current?.scrollIntoView({ behavior })
@@ -712,29 +714,41 @@ export function LearningAssistantPage() {
 
   // Send message
   const handleSendMessage = async (textToSend) => {
+    if (isSendingRef.current) return
     const content = (textToSend || inputContent).trim()
     if (!content || sending || !session?.sessionId) return
 
+    isSendingRef.current = true
     setInputContent('')
     setErrorMessage(null)
     setSending(true)
 
-    const tempUserMsg = {
-      id: `temp-${Date.now()}`,
-      role: 'user',
-      content,
-      type: 'text',
-      createdAt: new Date().toISOString(),
+    // Check if the last message in state is already an unreplied user message with this exact content
+    const lastMsgInState = messages[messages.length - 1]
+    const isRetryOfLast = lastMsgInState && lastMsgInState.role === 'user' && lastMsgInState.content?.trim() === content
+
+    const tempUserMsg = isRetryOfLast
+      ? lastMsgInState
+      : {
+          id: `temp-${Date.now()}`,
+          role: 'user',
+          content,
+          type: 'text',
+          createdAt: new Date().toISOString(),
+        }
+
+    if (!isRetryOfLast) {
+      setMessages((prev) => [...prev, tempUserMsg])
     }
-    setMessages((prev) => [...prev, tempUserMsg])
     setTimeout(() => scrollToBottom(), 100)
 
     try {
       const res = await sendLearningMessage(session.sessionId, content)
 
       if (res?.assistantMessage) {
+        lastFailedPromptRef.current = null
         setMessages((prev) => {
-          const filtered = prev.filter((m) => m.id !== tempUserMsg.id)
+          const filtered = prev.filter((m) => m.id !== tempUserMsg.id && m.id !== res.userMessage?.id)
           return [
             ...filtered,
             res.userMessage || tempUserMsg,
@@ -744,22 +758,37 @@ export function LearningAssistantPage() {
 
         if (res.conversationTitle) {
           setSession((prev) => (prev ? { ...prev, title: res.conversationTitle } : null))
-          setConversations((prev) =>
-            prev.map((c) =>
+          setConversations((prev) => {
+            const exists = prev.some((c) => c.sessionId === session.sessionId)
+            if (!exists && session) {
+              return [
+                {
+                  sessionId: session.sessionId,
+                  title: res.conversationTitle,
+                  lastActivityAt: new Date().toISOString(),
+                  messageCount: 2,
+                  roleId,
+                },
+                ...prev,
+              ]
+            }
+            return prev.map((c) =>
               c.sessionId === session.sessionId
-                ? { ...c, title: res.conversationTitle, lastActivityAt: new Date().toISOString() }
+                ? { ...c, title: res.conversationTitle, lastActivityAt: new Date().toISOString(), messageCount: (c.messageCount || 0) + 2 }
                 : c,
-            ),
-          )
+            )
+          })
         }
       }
     } catch (err) {
       console.error('[LearningAssistant] send message error:', err)
+      lastFailedPromptRef.current = content
       setErrorMessage(
         err.message || 'The learning assistant is temporarily unavailable. Please try again.',
       )
     } finally {
       setSending(false)
+      isSendingRef.current = false
       setTimeout(() => scrollToBottom(), 200)
     }
   }
@@ -1239,7 +1268,16 @@ export function LearningAssistantPage() {
              ================================================================ */
           <div className="cl-chat-view">
             <div className="cl-chat-thread">
-              {messages.map((msg) => {
+              {messages
+                .filter((msg, idx) => {
+                  if (idx === 0) return true
+                  const prev = messages[idx - 1]
+                  if (msg.role === 'user' && prev.role === 'user' && msg.content?.trim() === prev.content?.trim()) {
+                    return false
+                  }
+                  return true
+                })
+                .map((msg) => {
                 const isUser = msg.role === 'user'
 
                 if (isUser) {
@@ -1321,11 +1359,12 @@ export function LearningAssistantPage() {
                     type="button"
                     className="cl-error-retry-btn"
                     onClick={() => {
+                      const retryPrompt = lastFailedPromptRef.current || inputContent
                       setErrorMessage(null)
                       if (!session?.sessionId) {
                         handleNewChat()
-                      } else {
-                        handleSendMessage(inputContent)
+                      } else if (retryPrompt) {
+                        handleSendMessage(retryPrompt)
                       }
                     }}
                   >

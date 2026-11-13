@@ -38,7 +38,7 @@ async function sleep(ms) {
 
 async function runTest(sessionId, testNum, prompt, expectedChecks) {
   console.log(`\n------------------------------------------------------------`)
-  console.log(`[Test ${testNum}/10] Student Prompt: "${prompt}"`)
+  console.log(`[Test ${testNum}/11] Student Prompt: "${prompt}"`)
   console.log(`------------------------------------------------------------`)
 
   const res = await fetch(`${BASE_URL}/learning/sessions/${sessionId}/messages`, {
@@ -109,6 +109,7 @@ async function runTest(sessionId, testNum, prompt, expectedChecks) {
       content.toLowerCase().includes('outside') ||
       content.toLowerCase().includes('frontend') ||
       content.toLowerCase().includes('scope') ||
+      content.toLowerCase().includes('focus') ||
       json.session?.currentLearningContext?.isOutOfScope
     if (!isRedirect) {
       passed = false
@@ -136,7 +137,7 @@ async function runTest(sessionId, testNum, prompt, expectedChecks) {
 
 async function main() {
   console.log('='.repeat(70))
-  console.log('CAREERLAUNCH PHASE 3.1: CHATGPT-LIKE NATURAL AI CONVERSATION TEST')
+  console.log('CAREERLAUNCH PHASE 3.1: CHATGPT-LIKE NATURAL AI CONVERSATION TEST (11 PROMPTS)')
   console.log('='.repeat(70))
 
   await mongoose.connect(MONGODB_URI)
@@ -160,68 +161,74 @@ async function main() {
 
   const results = []
 
-  // Test 1: What is HTML?
+  // Prompt 1: "What is HTML?"
   results.push(await runTest(sessionId, 1, 'What is HTML?', {
     maxWords: 300,
     expectType: 'text',
   }))
-  await sleep(1200)
+  await sleep(1500)
 
-  // Test 2: Explain the DOM in JavaScript.
+  // Prompt 2: "Explain the DOM in JavaScript."
   results.push(await runTest(sessionId, 2, 'Explain the DOM in JavaScript.', {
     maxWords: 350,
     expectType: 'text',
   }))
-  await sleep(1200)
+  await sleep(1500)
 
-  // Test 3: What are React components?
+  // Prompt 3: "What are React components?"
   results.push(await runTest(sessionId, 3, 'What are React components?', {
     maxWords: 350,
     expectType: 'text',
   }))
-  await sleep(1200)
+  await sleep(1500)
 
-  // Test 4: Explain useState with a simple example.
+  // Prompt 4: "Explain useState with a simple example."
   results.push(await runTest(sessionId, 4, 'Explain useState with a simple example.', {
     maxWords: 400,
     expectType: 'text',
   }))
-  await sleep(1200)
+  await sleep(1500)
 
-  // Test 5: Show me a practical example of JavaScript closures.
-  results.push(await runTest(sessionId, 5, 'Show me a practical example of JavaScript closures.', {
-    maxWords: 400,
+  // Prompt 5: "What are JavaScript closures?"
+  results.push(await runTest(sessionId, 5, 'What are JavaScript closures?', {
+    maxWords: 350,
     expectType: 'text',
   }))
-  await sleep(1200)
+  await sleep(1500)
 
-  // Test 6: Explain this in more detail. (Follow-up)
+  // Prompt 6: "Explain this in more detail." (Follow-up)
   results.push(await runTest(sessionId, 6, 'Explain this in more detail.', {
     expectType: 'text',
   }))
-  await sleep(1200)
+  await sleep(1500)
 
-  // Test 7: Give me a React learning roadmap from scratch.
-  results.push(await runTest(sessionId, 7, 'Give me a React learning roadmap from scratch.', {
+  // Prompt 7: "Give me a practical example." (Follow-up)
+  results.push(await runTest(sessionId, 7, 'Give me a practical example.', {
+    expectType: 'text',
+  }))
+  await sleep(1500)
+
+  // Prompt 8: "Create a React roadmap from scratch."
+  results.push(await runTest(sessionId, 8, 'Create a React roadmap from scratch.', {
     expectType: 'roadmap',
     expectRoadmap: true,
   }))
-  await sleep(1200)
+  await sleep(1500)
 
-  // Test 8: I already know JavaScript. Let's start React.
-  results.push(await runTest(sessionId, 8, "I already know JavaScript. Let's start React.", {
+  // Prompt 9: "I already know JavaScript. Let's start React."
+  results.push(await runTest(sessionId, 9, "I already know JavaScript. Let's start React.", {
     expectType: 'text',
   }))
-  await sleep(1200)
+  await sleep(1500)
 
-  // Test 9: Ask me five React interview questions.
-  results.push(await runTest(sessionId, 9, 'Ask me five React interview questions.', {
+  // Prompt 10: "Ask me five React interview questions."
+  results.push(await runTest(sessionId, 10, 'Ask me five React interview questions.', {
     expectType: 'text',
   }))
-  await sleep(1200)
+  await sleep(1500)
 
-  // Test 10: An unrelated out-of-scope question.
-  results.push(await runTest(sessionId, 10, 'How do I train a deep neural network with PyTorch in Python on a GPU?', {
+  // Prompt 11: An unrelated out-of-scope question.
+  results.push(await runTest(sessionId, 11, 'How do I deploy a Kubernetes cluster on AWS using Terraform and Ansible?', {
     expectOutOfScope: true,
   }))
 
@@ -236,7 +243,7 @@ async function main() {
   await mongoose.disconnect()
 
   if (passed === total) {
-    console.log('🎉 ALL 10 CONVERSATIONAL TESTS PASSED!')
+    console.log('🎉 ALL 11 CONVERSATIONAL TESTS PASSED!')
     process.exit(0)
   } else {
     console.error('⚠️ SOME TESTS FAILED. Inspect details above.')

@@ -62,11 +62,14 @@ class LearningAssistantService {
     // 1. Target Skill Resolution
     let explicitSkill = null
     const skillPatterns = [
-      { name: 'HTML', match: ['html', 'semantic html', 'html5'] },
+      { name: 'HTML', match: ['html', 'semantic html', 'html5', 'void element', 'forms'] },
       { name: 'CSS', match: ['css', 'css3', 'flexbox', 'grid', 'responsive design', 'box model'] },
       { name: 'JavaScript', match: ['javascript', 'js', 'closures', 'event loop', 'es6', 'prototype', 'dom'] },
       { name: 'TypeScript', match: ['typescript', 'ts', 'types', 'generics', 'interfaces'] },
       { name: 'React', match: ['react', 'jsx', 'usestate', 'useeffect', 'hooks', 'virtual dom', 'next.js', 'nextjs'] },
+      { name: 'Git & GitHub', match: ['git', 'github', 'gitlab', 'version control', 'branching', 'merge'] },
+      { name: 'Web APIs', match: ['web api', 'fetch', 'axios', 'rest api', 'http', 'async'] },
+      { name: 'Testing', match: ['testing', 'jest', 'cypress', 'unit test', 'vitest'] },
     ]
 
     for (const sk of skillPatterns) {
@@ -98,13 +101,10 @@ class LearningAssistantService {
         userMsgLower.includes('roadmap') ||
         userMsgLower.includes('learning path') ||
         userMsgLower.includes('study plan') ||
-        userMsgLower.includes('curriculum') ||
-        userMsgLower.includes('completely') ||
-        (userMsgLower.includes('prepare me for') &&
-          (userMsgLower.includes('frontend developer interview') || userMsgLower.includes('technical interview')) &&
-          !userMsgLower.includes('question'))) &&
+        userMsgLower.includes('curriculum')) &&
       !userMsgLower.includes('explain') &&
-      !userMsgLower.includes('teach this topic')
+      !userMsgLower.includes('teach this topic') &&
+      !userMsgLower.includes('void element')
 
     const isModeB =
       !isModeA &&
@@ -114,7 +114,12 @@ class LearningAssistantService {
         userMsgLower.includes('how does') ||
         userMsgLower.includes('teach me') ||
         userMsgLower.includes('in detail') ||
-        userMsgLower.includes('deep dive'))
+        userMsgLower.includes('deep dive') ||
+        userMsgLower.includes('void element') ||
+        userMsgLower.includes('closure') ||
+        userMsgLower.includes('usestate') ||
+        userMsgLower.includes('semantic html') ||
+        userMsgLower.includes('forms'))
 
     const detectedMode = isModeA ? 'MODE_A_ROADMAP' : isModeB ? 'MODE_B_DETAILED_TEACHING' : 'MODE_C_FOLLOW_UP'
 
@@ -360,28 +365,29 @@ Triggered when the student asks to learn a skill from scratch, complete path, cu
 - In "reply", write an engaging 40-70 word introduction explaining how the roadmap guides them to interview confidence.
 
 --- MODE B: DETAILED CONCEPT TEACHING ---
-Triggered when the student asks about a concept (e.g. "Explain semantic HTML in detail", "Explain closures with examples", "start teaching me in a way that i know nothing about git and github").
+Triggered when the student asks about a concept (e.g. "Teach me HTML void elements", "Explain semantic HTML in detail", "Explain closures with practical examples", "Explain React useState in detail", "Teach me HTML forms").
 - Set "type": "text".
-- Deliver a clear, conversational, high-quality tutorial (typically 250-450 words) suitable for real understanding and interview confidence.
-- Speak like a friendly senior mentor explaining to a beginner or junior developer.
+- Deliver a clear, comprehensive, high-quality technical tutorial suitable for real understanding and interview confidence. Never artificially truncate or omit vital technical details.
+- Speak like a friendly senior mentor explaining to an aspiring engineer: rigorous, accessible, and practical.
 - Organize your explanation with clean, readable Markdown headings (###):
   ### Concept Overview & Why It Matters
-  (Direct definition, purpose, and problem it solves)
+  (Direct definition, purpose, and concrete engineering problem it solves)
   ### How It Works Under The Hood
-  (Mental model, engine/git/browser mechanics explained simply)
+  (Mental model, engine/browser/DOM mechanics, parser rules, or memory lifecycle explained clearly)
   ### Syntax & Practical Code Examples
-  (Clean, beginner-friendly code snippet or commands with brief explanation)
+  (Clean, copy-pasteable, production-ready code snippets with line-by-line breakdown)
   ### Common Pitfalls & Interview Takeaway
-  (Common mistakes to avoid and high-frequency interview focus)
-- End with ONE natural conversational follow-up question (e.g. "Would you like to try a small hands-on command exercise, or explore the next concept?").
+  (Gotchas, subtle edge cases, common mistakes, and high-frequency interview questions/takeaways)
+- End with ONE natural conversational follow-up question (e.g. "Would you like to try a small coding challenge on this, or explore how this behaves in an interview scenario?").
 
 --- MODE C: CONVERSATIONAL FOLLOW-UP ---
 Triggered on follow-ups, practical examples, interview questions, or skill transitions.
 - Set "type": "text".
 - Use conversation history to understand context.
-- If asked "Explain this more deeply": dive into the advanced internal mechanics without repeating the basic definition.
+- If asked "Explain this more deeply": dive into the advanced internal mechanics, browser engine internals, edge cases, and performance considerations without repeating the basic definition.
 - If asked "Give me practical examples": provide production-grade, accessible code snippets with line-by-line breakdowns.
-- If asked "Prepare me for [Skill] interviews" or "Ask me interview questions": provide 4-5 high-yield technical interview questions with clear model answers, followed by a practice question for the student.
+- If asked "Give me a practical coding exercise": present a realistic, scenario-based frontend coding exercise with clear requirements, sample HTML/JS starter skeleton, expected behavior, and a helpful hint.
+- If asked "Prepare me for [Skill] interviews" or "Ask me five interview questions about the topic": provide exactly 5 high-yield, interview-tested technical questions (ranging from foundational to tricky edge cases) with concise, accurate model answers that demonstrate senior understanding, plus one practice question for the student.
 - If student says "I already know X. Let's start Y": warmly acknowledge X, record X in stated knowledge, switch focus to Y, and begin teaching Y.
 
 ROLE SCOPE & BOUNDARIES:

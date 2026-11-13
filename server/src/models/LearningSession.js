@@ -39,6 +39,11 @@ const LearningSessionSchema = new Schema(
       trim: true,
       maxlength: 120,
     },
+    // Phase 3.3.7: Distinguishes manually renamed titles from auto-generated titles
+    isCustomTitle: {
+      type: Boolean,
+      default: false,
+    },
     // Phase 3.3: Explicit conversation lifecycle status
     status: {
       type: String,

@@ -92,6 +92,18 @@ export class GroqProvider extends BaseAIProvider {
         if (!response.ok) {
           const errBody = await response.text()
           const isTpmOverflow = response.status === 413 && (errBody.includes('tokens per minute') || errBody.includes('rate_limit_exceeded'))
+          const isTpdOverflow = (response.status === 429 || response.status === 413) && (errBody.includes('tokens per day') || errBody.includes('TPD'))
+          if (isTpdOverflow && model !== AI_CONFIG.groq.fallbackModel && AI_CONFIG.groq.fallbackModel) {
+            console.warn('[GroqProvider] Primary model ' + model + ' reached daily limit (TPD). Seamlessly failing over to ' + AI_CONFIG.groq.fallbackModel + '...')
+            clearTimeout(timeout)
+            return this.chatCompletion({
+              messages,
+              responseFormat,
+              temperature,
+              maxTokens,
+              options: { ...options, model: AI_CONFIG.groq.fallbackModel }
+            })
+          }
           if (response.status === 429 || isTpmOverflow) {
             let waitMs = AI_CONFIG.groq.retryDelayMs * Math.pow(2, attempt)
             const headerRetry = response.headers.get('retry-after')
@@ -105,7 +117,9 @@ export class GroqProvider extends BaseAIProvider {
                 if (!isNaN(sec)) waitMs = Math.ceil(sec * 1000) + 2000
               }
             }
-            if (isTpmOverflow) waitMs = Math.max(waitMs, 12000)
+            if (isTpmOverflow) waitMs = Math.max(waitMs, 8000)
+            // Phase 3.3.7: Cap wait time to 15 seconds to prevent freezing the server request
+            waitMs = Math.min(waitMs, 15000)
             console.warn(`[GroqProvider] Rate/TPM limit (${response.status}) on attempt ${attempt}. Waiting ${Math.ceil(waitMs / 1000)}s...`)
             lastError = new Error(`Groq Rate Limit Exceeded (429): ${errBody}`)
             await new Promise((r) => setTimeout(r, waitMs))

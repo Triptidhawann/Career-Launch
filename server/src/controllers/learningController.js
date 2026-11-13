@@ -264,11 +264,50 @@ export async function createConversation(req, res) {
         ? initialTitle.trim().slice(0, 100)
         : 'New Chat'
 
+    // Phase 3.3.7: Prevent cluttering the sidebar/database with multiple empty chats.
+    // If the student already has an active empty session (0 messages) for this role, reuse it!
+    const existingEmpty = await LearningSession.findOne({
+      firebaseUid,
+      roleId,
+      status: 'active',
+      title: 'New Chat',
+      isCustomTitle: { $ne: true },
+    }).sort({ createdAt: -1 })
+
+    if (existingEmpty) {
+      const msgCount = await LearningMessage.countDocuments({ sessionId: existingEmpty._id })
+      if (msgCount === 0) {
+        if (resolvedSkills.length > 0) {
+          existingEmpty.selectedSkills = resolvedSkills
+          existingEmpty.customSkills = Array.isArray(customSkills) ? customSkills : []
+          existingEmpty.lastActivityAt = new Date()
+          await existingEmpty.save()
+        }
+        return res.status(200).json({
+          success: true,
+          conversation: {
+            sessionId: existingEmpty._id,
+            roleId: existingEmpty.roleId,
+            roleTitle: existingEmpty.roleTitle,
+            title: existingEmpty.title,
+            status: existingEmpty.status,
+            lastActivityAt: existingEmpty.lastActivityAt,
+            selectedSkills: existingEmpty.selectedSkills,
+            customSkills: existingEmpty.customSkills,
+            currentLearningContext: existingEmpty.currentLearningContext,
+            createdAt: existingEmpty.createdAt,
+            updatedAt: existingEmpty.updatedAt,
+          },
+        })
+      }
+    }
+
     const session = await LearningSession.create({
       firebaseUid,
       roleId,
       roleTitle: roleData?.roleTitle || 'Frontend Developer',
       title,
+      isCustomTitle: false,
       status: 'active',
       lastActivityAt: new Date(),
       selectedSkills: resolvedSkills,
@@ -345,21 +384,47 @@ export async function listConversations(req, res) {
     ])
     const countMap = new Map(counts.map((c) => [c._id.toString(), c.count]))
 
-    return res.status(200).json({
-      success: true,
-      conversations: conversations.map((c) => ({
+    // Phase 3.3.7: Backfill generic titles for conversations that have messages,
+    // and exclude empty unused conversations (messageCount === 0) from sidebar clutter.
+    const populated = []
+    for (const c of conversations) {
+      const msgCount = countMap.get(c._id.toString()) || 0
+      if (msgCount === 0) {
+        continue // Skip empty chats from persistent sidebar history
+      }
+
+      if ((!c.title || c.title === 'New Chat') && !c.isCustomTitle) {
+        const firstUserMsg = await LearningMessage.findOne({
+          sessionId: c._id,
+          role: 'user',
+        }).sort({ createdAt: 1 })
+
+        if (firstUserMsg && firstUserMsg.content) {
+          const activeSkill = c.currentLearningContext?.activeSkill || c.selectedSkills?.[0]?.name || 'Tech'
+          c.title = generateConversationTitle(firstUserMsg.content, activeSkill)
+          await c.save()
+        }
+      }
+
+      populated.push({
         sessionId: c._id,
         roleId: c.roleId,
         roleTitle: c.roleTitle,
         title: c.title || 'Untitled Chat',
+        isCustomTitle: Boolean(c.isCustomTitle),
         status: c.status || 'active',
         lastActivityAt: c.lastActivityAt || c.updatedAt || c.createdAt,
         selectedSkills: c.selectedSkills,
         customSkills: c.customSkills,
         createdAt: c.createdAt,
         updatedAt: c.updatedAt,
-        messageCount: countMap.get(c._id.toString()) || 0,
-      })),
+        messageCount: msgCount,
+      })
+    }
+
+    return res.status(200).json({
+      success: true,
+      conversations: populated,
     })
   } catch (error) {
     console.error('[LearningController] listConversations error:', error)
@@ -404,6 +469,7 @@ export async function renameConversation(req, res) {
     }
 
     session.title = trimmedTitle
+    session.isCustomTitle = true
     session.lastActivityAt = new Date()
     await session.save()
 
@@ -712,16 +778,24 @@ export async function sendLearningMessage(req, res) {
       return res.status(403).json({ error: 'Forbidden: You do not have access to this learning session.' })
     }
 
-    const userMessage = await LearningMessage.create({
-      sessionId: session._id,
-      firebaseUid,
-      role: 'user',
-      content: trimmedContent,
-      type: 'text',
-    })
+    // Phase 3.3.7: Idempotency & duplicate message elimination
+    // If the immediately preceding message is an unanswered user message with the exact same content, reuse it!
+    const lastMsg = await LearningMessage.findOne({ sessionId: session._id }).sort({ createdAt: -1 })
+    let userMessage
+    if (lastMsg && lastMsg.role === 'user' && lastMsg.content.trim() === trimmedContent) {
+      userMessage = lastMsg
+    } else {
+      userMessage = await LearningMessage.create({
+        sessionId: session._id,
+        firebaseUid,
+        role: 'user',
+        content: trimmedContent,
+        type: 'text',
+      })
+    }
 
-    // Auto-Title Generation on first user message if conversation is still 'New Chat'
-    if (!session.title || session.title === 'New Chat') {
+    // Auto-Title Generation on first user message if conversation is still generic and not manually renamed
+    if (!session.isCustomTitle && (!session.title || session.title === 'New Chat')) {
       const activeSkill = session.currentLearningContext?.activeSkill || session.selectedSkills[0]?.name || 'Tech'
       session.title = generateConversationTitle(trimmedContent, activeSkill)
     }
